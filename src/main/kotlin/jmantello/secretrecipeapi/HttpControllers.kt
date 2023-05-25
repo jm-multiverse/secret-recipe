@@ -9,21 +9,21 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController("/api/recipe")
-class RecipeController(private val rs: RecipeService) {
+class RecipeController(private val service: RecipeService) {
 
     @GetMapping("/")
-    fun getRecipes(): Collection<Recipe> = rs.getRecipes()
+    fun getRecipes(): Iterable<Recipe> = service.getRecipes()
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Int): Recipe = rs.getRecipeById(id)
+    fun getRecipeById(@PathVariable id: Long): Recipe? = service.getRecipeById(id)
 
     @PostMapping("/")
-    fun createRecipe(@RequestBody recipe: Recipe) = rs.createRecipe(recipe)
+    fun createRecipe(@RequestBody recipe: Recipe) = service.createRecipe(recipe)
 
     @PutMapping("/{id}")
-    fun updateRecipe(@RequestBody recipe: Recipe) = rs.updateRecipe(recipe)
+    fun updateRecipe(@RequestBody recipe: Recipe) = service.updateRecipe(recipe)
 
     @DeleteMapping("/{id}")
-    fun deleteRecipe(@PathVariable id: Int) = rs.deleteRecipe(id)
+    fun deleteRecipe(@PathVariable id: Long) = service.deleteRecipe(id)
 
 }

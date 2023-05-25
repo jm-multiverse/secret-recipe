@@ -9,7 +9,7 @@ import jakarta.persistence.Id
 class Recipe(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Int,
+    var id: Long,
     var title: String,
     var slug: String = title.toSlug(),
     var content: String,
