@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
+
 @RestController("/api/recipe")
 class RecipeController(private val service: RecipeService) {
 
