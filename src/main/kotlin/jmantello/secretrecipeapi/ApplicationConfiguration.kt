@@ -27,6 +27,8 @@ class ApplicationConfiguration {
                 authorize(anyRequest, permitAll)
             }
             httpBasic { }
+
+            // Csrf token disabled since api does not support users right now. Will be removed when users are added
             csrf {
                 ignoringRequestMatchers(apiPattern)
             }
