@@ -21,10 +21,10 @@ class RecipeController(private val service: RecipeService) {
     fun getRecipeById(@PathVariable id: Long): Recipe? = service.getRecipeById(id)
 
     @PostMapping
-    fun createRecipe(@RequestBody recipe: Recipe) = service.createRecipe(recipe)
+    fun createRecipe(@RequestBody recipe: Recipe): Recipe = service.createRecipe(recipe)
 
     @PutMapping("/{id}")
-    fun updateRecipe(@RequestBody recipe: Recipe) = service.updateRecipe(recipe)
+    fun updateRecipe(@RequestBody recipe: Recipe): Recipe = service.updateRecipe(recipe)
 
     @DeleteMapping("/{id}")
     fun deleteRecipe(@PathVariable id: Long) = service.deleteRecipe(id)

@@ -20,12 +20,16 @@ class ApplicationConfiguration {
     // Security
     @Bean
     fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
+        val apiPattern = "/api/**"
         http {
-            securityMatcher("/api/**")
+            securityMatcher(apiPattern)
             authorizeRequests {
                 authorize(anyRequest, permitAll)
             }
             httpBasic { }
+            csrf {
+                ignoringRequestMatchers(apiPattern)
+            }
         }
         return http.build()
     }
