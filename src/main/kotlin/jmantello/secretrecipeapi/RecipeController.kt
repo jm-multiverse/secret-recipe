@@ -6,19 +6,21 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 
-@RestController("/api/recipe")
+@RestController
+@RequestMapping("/api/recipe")
 class RecipeController(private val service: RecipeService) {
 
-    @GetMapping("/")
+    @GetMapping
     fun getRecipes(): Iterable<Recipe> = service.getRecipes()
 
     @GetMapping("/{id}")
     fun getRecipeById(@PathVariable id: Long): Recipe? = service.getRecipeById(id)
 
-    @PostMapping("/")
+    @PostMapping
     fun createRecipe(@RequestBody recipe: Recipe) = service.createRecipe(recipe)
 
     @PutMapping("/{id}")
