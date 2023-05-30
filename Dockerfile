@@ -8,7 +8,7 @@ RUN ./gradlew bootJar --no-daemon
 
 FROM openjdk:17-jdk-slim
 
-EXPOSE 8080
+EXPOSE 8100
 
 COPY --from=build /build/libs/secret-recipe-api-latest.jar app.jar
 
