@@ -23,7 +23,7 @@ class RecipeController(private val service: RecipeService) {
     @PostMapping
     fun createRecipe(@RequestBody recipe: Recipe): Recipe = service.createRecipe(recipe)
 
-    @PutMapping("/{id}")
+    @PutMapping
     fun updateRecipe(@RequestBody recipe: Recipe): Recipe = service.updateRecipe(recipe)
 
     @DeleteMapping("/{id}")
