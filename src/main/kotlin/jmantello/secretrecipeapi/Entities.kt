@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 @Entity
 class Recipe(
     var title: String,
-    @Column(length = 10000)
+    @Column(length = 5000)
     var content: String,
     var addedAt: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue var id: Long? = null)
