@@ -14,3 +14,11 @@ class Recipe(
     var content: String,
     var addedAt: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue var id: Long? = null)
+
+@Entity
+class User(
+    @Column(unique = true)
+    var email: String,
+    var hashPassword: String, // Look into BCrypt setter & validatePassword fun for User
+    var salt: String,
+    @Id @GeneratedValue var id: Long? = null)
