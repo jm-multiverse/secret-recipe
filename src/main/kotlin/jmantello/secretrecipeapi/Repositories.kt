@@ -7,6 +7,6 @@ interface RecipeRepository : CrudRepository<Recipe, Long> {
     fun findAllByOrderByAddedAtDesc(): Iterable<Recipe>
 }
 
-interface UserRepository : JpaRepository<User, Int> {
+interface UserRepository : CrudRepository<User, Long> {
     fun findByEmail(email: String): User?
 }
