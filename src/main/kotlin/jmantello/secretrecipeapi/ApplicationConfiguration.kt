@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.web.SecurityFilterChain
@@ -29,6 +30,10 @@ class ApplicationConfiguration {
         http {
             securityMatcher(apiPattern)
             authorizeRequests {
+                authorize(HttpMethod.POST,"/api/auth/register", permitAll)
+                authorize(HttpMethod.POST,"/api/auth/login", permitAll)
+                authorize(HttpMethod.GET,"/api/recipe", permitAll)
+                authorize(HttpMethod.GET,"/api/recipe/*", permitAll)
                 authorize(anyRequest, permitAll)
             }
             httpBasic { }
