@@ -7,6 +7,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class ApplicationConfiguration {
@@ -44,5 +47,15 @@ class ApplicationConfiguration {
             }
         }
         return http.build()
+    }
+}
+
+@Configuration
+@EnableWebMvc
+class WebConfig: WebMvcConfigurer {
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("*")
+            .allowCredentials(true)
     }
 }

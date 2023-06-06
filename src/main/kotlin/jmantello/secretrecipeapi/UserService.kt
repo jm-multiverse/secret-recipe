@@ -25,15 +25,15 @@ class UserService(private val userRepository: UserRepository) {
 
     fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
 
-    fun login(dto: UserDTO): ResponseEntity<String> {
+    fun login(dto: UserDTO): User? {
         val user = findByEmail(dto.email)
-            ?: return ResponseEntity.badRequest().body("Invalid credentials")
+            ?: return null
 
-        if(!user.validatePassword(dto.password))
-            return ResponseEntity.badRequest().body("Invalid credentials")
+        val authorized = user.validatePassword(dto.password)
 
-        // Create token here
+        if(!authorized)
+            return  null
 
-        return ResponseEntity.ok("Successfully logged in")
+        return user
     }
 }
