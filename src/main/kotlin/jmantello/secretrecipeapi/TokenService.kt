@@ -11,7 +11,7 @@ class TokenService {
         val jwt = Jwts.builder()
             .setIssuer(userId)
             .setExpiration(Date(System.currentTimeMillis() + 60 * 24 * 1000)) // 1 day
-            .signWith(SignatureAlgorithm.ES512, "secret-key")
+            .signWith(SignatureAlgorithm.HS512, "secret-key")
             .compact()
 
         return jwt

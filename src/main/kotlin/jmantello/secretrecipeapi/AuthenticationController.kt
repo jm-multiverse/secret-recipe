@@ -22,8 +22,8 @@ class AuthenticationController(private val userService: UserService, private val
         val jwt = tokenService.issue(user.id.toString())
         val cookie = Cookie("jwt", jwt)
         cookie.isHttpOnly = true
+        response.addCookie(cookie)
 
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok("Login success")
     }
-
 }
