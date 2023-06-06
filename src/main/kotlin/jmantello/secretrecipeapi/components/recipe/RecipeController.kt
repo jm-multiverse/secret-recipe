@@ -1,5 +1,6 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.components.recipe
 
+import jmantello.secretrecipeapi.RecipeService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,18 +16,18 @@ import org.springframework.web.bind.annotation.RestController
 class RecipeController(private val service: RecipeService) {
 
     @GetMapping
-    fun getRecipes(): Iterable<Recipe> = service.getRecipes()
+    fun get(): Iterable<RecipeModel> = service.get()
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Long): Recipe? = service.getRecipeById(id)
+    fun getById(@PathVariable id: Long): RecipeModel? = service.getById(id)
 
     @PostMapping
-    fun createRecipe(@RequestBody recipe: Recipe): Recipe = service.createRecipe(recipe)
+    fun create(@RequestBody recipe: RecipeModel): RecipeModel = service.create(recipe)
 
     @PutMapping
-    fun updateRecipe(@RequestBody recipe: Recipe): Recipe = service.updateRecipe(recipe)
+    fun update(@RequestBody recipe: RecipeModel): RecipeModel = service.update(recipe)
 
     @DeleteMapping("/{id}")
-    fun deleteRecipe(@PathVariable id: Long) = service.deleteRecipe(id)
+    fun delete(@PathVariable id: Long) = service.delete(id)
 
 }
