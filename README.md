@@ -40,24 +40,24 @@ Unit Testing w/ Jest, Postman, and/or your tools of choice 🧪
 * Send requests to endpoints:
   
   Recipe fields: 
-  id: Long - The id of the recipe stored in the database
-  title: String - The title of the recipe
-  content: String - The instructions for the recipe
-  addedAt: LocalDateTime - The date the recipe was added
+  * id: Long - The id of the recipe stored in the database
+  * title: String - The title of the recipe
+  * content: String - The instructions for the recipe
+  * addedAt: LocalDateTime - The date the recipe was added
   
-  GET /recipe - Gets all recipes
-  GET /recipe/{id} - Get recipe by id
-  POST /recipe - Create a new recipe
-  PUT /recipe - Update recipe (include id in body)
-  DELETE /recipe/{id} - Delete a recipe
+  * GET /recipe - Gets all recipes
+  * GET /recipe/{id} - Get recipe by id
+  * POST /recipe - Create a new recipe
+  * PUT /recipe - Update recipe (include id in body)
+  * DELETE /recipe/{id} - Delete a recipe
   
   User fields: 
-  id: Long - The id of the user stored in the database
-  email: String - The users email
-  password: String - The users password
+  * id: Long - The id of the user stored in the database
+  * email: String - The users email
+  * password: String - The users password
 
-  POST /auth/register - Register a new user
-  POST /auth/login - Log in
+  * POST /auth/register - Register a new user
+  * POST /auth/login - Log in
 
 <div id='conclusions'/>
 
