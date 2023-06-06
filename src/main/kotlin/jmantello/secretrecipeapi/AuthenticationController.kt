@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi
 import io.jsonwebtoken.Jwts
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
+import org.aspectj.bridge.Message
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,6 +31,14 @@ class AuthenticationController(private val userService: UserService, private val
         return ResponseEntity.ok("Login success")
     }
 
+    @PostMapping("logout")
+    fun logout(response: HttpServletResponse): ResponseEntity<Any> {
+        var cookie = Cookie("jwt", "")
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+        return ResponseEntity.ok("Logout success")
+    }
+
     @GetMapping("account")
     fun account(@CookieValue("jwt") jwt: String?): ResponseEntity<Any> {
         try {
@@ -43,7 +52,7 @@ class AuthenticationController(private val userService: UserService, private val
 
             return ResponseEntity.ok(user.email)
         } catch (e: Exception) {
-            return ResponseEntity.badRequest().build()
+            return ResponseEntity.status(401).body("Unauthenticated")
         }
     }
 }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 class Recipe(
     var title: String,
-    @Column(length = 5000)
+    @Column(length = 5000) // @Lob
     var content: String,
     var addedAt: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue var id: Long? = null)
