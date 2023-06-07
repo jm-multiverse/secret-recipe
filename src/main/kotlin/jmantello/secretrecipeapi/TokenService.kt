@@ -2,11 +2,12 @@ package jmantello.secretrecipeapi
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class TokenService {
+class TokenService(private val userService: UserService) {
     fun issue(userId: String): String {
         val jwt = Jwts.builder()
             .setIssuer(userId)
@@ -15,5 +16,15 @@ class TokenService {
             .compact()
 
         return jwt
+    }
+
+    fun parse(jwt: String): User? {
+        return try {
+            val body = Jwts.parser().setSigningKey("secret-key").parseClaimsJws(jwt).body
+            val userId = body.issuer.toLong()
+            userService.findByIdOrNull(userId)
+        } catch (e: Exception) {
+            null
+        }
     }
 }

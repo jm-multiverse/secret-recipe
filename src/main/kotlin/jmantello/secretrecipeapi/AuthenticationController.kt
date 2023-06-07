@@ -41,18 +41,13 @@ class AuthenticationController(private val userService: UserService, private val
 
     @GetMapping("account")
     fun account(@CookieValue("jwt") jwt: String?): ResponseEntity<Any> {
-        try {
-            if(jwt == null)
-                return ResponseEntity.badRequest().build()
+        // Choosing 404 not found over 401 unauthenticated to hide endpoint from unauthenticated requests
+        if(jwt == null)
+            return ResponseEntity.status(404).build()
 
-            val body = Jwts.parser().setSigningKey("secret-key").parseClaimsJws(jwt).body
-            val userId = body.issuer.toLong()
-            val user = userService.findByIdOrNull(userId)
-                ?: return ResponseEntity.badRequest().build()
+        val user = tokenService.parse(jwt)
+            ?: return ResponseEntity.status(404).build()
 
-            return ResponseEntity.ok(user.email)
-        } catch (e: Exception) {
-            return ResponseEntity.status(401).body("Unauthenticated")
-        }
+        return ResponseEntity.ok(user.email)
     }
 }
