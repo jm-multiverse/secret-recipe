@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,18 +16,27 @@ import org.springframework.web.bind.annotation.RestController
 class RecipeController(private val service: RecipeService) {
 
     @GetMapping
-    fun getRecipes(): Iterable<Recipe> = service.getRecipes()
+    fun getRecipes(): ResponseEntity<Any> =
+        ResponseEntity.ok(service.getRecipes())
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Long): Recipe? = service.getRecipeById(id)
+    fun getRecipeById(@PathVariable id: Long): ResponseEntity<Any> {
+        val recipe = service.getRecipeById(id)
+            ?: return ResponseEntity.status(404).body("Recipe with id $id not found.")
+
+        return ResponseEntity.ok(recipe)
+    }
 
     @PostMapping
-    fun createRecipe(@RequestBody recipe: Recipe): Recipe = service.createRecipe(recipe)
+    fun createRecipe(@RequestBody recipe: Recipe): ResponseEntity<Any> =
+        ResponseEntity.status(201).body(service.createRecipe(recipe))
 
     @PutMapping
-    fun updateRecipe(@RequestBody recipe: Recipe): Recipe = service.updateRecipe(recipe)
+    fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<Any> =
+        ResponseEntity.ok(service.updateRecipe(recipe))
 
     @DeleteMapping("/{id}")
-    fun deleteRecipe(@PathVariable id: Long) = service.deleteRecipe(id)
+    fun deleteRecipe(@PathVariable id: Long): ResponseEntity<Any> =
+        ResponseEntity.ok(service.deleteRecipe(id))
 
 }
