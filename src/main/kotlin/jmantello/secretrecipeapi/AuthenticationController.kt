@@ -1,9 +1,7 @@
 package jmantello.secretrecipeapi
 
-import io.jsonwebtoken.Jwts
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import org.aspectj.bridge.Message
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
