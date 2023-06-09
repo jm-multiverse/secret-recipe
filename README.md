@@ -33,31 +33,17 @@ Deployment w/ Render, Railway, or your platform of choice 🚀
 Unit Testing w/ Jest, Postman, and/or your tools of choice 🧪
 <div id='gettingstarted'/>
 
+### Deployed API (Render):
+https://secret-recipe-api.onrender.com/api
+
+### API Documentation (Postman):
+https://documenter.getpostman.com/view/15910732/2s93sc4Chu
+  
 ## Getting started:
-### Deployed page:
-
-* Navigate to https://secret-recipe-api.onrender.com/api
-* Send requests to endpoints:
-  
-  Recipe fields: 
-  * id: Long - The id of the recipe stored in the database
-  * title: String - The title of the recipe
-  * content: String - The instructions for the recipe
-  * addedAt: LocalDateTime - The date the recipe was added
-  
-  * GET /recipe - Gets all recipes
-  * GET /recipe/{id} - Get recipe by id
-  * POST /recipe - Create a new recipe
-  * PUT /recipe - Update recipe (include id in body)
-  * DELETE /recipe/{id} - Delete a recipe
-  
-  User fields: 
-  * id: Long - The id of the user stored in the database
-  * email: String - The users email
-  * password: String - The users password
-
-  * POST /auth/register - Register a new user
-  * POST /auth/login - Log in
+  * Navigate to the API Documentation link above.
+  * Browse requests and copy/paste them however you'd like to call them.
+  * Replace {{secret-recipe-api}} with the Deployed API URL above.
+  * That's it!
 
 <div id='conclusions'/>
 
