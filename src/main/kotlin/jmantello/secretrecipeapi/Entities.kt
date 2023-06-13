@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Entity
 class Recipe(
     var title: String,
-    @Lob // Likely to be longer than 256 characters
+    @Lob // Large Object - Likely to be longer than 256 characters
     var content: String,
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     var addedAt: LocalDateTime = LocalDateTime.now(),
