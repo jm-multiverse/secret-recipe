@@ -1,5 +1,8 @@
 package jmantello.secretrecipeapi
 
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Timer
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +16,14 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/recipe")
-class RecipeController(private val service: RecipeService) {
+class RecipeController(private val service: RecipeService, private val meterRegistry: MeterRegistry) {
+    val requestsCounter: Counter = Counter.builder("requests.count")
+        .tag("controller", "recipe")
+        .register(meterRegistry)
+
+    val processingTime: Timer = Timer.builder("requests.processing.time")
+        .tag("controller", "recipe")
+        .register(meterRegistry)
 
     @GetMapping
     fun getRecipes(): ResponseEntity<Any> =
