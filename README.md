@@ -10,7 +10,7 @@
 
 ## Introduction:
 
-Secret Recipe API is a place where users can register and log in to view, create, edit, and delete, recipes. The tech stack consists of Kotlin Spring Boot and H2 database persistance. 
+Secret Recipe API is a place where users can register and log in to view, create, edit, and delete, recipes. The tech stack consists of Kotlin Spring Boot and H2 in-memory database, along with other Spring dependencies. 
 
 <div id='requirements'>
 
