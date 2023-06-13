@@ -1,0 +1,8 @@
+auth0:
+  audience: dev-ipoahw16nex33s3n.us.auth0.com
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://secret-recipe-api.onrender.com/api
