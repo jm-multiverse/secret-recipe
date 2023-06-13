@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -8,8 +9,9 @@ import java.time.LocalDateTime
 @Entity
 class Recipe(
     var title: String,
-    @Column(length = 5000) // @Lob
+    @Lob // Likely to be longer than 256 characters
     var content: String,
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     var addedAt: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue var id: Long? = null)
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/recipe")
 class RecipeController(private val service: RecipeService, private val meterRegistry: MeterRegistry) {
+    // Define custom metrics
     val requestsCounter: Counter = Counter.builder("requests.count")
         .tag("controller", "recipe")
         .register(meterRegistry)
