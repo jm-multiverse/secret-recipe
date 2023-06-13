@@ -12,15 +12,15 @@ class Recipe(
     @Lob // Large Object - Likely to be longer than 256 characters
     var content: String,
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    var addedAt: LocalDateTime = LocalDateTime.now(),
-    @Id @GeneratedValue var id: Long? = null)
+    val addedAt: LocalDateTime = LocalDateTime.now(),
+    @Id @GeneratedValue val id: Long? = null)
 
 @Entity
 @Table(name="users")
 class User { // Could I make this into a data class?
     @Id
     @GeneratedValue
-    var id: Long? = null
+    val id: Long? = null
 
     @Column(unique = true)
     var email: String = ""
