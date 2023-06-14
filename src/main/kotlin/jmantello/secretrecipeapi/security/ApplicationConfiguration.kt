@@ -1,15 +1,12 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.security
 
+import jmantello.secretrecipeapi.Recipe
+import jmantello.secretrecipeapi.RecipeRepository
+import jmantello.secretrecipeapi.User
+import jmantello.secretrecipeapi.UserRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.web.servlet.config.annotation.CorsRegistry
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class ApplicationConfiguration {
@@ -24,15 +21,5 @@ class ApplicationConfiguration {
         user.email = "email@example.com"
         user.password = "password"
         userRepository.save(user)
-    }
-}
-
-@Configuration
-@EnableWebMvc
-class WebConfig: WebMvcConfigurer {
-    override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**")
-            .allowedOriginPatterns("*")
-            .allowCredentials(true)
     }
 }

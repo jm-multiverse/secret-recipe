@@ -4,7 +4,6 @@
 1. [Introduction](#introduction)
 2. [Project requirements](#requirements)
 3. [Getting started](#gettingstarted)
-4. [Conclusions](#conclusions)
 
 <div id='introduction'/>
 
@@ -44,9 +43,5 @@ https://documenter.getpostman.com/view/15910732/2s93sc4Chu
   * Browse requests and copy/paste them however you'd like to call them.
   * Replace {{secret-recipe-api}} with the Deployed API URL above.
   * That's it!
-
-<div id='conclusions'/>
-
-## Conclusions:
 
 
