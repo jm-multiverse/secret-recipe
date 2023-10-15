@@ -1,5 +1,7 @@
 package jmantello.secretrecipeapi
 
+import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -28,7 +30,16 @@ class RepositoriesTests @Autowired constructor(
 
     @Test
     fun `When findByIdOrNull then return Recipe`() {
-        val burger = Recipe("Cheese Burger", "Burger on grill, flip, add cheese, put on bun, and you're done.")
+        val burger =
+            Recipe(
+                title = "Cheese Burger",
+                content = "Burger on grill, flip, add cheese, put on bun, and you're done.",
+                author = 1,
+                isPrivate = false,
+                tags = mutableListOf("breakfast"),
+                reviews = mutableListOf()
+            )
+
         entityManager.persist(burger)
         entityManager.flush()
 

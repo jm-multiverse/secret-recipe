@@ -8,7 +8,7 @@ import jakarta.persistence.Lob
 import java.time.LocalDateTime
 
 @Entity
-class Recipe(
+class Review(
     @Id
     @GeneratedValue
     val id: Long? = null,
@@ -19,11 +19,8 @@ class Recipe(
     val datePublished: LocalDateTime = LocalDateTime.now(),
 
     var title: String,
-
-    @Lob // Large Object - Likely to be longer than 256 characters
+    var rating: String,
     var content: String,
-
-    val tags: MutableList<String>,
-    val reviews: MutableList<String>,
+    val likes: MutableList<Long>,
     val isPrivate: Boolean,
 )
