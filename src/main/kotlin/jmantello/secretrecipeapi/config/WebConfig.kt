@@ -1,4 +1,4 @@
-package jmantello.secretrecipeapi.security
+package jmantello.secretrecipeapi.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry

@@ -1,5 +1,7 @@
 package jmantello.secretrecipeapi
 
+import jmantello.secretrecipeapi.repository.RecipeRepository
+import jmantello.secretrecipeapi.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +23,8 @@ class SecretRecipeApiApplicationTests {
 class RepositoriesTests @Autowired constructor(
     val entityManager: TestEntityManager,
     val recipeRepository: RecipeRepository,
-    val userRepository: UserRepository) {
+    val userRepository: UserRepository
+) {
 
     @Test
     fun `When findByIdOrNull then return Recipe`() {

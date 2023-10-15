@@ -1,7 +1,8 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.service
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import jmantello.secretrecipeapi.entity.User
 import org.springframework.stereotype.Service
 import java.util.*
 

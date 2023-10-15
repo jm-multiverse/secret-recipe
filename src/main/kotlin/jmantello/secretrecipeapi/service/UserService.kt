@@ -1,5 +1,8 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.service
 
+import jmantello.secretrecipeapi.User
+import jmantello.secretrecipeapi.UserDTO
+import jmantello.secretrecipeapi.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service

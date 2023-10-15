@@ -1,23 +1,13 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.entity
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
-class Recipe(
-    var title: String,
-    @Lob // Large Object - Likely to be longer than 256 characters
-    var content: String,
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    val addedAt: LocalDateTime = LocalDateTime.now(),
-    @Id @GeneratedValue val id: Long? = null)
-
-@Entity
 @Table(name="users")
-class User { // Could I make this into a data class?
+class User {
     @Id
     @GeneratedValue
     val id: Long? = null
@@ -32,6 +22,15 @@ class User { // Could I make this into a data class?
         set(value) {
             field = BCryptPasswordEncoder().encode(value)
         }
+
+    var dateCreated: LocalDateTime = LocalDateTime.now()
+    var displayName: String = ""
+    var isActive: Boolean = true
+    var publishedRecipes: MutableList<String> = mutableListOf()
+    var savedRecipes: MutableList<String> = mutableListOf()
+    var reviews: MutableList<String> = mutableListOf()
+    var followers: MutableList<String> = mutableListOf()
+    var following: MutableList<String> = mutableListOf()
 
     fun validatePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)

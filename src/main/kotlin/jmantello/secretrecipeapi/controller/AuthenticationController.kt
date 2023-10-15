@@ -1,7 +1,10 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
+import jmantello.secretrecipeapi.service.TokenService
+import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,13 +23,13 @@ class AuthenticationController(private val userService: UserService, private val
     fun login(@RequestBody dto: UserDTO, response: HttpServletResponse): ResponseEntity<String> {
         val user = userService.login(dto)
             ?: return ResponseEntity.badRequest().build()
-
-        val jwt = tokenService.issue(user.id.toString())
-        val cookie = Cookie("jwt", jwt)
-        cookie.isHttpOnly = true
-        response.addCookie(cookie)
-
-        return ResponseEntity.ok("Login success")
+//
+//        val jwt = tokenService.issue(user.id.toString())
+//        val cookie = Cookie("jwt", jwt)
+//        cookie.isHttpOnly = true
+//        response.addCookie(cookie)
+//
+//        return ResponseEntity.ok("Login success")
     }
 
     @PostMapping("logout")

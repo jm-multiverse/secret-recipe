@@ -1,5 +1,6 @@
-package jmantello.secretrecipeapi.security
+package jmantello.secretrecipeapi.config
 
+import jmantello.secretrecipeapi.security.AudienceValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

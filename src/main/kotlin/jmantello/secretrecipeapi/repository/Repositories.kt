@@ -1,5 +1,7 @@
-package jmantello.secretrecipeapi
+package jmantello.secretrecipeapi.repository
 
+import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.User
 import org.springframework.data.repository.CrudRepository
 
 interface RecipeRepository : CrudRepository<Recipe, Long> {
