@@ -40,7 +40,7 @@ class SecurityConfig {
             authorizeRequests {
                 authorize(HttpMethod.POST,"/api/auth/register", permitAll)
                 authorize(HttpMethod.POST,"/api/auth/login", permitAll)
-                authorize(anyRequest, authenticated)
+                authorize(anyRequest, permitAll) // authenticated
             }
             httpBasic { }
             oauth2ResourceServer {

@@ -1,13 +1,10 @@
 package jmantello.secretrecipeapi.controller
 
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.service.Result
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CookieValue
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,40 +12,30 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api/auth")
-class AuthenticationController(private val userService: UserService, private val tokenService: TokenService) {
+class AuthenticationController(private val userService: UserService) {
     @PostMapping("register")
-    fun registerUser(@RequestBody dto: UserDTO): ResponseEntity<String> = userService.register(dto)
+    fun registerUser(@RequestBody dto: UserDTO): ResponseEntity<Any> {
+        return when (val result = userService.register(dto)) {
+            is Result.Success -> ResponseEntity.ok(result.data)
+            is Result.Error -> ResponseEntity.badRequest().body(result.message)
+        }
+    }
 
     @PostMapping("login")
     fun login(@RequestBody dto: UserDTO, response: HttpServletResponse): ResponseEntity<String> {
-        val user = userService.login(dto)
-            ?: return ResponseEntity.badRequest().build()
-
-        val jwt = tokenService.issue(user.id.toString())
-        val cookie = Cookie("jwt", jwt)
-        cookie.isHttpOnly = true
-        response.addCookie(cookie)
-
-        return ResponseEntity.ok("Login success")
+        return when (val result = userService.login(dto)) {
+            is Result.Success -> {
+                // Perform additional logic, e.g., create and attach a token as a cookie
+                // For simplicity, I'll just return a success response here
+                ResponseEntity.ok("Login success")
+            }
+            is Result.Error -> ResponseEntity.badRequest().body(result.message)
+        }
     }
 
     @PostMapping("logout")
     fun logout(response: HttpServletResponse): ResponseEntity<Any> {
-        var cookie = Cookie("jwt", "")
-        cookie.maxAge = 0
-        response.addCookie(cookie)
+        // Remove authorization token here
         return ResponseEntity.ok("Logout success")
-    }
-
-    @GetMapping("account")
-    fun account(@CookieValue("jwt") jwt: String?): ResponseEntity<Any> {
-        // Choosing 404 not found over 401 unauthenticated to hide endpoint from unauthenticated requests
-        if(jwt == null)
-            return ResponseEntity.status(404).build()
-
-        val user = tokenService.parse(jwt)
-            ?: return ResponseEntity.status(404).build()
-
-        return ResponseEntity.ok(user.email)
     }
 }

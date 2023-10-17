@@ -15,7 +15,6 @@ class User {
     @Column(unique = true)
     var email: String = ""
 
-    @Column
     var password: String = ""
         @JsonIgnore
         get() = field
@@ -23,10 +22,10 @@ class User {
             field = BCryptPasswordEncoder().encode(value)
         }
 
+    var isActive: Boolean = true
     var isAdmin: Boolean = false
     var dateCreated: LocalDateTime = LocalDateTime.now()
     var displayName: String = ""
-    var isActive: Boolean = true
     var publishedRecipes: MutableList<Long> = mutableListOf()
     var savedRecipes: MutableList<Long> = mutableListOf()
     var reviews: MutableList<Long> = mutableListOf()

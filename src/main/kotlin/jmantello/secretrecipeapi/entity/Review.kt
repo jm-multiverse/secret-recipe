@@ -13,14 +13,13 @@ class Review(
     @GeneratedValue
     val id: Long? = null,
 
-    val author: Long,
-
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: LocalDateTime = LocalDateTime.now(),
 
+    val publisher: Long,
     var title: String,
     var rating: String,
-    var content: String,
+    @Lob var content: String,
     val likes: MutableList<Long>,
     val isPrivate: Boolean,
 )

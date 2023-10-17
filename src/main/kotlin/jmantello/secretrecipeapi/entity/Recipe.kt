@@ -13,17 +13,13 @@ class Recipe(
     @GeneratedValue
     val id: Long? = null,
 
-    val author: Long,
-
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: LocalDateTime = LocalDateTime.now(),
 
+    val publisher: Long,
     var title: String,
-
-    @Lob // Large Object - Likely to be longer than 256 characters
-    var content: String,
-
+    @Lob var content: String,
     val tags: MutableList<String>,
-    val reviews: MutableList<String>,
+    val reviews: MutableList<Long>,
     val isPrivate: Boolean,
 )
