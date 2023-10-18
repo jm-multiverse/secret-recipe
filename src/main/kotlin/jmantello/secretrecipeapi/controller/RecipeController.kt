@@ -29,11 +29,11 @@ class RecipeController(private val service: RecipeService, private val meterRegi
 
     @GetMapping
     fun getRecipes(): ResponseEntity<Any> =
-        ResponseEntity.ok(service.getRecipes())
+        ResponseEntity.ok(service.findAll())
 
     @GetMapping("/{id}")
     fun getRecipeById(@PathVariable id: Long): ResponseEntity<Any> {
-        val recipe = service.getRecipeById(id)
+        val recipe = service.findByIdOrNull(id)
             ?: return ResponseEntity.status(404).body("Recipe with id $id not found.")
 
         return ResponseEntity.ok(recipe)
@@ -41,14 +41,14 @@ class RecipeController(private val service: RecipeService, private val meterRegi
 
     @PostMapping
     fun createRecipe(@RequestBody recipe: Recipe): ResponseEntity<Any> =
-        ResponseEntity.status(201).body(service.createRecipe(recipe))
+        ResponseEntity.status(201).body(service.save(recipe))
 
     @PutMapping
     fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<Any> =
-        ResponseEntity.ok(service.updateRecipe(recipe))
+        ResponseEntity.ok(service.save(recipe))
 
     @DeleteMapping("/{id}")
     fun deleteRecipe(@PathVariable id: Long): ResponseEntity<Any> =
-        ResponseEntity.ok(service.deleteRecipe(id))
+        ResponseEntity.ok(service.deleteById(id))
 
 }

@@ -2,12 +2,18 @@ package jmantello.secretrecipeapi.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import jmantello.secretrecipeapi.service.RecipeService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
 @Table(name="users")
-class User {
+class User() {
+    @Transient
+    @Autowired
+    private lateinit var recipeService: RecipeService
+
     @Id
     @GeneratedValue
     val id: Long? = null
@@ -27,6 +33,8 @@ class User {
     var dateCreated: LocalDateTime = LocalDateTime.now()
     var displayName: String = ""
     var publishedRecipes: MutableList<Long> = mutableListOf()
+        get() = recipeService.
+
     var savedRecipes: MutableList<Long> = mutableListOf()
     var reviews: MutableList<Long> = mutableListOf()
     var followers: MutableList<Long> = mutableListOf()

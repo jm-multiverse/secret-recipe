@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(private val userService: UserService) {
     @GetMapping
     fun getUsers(): ResponseEntity<Any> =
-        ResponseEntity.ok(userService.getUsers())
+        ResponseEntity.ok(userService.findAll())
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): ResponseEntity<Any> {
-        val recipe = userService.getUserById(id)
+        val recipe = userService.findByIdOrNull(id)
             ?: return ResponseEntity.status(404).body("User with id $id not found.")
 
         return ResponseEntity.ok(recipe)
@@ -34,11 +34,16 @@ class UserController(private val userService: UserService) {
     }
 
     @PutMapping
-    fun updateUser(@RequestBody user: User): ResponseEntity<Any> =
-        ResponseEntity.ok(userService.updateUser(user))
+    fun updateUser(@RequestBody user: User): ResponseEntity<Any> {
+        if(userService.isEmailRegistered(user.email))
+            ResponseEntity.ok(userService.save(user))
+
+        return ResponseEntity.badRequest().body("Email: ${user.email} is not associated with a registered account, and so no user exists to be updated.")
+    }
 
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: Long): ResponseEntity<Any> =
-        ResponseEntity.ok(userService.deleteUser(id))
+        ResponseEntity.ok(userService.deleteById(id))
+
 
 }

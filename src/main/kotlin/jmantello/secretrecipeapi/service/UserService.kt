@@ -1,26 +1,23 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
 class UserService(private val userRepository: UserRepository) {
 
-    fun getUsers(): Iterable<User> = userRepository.findAll()
-    fun getUserById(id: Long): User? = userRepository.findByIdOrNull(id)
-    fun updateUser(user: User): User = userRepository.save(user)
-    fun deleteUser(id: Long): Unit = userRepository.deleteById(id)
-    fun emailRegistered(email: String): Boolean = userRepository.findByEmail(email) != null
-    fun findByEmail(email: String): User? = userRepository.findByEmail(email)
+    fun findAll(): Iterable<User> = userRepository.findAll()
     fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
+    fun findByEmail(email: String): User? = userRepository.findByEmail(email)
+    fun save(user: User): User = userRepository.save(user)
+    fun deleteById(id: Long): Unit = userRepository.deleteById(id)
+    fun isEmailRegistered(email: String): Boolean = userRepository.findByEmail(email) != null
 
     fun register(dto: UserDTO): Result<User> {
-        if (emailRegistered(dto.email)) {
+        if (isEmailRegistered(dto.email)) {
             return Result.Error("New users must not use an email associated with an existing account")
         }
 

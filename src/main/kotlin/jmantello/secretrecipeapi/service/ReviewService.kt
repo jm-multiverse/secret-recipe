@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class ReviewService(private val repository: ReviewRepository) {
-    fun getReviews(): Iterable<Review> = repository.findAll()
-    fun getReviewById(id: Long): Review? = repository.findByIdOrNull(id)
-    fun createReview(review: Review): Review = repository.save(review)
-    fun updateReview(review: Review): Review = repository.save(review)
-    fun deleteReview(id: Long): Unit = repository.deleteById(id)
+    fun findAll(): Iterable<Review> = repository.findAll()
+    fun findByIdOrNull(id: Long): Review? = repository.findByIdOrNull(id)
+    fun save(review: Review): Review = repository.save(review)
+    fun deleteById(id: Long): Unit = repository.deleteById(id)
 }

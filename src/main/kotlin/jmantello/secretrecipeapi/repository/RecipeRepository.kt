@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository
 
 interface RecipeRepository : CrudRepository<Recipe, Long> {
     fun findAllByOrderByDatePublishedDesc(): Iterable<Recipe>
+    fun findAllByPublisherId(): MutableList<Recipe>
 }
