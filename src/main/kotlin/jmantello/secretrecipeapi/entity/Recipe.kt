@@ -8,18 +8,18 @@ import jakarta.persistence.Lob
 import java.time.LocalDateTime
 
 @Entity
-class Recipe(
+class Recipe {
     @Id
     @GeneratedValue
-    val id: Long? = null,
+    val id: Long? = null
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    val datePublished: LocalDateTime = LocalDateTime.now(),
+    val datePublished: LocalDateTime = LocalDateTime.now()
 
-    val publisher: Long,
-    var title: String,
-    @Lob var content: String,
-    val tags: MutableList<String>,
-    val reviews: MutableList<Long>,
-    val isPrivate: Boolean,
-)
+    var publisher: Long? = null
+    var title: String = ""
+    @Lob var content: String = ""
+    val tags: MutableList<String> = mutableListOf()
+    val reviews: MutableList<Long> = mutableListOf()
+    var isPrivate: Boolean = false
+}

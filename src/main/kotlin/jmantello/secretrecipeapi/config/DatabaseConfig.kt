@@ -1,8 +1,10 @@
 package jmantello.secretrecipeapi.config
 
 import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
@@ -13,22 +15,42 @@ class DatabaseConfig {
 
     // Database
     @Bean
-    fun databaseInitializer(recipeRepository: RecipeRepository, userRepository: UserRepository) = ApplicationRunner {
+    fun databaseInitializer(
+        recipeRepository: RecipeRepository,
+        userRepository: UserRepository,
+        reviewRepository: ReviewRepository
+    ) = ApplicationRunner {
 
-//        val friedEgg = recipeRepository.save(
-//            Recipe(
-//                title = "Fried Egg",
-//                content = "Heat oil or butter in non-stick pan on medium-high heat. Crack egg into the hot oil, let firm, then swirl in pan to set bottom. After the whites of the egg on top are mostly cooked, flip the egg over in the pan. Cook for another 30 seconds or so, until desired doneness achieved. Voila, your fried egg is ready.",
-//                author = 1,
-//                isPrivate = false,
-//                tags = mutableListOf("breakfast"),
-//                reviews = mutableListOf()
-//            )
-//        )
-//
-//        val user = User()
-//        user.email = "email@example.com"
-//        user.password = "password"
-//        userRepository.save(user)
+        val admin = User()
+        admin.isAdmin = true
+        admin.email = "jmantello@email.com"
+        admin.password = "password"
+        admin.displayName = "The Admin"
+        userRepository.save(admin)
+
+        val user1 = User()
+        user1.email = "user1@email.com"
+        user1.password = "password"
+        userRepository.save(user1)
+
+        val user2 = User()
+        user2.email = "user2@email.com"
+        user2.password = "password"
+        userRepository.save(user2)
+
+        val recipe = Recipe()
+        recipe.publisher = user1.id
+        recipe.title = "Egg Sandwich"
+        recipe.content = "Put an egg between two slices of bread."
+        recipe.tags.add("Snack")
+        recipeRepository.save(recipe)
+
+        val review = Review()
+        review.publisher = user2.id
+        review.title = "Meh."
+        review.content = "Could have used more seasoning, like salt or pepper."
+        review.rating = 3.5
+        reviewRepository.save(review)
+
     }
 }
