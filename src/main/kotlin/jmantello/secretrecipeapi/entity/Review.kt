@@ -1,10 +1,8 @@
 package jmantello.secretrecipeapi.entity
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.Lob
+import com.fasterxml.jackson.annotation.JsonIdentityReference
+import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
@@ -16,7 +14,10 @@ class Review {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: LocalDateTime = LocalDateTime.now()
 
-    var publisherId: Long? = null
+    @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
+    var publisher: User? = null
+
     var title: String = ""
     var rating: Double = 0.0
     @Lob var content: String = ""

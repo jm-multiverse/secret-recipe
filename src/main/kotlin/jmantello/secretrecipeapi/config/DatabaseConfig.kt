@@ -39,14 +39,14 @@ class DatabaseConfig {
         userRepository.save(user2)
 
         val recipe = Recipe()
-        recipe.publisherId = user1.id
+        recipe.publisher = user1
         recipe.title = "Egg Sandwich"
         recipe.content = "Put an egg between two slices of bread."
         recipe.tags.add("Snack")
         recipeRepository.save(recipe)
 
         val review = Review()
-        review.publisherId = user2.id
+        review.publisher = user2
         review.title = "Meh."
         review.content = "Could have used more seasoning, like salt or pepper."
         review.rating = 3.5
