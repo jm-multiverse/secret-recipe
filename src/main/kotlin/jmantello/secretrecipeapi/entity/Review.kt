@@ -16,7 +16,7 @@ class Review {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: LocalDateTime = LocalDateTime.now()
 
-    var publisher: Long? = null
+    var publisherId: Long? = null
     var title: String = ""
     var rating: Double = 0.0
     @Lob var content: String = ""

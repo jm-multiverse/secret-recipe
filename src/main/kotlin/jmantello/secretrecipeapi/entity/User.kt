@@ -32,8 +32,8 @@ class User() {
     var isAdmin: Boolean = false
     var dateCreated: LocalDateTime = LocalDateTime.now()
     var displayName: String = ""
-    var publishedRecipes: MutableList<Long> = mutableListOf()
-        get() = recipeService.
+    var publishedRecipes: MutableList<Recipe> = mutableListOf()
+        get() = recipeService.findAllByUserId(this.id)
 
     var savedRecipes: MutableList<Long> = mutableListOf()
     var reviews: MutableList<Long> = mutableListOf()

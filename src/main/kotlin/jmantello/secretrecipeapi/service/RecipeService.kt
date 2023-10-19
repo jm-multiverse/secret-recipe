@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class RecipeService(private val repository: RecipeRepository) {
     fun findAll(): Iterable<Recipe> = repository.findAll()
     fun findByIdOrNull(id: Long): Recipe? = repository.findByIdOrNull(id)
-    fun findAllByUserId(userId: Long): MutableList<Recipe> = repository.findAllByUserId()
+    fun findAllByUserId(publisherId: Long?): MutableList<Recipe> = repository.findAllByPublisherId(publisherId)
     fun save(recipe: Recipe): Recipe = repository.save(recipe)
     fun deleteById(id: Long): Unit = repository.deleteById(id)
 }
