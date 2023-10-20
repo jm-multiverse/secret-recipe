@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jmantello.secretrecipeapi.service.RecipeService
+import jmantello.secretrecipeapi.service.ReviewService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
@@ -10,13 +11,10 @@ import java.time.LocalDateTime
 @Entity
 @Table(name="users")
 class User() {
-    @Transient
-    @Autowired
-    private lateinit var recipeService: RecipeService
 
     @Id
     @GeneratedValue
-    val id: Long? = null
+    val id: Long = 0
 
     @Column(unique = true)
     var email: String = ""
@@ -32,10 +30,15 @@ class User() {
     var isAdmin: Boolean = false
     var dateCreated: LocalDateTime = LocalDateTime.now()
     var displayName: String = ""
-    var publishedRecipes: MutableList<Long> = mutableListOf()
-        get() = recipeService.
 
-    var savedRecipes: MutableList<Long> = mutableListOf()
+    @ManyToMany
+    @JoinTable(
+        name = "user_saved_recipes",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "recipe_id")]
+    )
+    val savedRecipes: MutableList<Recipe> = mutableListOf()
+
     var reviews: MutableList<Long> = mutableListOf()
     var followers: MutableList<Long> = mutableListOf()
     var following: MutableList<Long> = mutableListOf()
@@ -45,7 +48,13 @@ class User() {
     }
 }
 
-class UserDTO(
+class RegisterUserDTO(
+    var email: String,
+    var password: String,
+    var displayName: String,
+)
+
+class LoginUserDTO(
     var email: String,
     var password: String
 )

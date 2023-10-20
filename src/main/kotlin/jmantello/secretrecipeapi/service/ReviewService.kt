@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service
 class ReviewService(private val repository: ReviewRepository) {
     fun findAll(): Iterable<Review> = repository.findAll()
     fun findByIdOrNull(id: Long): Review? = repository.findByIdOrNull(id)
+    fun findAllByUserId(publisherId: Long?): MutableList<Review> = repository.findAllByPublisherId(publisherId)
+
     fun save(review: Review): Review = repository.save(review)
     fun deleteById(id: Long): Unit = repository.deleteById(id)
 }
