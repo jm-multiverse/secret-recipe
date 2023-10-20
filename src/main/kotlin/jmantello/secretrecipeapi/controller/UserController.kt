@@ -1,7 +1,11 @@
 package jmantello.secretrecipeapi.controller
 
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.entity.LoginUserDTO
+import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.service.RecipeService
+import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -14,22 +18,26 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/user")
-class UserController(private val userService: UserService) {
+@RequestMapping("/api/users")
+class UserController(
+    private val userService: UserService,
+    private val recipeService: RecipeService,
+    private val reviewService: ReviewService
+) {
     @GetMapping
     fun getUsers(): ResponseEntity<Any> =
         ResponseEntity.ok(userService.findAll())
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): ResponseEntity<Any> {
-        val recipe = userService.findByIdOrNull(id)
+        val user = userService.findByIdOrNull(id)
             ?: return ResponseEntity.status(404).body("User with id $id not found.")
 
-        return ResponseEntity.ok(recipe)
+        return ResponseEntity.ok(user)
     }
 
     @PostMapping
-    fun createUser(@RequestBody dto: UserDTO): ResponseEntity<Any> {
+    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<Any> {
         return ResponseEntity.badRequest().body("New users must be registered through the authentication endpoint: 'api/auth/register'.")
     }
 
@@ -44,6 +52,37 @@ class UserController(private val userService: UserService) {
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: Long): ResponseEntity<Any> =
         ResponseEntity.ok(userService.deleteById(id))
+
+    @GetMapping("{id}/published-recipes")
+    fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<List<Recipe>?> {
+        val user = userService.findByIdOrNull(id)
+            ?: return ResponseEntity.notFound().build()
+
+        val recipes = recipeService.findAllPublishedByUserId(user.id)
+        return ResponseEntity.ok(recipes)
+    }
+    @PostMapping("/api/users/{userId}/saveRecipe/{recipeId}")
+    fun saveRecipe(@PathVariable userId: Long, @PathVariable recipeId: Long) {
+        userService.saveRecipeForUser(userId, recipeId)
+    }
+
+    @GetMapping("{id}/saved-recipes")
+    fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<List<Recipe>?> {
+        val user = userService.findByIdOrNull(id)
+            ?: return ResponseEntity.notFound().build()
+
+        val recipes = recipeService.findAllSavedByUserId(user.id)
+        return ResponseEntity.ok(recipes)
+    }
+
+    @GetMapping("{id}/reviews")
+    fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<List<Review>?> {
+        val user = userService.findByIdOrNull(id)
+            ?: return ResponseEntity.notFound().build()
+
+        val reviews = reviewService.findAllByUserId(user.id)
+        return ResponseEntity.ok(reviews)
+    }
 
 
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/review")
+@RequestMapping("/api/reviews")
 class ReviewController(private val service: ReviewService) {
     @GetMapping
     fun getReviews(): ResponseEntity<Any> =

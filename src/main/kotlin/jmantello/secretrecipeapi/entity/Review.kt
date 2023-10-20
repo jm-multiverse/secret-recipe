@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class Review {
     @Id
     @GeneratedValue
-    val id: Long? = null
+    val id: Long = 0
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: LocalDateTime = LocalDateTime.now()
