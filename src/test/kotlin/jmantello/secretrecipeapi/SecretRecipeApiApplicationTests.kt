@@ -24,8 +24,8 @@ class SecretRecipeApiApplicationTests {
 @DataJpaTest
 class RepositoriesTests @Autowired constructor(
     val entityManager: TestEntityManager,
+    val userRepository: UserRepository,
     val recipeRepository: RecipeRepository,
-    val userRepository: UserRepository
 ) {
 
     @Test
@@ -60,3 +60,4 @@ class RepositoriesTests @Autowired constructor(
 //        assertThat(found).isEqualTo(user)
     }
 }
+

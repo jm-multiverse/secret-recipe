@@ -28,3 +28,9 @@ class Recipe() {
     val reviews: MutableList<Long> = mutableListOf()
     var isPrivate: Boolean = false
 }
+
+class RecipeRequest(
+    val publisherId: Long,
+    val title: String,
+    val content: String,
+)
