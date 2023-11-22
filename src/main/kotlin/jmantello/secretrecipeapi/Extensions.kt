@@ -34,8 +34,15 @@ fun String.toSlug() = lowercase(Locale.getDefault())
     .joinToString("-")
     .replace("-+".toRegex(), "-")
 
-fun resourceCreated(result: Any) =
-    ResponseEntity.status(HttpStatus.CREATED).body(result)
+class ResponseEntity {
+    companion object {
+        fun created(result: Any): ResponseEntity<Any> =
+            ResponseEntity.status(HttpStatus.CREATED).body(result)
 
-fun resourceNotFound(message: String): ResponseEntity<Any> =
-    ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
+        fun notFound(message: String): ResponseEntity<Any> =
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
+
+        fun badRequest(message: String): ResponseEntity<Any> =
+            ResponseEntity.badRequest().body(message)
+    }
+}
