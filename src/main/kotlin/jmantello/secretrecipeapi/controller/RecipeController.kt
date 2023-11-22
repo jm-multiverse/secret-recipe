@@ -9,6 +9,8 @@ import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
 import jmantello.secretrecipeapi.entity.RecipeRequest
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.Result
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -33,11 +35,10 @@ class RecipeController(private val service: RecipeService, private val meterRegi
         .register(meterRegistry)
 
     @GetMapping
-    fun getRecipes(): ResponseEntity<Any> =
-        ok(service.findAll())
+    fun getRecipes(): ResponseEntity<out Any> = ok(service.findAll())
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Long): ResponseEntity<Any> {
+    fun getRecipeById(@PathVariable id: Long): ResponseEntity<out Any> {
         val recipe = service.findByIdOrNull(id)
             ?: return notFound("Recipe with id $id not found.")
 
@@ -46,7 +47,7 @@ class RecipeController(private val service: RecipeService, private val meterRegi
 
     @PostMapping
     @PutMapping
-    fun saveRecipe(@RequestBody recipeRequest: RecipeRequest): ResponseEntity<Any> {
+    fun saveRecipe(@RequestBody recipeRequest: RecipeRequest): ResponseEntity<out Any> {
         return when(val result = service.save(recipeRequest)) {
             is Result.Success -> created(result)
             is Result.Error -> badRequest(result.message)
@@ -54,7 +55,6 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     }
 
     @DeleteMapping("/{id}")
-    fun deleteRecipe(@PathVariable id: Long): ResponseEntity<Any> =
-        ok(service.deleteById(id))
+    fun deleteRecipe(@PathVariable id: Long): ResponseEntity<out Any> = ok(service.deleteById(id))
 
 }

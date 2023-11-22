@@ -36,13 +36,13 @@ fun String.toSlug() = lowercase(Locale.getDefault())
 
 class ResponseEntity {
     companion object {
-        fun created(result: Any): ResponseEntity<Any> =
+        fun created(result: Any) =
             ResponseEntity.status(HttpStatus.CREATED).body(result)
 
-        fun notFound(message: String): ResponseEntity<Any> =
+        fun notFound(message: String) =
             ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
 
-        fun badRequest(message: String): ResponseEntity<Any> =
+        fun badRequest(message: String) =
             ResponseEntity.badRequest().body(message)
     }
 }
