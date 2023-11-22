@@ -28,7 +28,7 @@ class User() {
 
     var isActive: Boolean = true
     var isAdmin: Boolean = false
-    var dateCreated: LocalDateTime = LocalDateTime.now()
+    var dateCreated: String = LocalDateTime.now().toString()
     var displayName: String = ""
 
     @ManyToMany

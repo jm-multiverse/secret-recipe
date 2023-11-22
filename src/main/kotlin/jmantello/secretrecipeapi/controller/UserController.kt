@@ -46,7 +46,7 @@ class UserController(
         if(userService.isEmailRegistered(user.email))
             ResponseEntity.ok(userService.save(user))
 
-        return ResponseEntity.badRequest().body("Email: ${user.email} is not associated with a registered account, and so no user exists to be updated.")
+        return ResponseEntity.badRequest().body("Email: ${user.email} is not associated with a registered account, so no user exists to be updated.")
     }
 
     @DeleteMapping("/{id}")

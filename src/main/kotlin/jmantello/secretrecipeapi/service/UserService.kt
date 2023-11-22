@@ -10,11 +10,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
-sealed class Result<out T> {
-    data class Success<T>(val data: T) : Result<T>()
-    data class Error(val message: String) : Result<Nothing>()
-}
-
 class UserNotFoundException(userId: Long) : ResourceNotFoundException("User with ID $userId not found")
 
 @Service
@@ -61,8 +56,11 @@ class UserService(
     fun saveRecipeForUser(userId: Long, recipeId: Long) {
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val recipe = recipeRepository.findById(recipeId).orElseThrow { RecipeNotFoundException(recipeId) }
-        user.savedRecipes.add(recipe)
-        userRepository.save(user)
+
+        if (!user.savedRecipes.contains(recipe)) {
+            user.savedRecipes.add(recipe)
+            userRepository.save(user)
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-# Multiverse Back-End Project 1
+ # Secret Recipe API
 ## Table of Contents
 
 1. [Introduction](#introduction)

@@ -1,5 +1,7 @@
 package jmantello.secretrecipeapi
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
@@ -31,3 +33,9 @@ fun String.toSlug() = lowercase(Locale.getDefault())
     .split(" ")
     .joinToString("-")
     .replace("-+".toRegex(), "-")
+
+fun resourceCreated(result: Any) =
+    ResponseEntity.status(HttpStatus.CREATED).body(result)
+
+fun resourceNotFound(message: String) =
+    ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
