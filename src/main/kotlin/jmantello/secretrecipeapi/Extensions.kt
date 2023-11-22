@@ -37,5 +37,5 @@ fun String.toSlug() = lowercase(Locale.getDefault())
 fun resourceCreated(result: Any) =
     ResponseEntity.status(HttpStatus.CREATED).body(result)
 
-fun resourceNotFound(message: String) =
+fun resourceNotFound(message: String): ResponseEntity<Any> =
     ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
