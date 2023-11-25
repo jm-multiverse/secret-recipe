@@ -6,11 +6,10 @@ import io.micrometer.core.instrument.Timer
 import jmantello.secretrecipeapi.ResponseEntity.Companion.badRequest
 import jmantello.secretrecipeapi.ResponseEntity.Companion.created
 import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
-import jmantello.secretrecipeapi.entity.RecipeRequest
+import jmantello.secretrecipeapi.entity.CreateRecipeRequest
+import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.Result
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -46,10 +45,17 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     }
 
     @PostMapping
-    @PutMapping
-    fun saveRecipe(@RequestBody recipeRequest: RecipeRequest): ResponseEntity<out Any> {
-        return when(val result = service.save(recipeRequest)) {
+    fun createRecipe(@RequestBody recipeRequest: CreateRecipeRequest): ResponseEntity<out Any> {
+        return when(val result = service.create(recipeRequest)) {
             is Result.Success -> created(result)
+            is Result.Error -> badRequest(result.message)
+        }
+    }
+
+    @PutMapping
+    fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<out Any> {
+        return when(val result = service.update(recipe)) {
+            is Result.Success -> ok(result)
             is Result.Error -> badRequest(result.message)
         }
     }

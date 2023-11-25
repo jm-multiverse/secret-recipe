@@ -24,3 +24,10 @@ class Review {
     val likes: MutableList<Long> = mutableListOf()
     var isPrivate: Boolean = false
 }
+
+class PublishReviewRequest(
+    val publisherId: Long,
+    val title: String,
+    val rating: Double,
+    val content: String,
+)
