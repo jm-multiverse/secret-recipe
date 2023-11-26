@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val junit_jupiter_version = "5.10.1"
+
 plugins {
 	id("org.springframework.boot") version "3.0.7"
 	id("io.spring.dependency-management") version "1.1.0"
@@ -34,16 +36,13 @@ dependencies {
 	implementation("org.springframework.security:spring-security-config")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-
 	runtimeOnly("com.h2database:h2")
-
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.mockito", module = "mockito-core")
 	}
-	testImplementation("io.mockk:mockk:1.4.1")
-
+	testImplementation(kotlin("test"))
+	testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }
 
 tasks.withType<KotlinCompile> {
