@@ -1,10 +1,8 @@
 package jmantello.secretrecipeapi.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.service.RecipeService
-import jmantello.secretrecipeapi.service.ReviewService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
@@ -26,8 +24,12 @@ class User() {
             field = BCryptPasswordEncoder().encode(value)
         }
 
+    @JsonProperty("isActive")
     var isActive: Boolean = true
+
+    @JsonProperty("isAdmin")
     var isAdmin: Boolean = false
+
     var dateCreated: String = LocalDateTime.now().toString()
     var displayName: String = ""
 
@@ -37,7 +39,7 @@ class User() {
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "recipe_id")]
     )
-    val savedRecipes: MutableList<Recipe> = mutableListOf()
+    var savedRecipes: MutableList<Recipe> = mutableListOf()
 
     var reviews: MutableList<Long> = mutableListOf()
     var followers: MutableList<Long> = mutableListOf()
