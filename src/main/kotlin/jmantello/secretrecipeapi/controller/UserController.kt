@@ -1,13 +1,13 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.LoginUserDTO
-import jmantello.secretrecipeapi.entity.Recipe
-import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.ResponseEntity.Companion.badRequest
+import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
+import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,64 +25,61 @@ class UserController(
     private val reviewService: ReviewService
 ) {
     @GetMapping
-    fun getUsers(): ResponseEntity<Any> =
-        ResponseEntity.ok(userService.findAll())
+    fun getUsers(): ResponseEntity<Any> = ok(userService.findAll())
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: Long): ResponseEntity<Any> {
+    fun getUserById(@PathVariable id: Long): ResponseEntity<out Any> {
         val user = userService.findByIdOrNull(id)
-            ?: return ResponseEntity.status(404).body("User with id $id not found.")
+            ?: return notFound("User with id $id not found.")
 
-        return ResponseEntity.ok(user)
+        return ok(user)
     }
 
     @PostMapping
-    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<Any> {
-        return ResponseEntity.badRequest().body("New users must be registered through the authentication endpoint: 'api/auth/register'.")
-    }
+    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<out Any> =
+        badRequest("New users must be registered through the authentication endpoint: 'api/auth/register'.")
 
     @PutMapping
-    fun updateUser(@RequestBody user: User): ResponseEntity<Any> {
+    fun updateUser(@RequestBody user: User): ResponseEntity<out Any> {
         if(userService.isEmailRegistered(user.email))
-            ResponseEntity.ok(userService.save(user))
+            ok(userService.save(user))
 
-        return ResponseEntity.badRequest().body("Email: ${user.email} is not associated with a registered account, so no user exists to be updated.")
+        return badRequest("Email: ${user.email} is not associated with a registered account, so no user exists to be updated.")
     }
 
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable id: Long): ResponseEntity<Any> =
-        ResponseEntity.ok(userService.deleteById(id))
+    fun deleteUser(@PathVariable id: Long): ResponseEntity<out Any> =
+        ok(userService.deleteById(id))
 
     @GetMapping("{id}/published-recipes")
-    fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<List<Recipe>?> {
+    fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<out Any> {
         val user = userService.findByIdOrNull(id)
-            ?: return ResponseEntity.notFound().build()
+            ?: return notFound("User with id $id not found.")
 
         val recipes = recipeService.findAllPublishedByUserId(user.id)
-        return ResponseEntity.ok(recipes)
+
+        return ok(recipes)
     }
-    @PostMapping("/api/users/{userId}/saveRecipe/{recipeId}")
-    fun saveRecipe(@PathVariable userId: Long, @PathVariable recipeId: Long) {
-        userService.saveRecipeForUser(userId, recipeId)
+    @PostMapping("/{userId}/save-recipe/{recipeId}")
+    fun saveRecipe(@PathVariable userId: Long, @PathVariable recipeId: Long): ResponseEntity<out Any> {
+        return ok(userService.saveRecipeForUser(userId, recipeId))
     }
 
     @GetMapping("{id}/saved-recipes")
-    fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<List<Recipe>?> {
+    fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<out Any> {
         val user = userService.findByIdOrNull(id)
-            ?: return ResponseEntity.notFound().build()
+            ?: return notFound("User with id $id not found.")
 
         val recipes = recipeService.findAllSavedByUserId(user.id)
-        return ResponseEntity.ok(recipes)
+        return ok(recipes)
     }
 
     @GetMapping("{id}/reviews")
-    fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<List<Review>?> {
+    fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<out Any> {
         val user = userService.findByIdOrNull(id)
-            ?: return ResponseEntity.notFound().build()
+            ?: return notFound("User with id $id not found.")
 
-        val reviews = reviewService.findAllByUserId(user.id)
-        return ResponseEntity.ok(reviews)
+        val reviews = reviewService.findAllPublishedByUserId(user.id)
+        return ok(reviews)
     }
-
-
 }

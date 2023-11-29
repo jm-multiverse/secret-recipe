@@ -19,7 +19,6 @@ class UserService(
 ) {
 
     fun findAll(): Iterable<User> = userRepository.findAll()
-    fun findById(id: Long): Optional<User> = userRepository.findById(id)
     fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
     fun save(user: User): User = userRepository.save(user)

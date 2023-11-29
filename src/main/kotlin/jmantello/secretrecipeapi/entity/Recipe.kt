@@ -29,7 +29,7 @@ class Recipe() {
     var isPrivate: Boolean = false
 }
 
-class RecipeRequest(
+class CreateRecipeRequest(
     val publisherId: Long,
     val title: String,
     val content: String,
