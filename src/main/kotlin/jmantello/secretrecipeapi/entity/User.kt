@@ -17,9 +17,8 @@ class User() {
     @Column(unique = true)
     var email: String = ""
 
+    @JsonIgnore
     var password: String = ""
-        @JsonIgnore
-        get() = field
         set(value) {
             field = BCryptPasswordEncoder().encode(value)
         }
