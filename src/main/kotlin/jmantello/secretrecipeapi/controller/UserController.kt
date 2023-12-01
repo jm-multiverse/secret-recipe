@@ -42,7 +42,7 @@ class UserController(
     @PutMapping
     fun updateUser(@RequestBody user: User): ResponseEntity<out Any> {
         if(userService.isEmailRegistered(user.email))
-            ok(userService.save(user))
+            return ok(userService.save(user))
 
         return badRequest("Email: ${user.email} is not associated with a registered account, so no user exists to be updated.")
     }

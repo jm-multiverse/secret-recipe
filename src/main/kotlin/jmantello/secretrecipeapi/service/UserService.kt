@@ -23,7 +23,8 @@ class UserService(
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
     fun save(user: User): User = userRepository.save(user)
     fun deleteById(id: Long): Unit = userRepository.deleteById(id)
-    fun isEmailRegistered(email: String): Boolean = userRepository.findByEmail(email) != null
+    fun isEmailRegistered(email: String): Boolean =
+        userRepository.findByEmail(email) != null
 
     fun register(dto: RegisterUserDTO): Result<User> {
         if (isEmailRegistered(dto.email)) {

@@ -49,7 +49,6 @@ class AuthControllerIntegrationTest {
         val testUser: User = objectMapper.readValue(registerResponse.body!!)
         assertEquals(testUserEmail, testUser.email)
         assertEquals(testUserDisplayName, testUser.displayName)
-        // TODO: assertTrue { testUser.validatePassword(testUserPassword) }
 
         // Login
         val loginUrl = endpointBuilder.login
