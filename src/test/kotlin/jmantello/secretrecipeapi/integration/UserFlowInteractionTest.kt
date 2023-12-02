@@ -22,6 +22,7 @@ class UserFlowInteractionTest {
     @Test
     @Order(1)
     fun testUserRegistration() {
+        // Post Request
         val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
@@ -41,6 +42,7 @@ class UserFlowInteractionTest {
 
     @Test
     fun testUserLogin() {
+        // Post Request
         val loginUrl = endpoints.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
@@ -57,11 +59,13 @@ class UserFlowInteractionTest {
 
     @Test
     fun testUpdateAccount() {
+        // Change Test User
         val updateUrl = endpoints.users
         val changedDisplayName = "test changed display name"
 
         testUser.displayName = changedDisplayName
 
+        // Put Request
         val requestEntity = HttpEntity(testUser)
         val updateResponse: ResponseEntity<String> = restTemplate.exchange(
             updateUrl,
@@ -78,12 +82,45 @@ class UserFlowInteractionTest {
 
     @Test
     fun testPublishRecipes() {
-        // ... test publishing recipes
+        // TODO: Create more than one recipe request
+
+        // Create Recipe Request
+        val publisherId = testUser.id
+        val title = "Cheese Steak Sandwich"
+        val content = "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
+        val createRecipeRequest = CreateRecipeRequest(
+            publisherId,
+            title,
+            content
+        )
+
+        // Post Request
+        val requestEntity = HttpEntity(createRecipeRequest)
+        val postResponse: ResponseEntity<String> = restTemplate.exchange(
+            publishUrl,
+            HttpMethod.POST,
+            requestEntity,
+            String::class.java
+        )
+        assertEquals(HttpStatus.CREATED, postResponse.statusCode)
+
+        // Deserialize Response
+        val createdRecipe: Recipe = objectMapper.readValue(postResponse.body!!)
+        assertEquals(publisherId, createdRecipe.publisher!!.id)
+        assertEquals(title, createdRecipe.title)
+        assertEquals(content, createdRecipe.content)
     }
 
     @Test
     fun testGetPublishedRecipes() {
-        // ... test getting user's published recipes
+        val publishedRecipesUrl = endpoints.publishedRecipes(publisherId)
+        val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
+            publishedRecipesUrl,
+            mutableListOf<Recipe>()
+        )
+
+        val usersRecipes =  getPublishedRecipesResponse.body!!
+        // TODO: Test results from getting users recipes.
     }
 
     @Test
