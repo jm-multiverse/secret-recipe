@@ -22,12 +22,32 @@ class UserFlowInteractionTest {
     @Test
     @Order(1)
     fun testUserRegistration() {
-        // ... test user registration
+        val registerUrl = endpoints.register
+        val registerRequestBody = RegisterUserDTO(
+            testUserEmail,
+            testUserPassword,
+            testUserDisplayName
+        )
+        val registerResponse: ResponseEntity<String> = restTemplate.postForEntity(registerUrl, registerRequestBody, String::class.java)
+        assertEquals(HttpStatus.CREATED, registerResponse.statusCode)
+
+        // Deserialize User
+        val testUser: User = objectMapper.readValue(registerResponse.body!!)
+        assertEquals(testUserEmail, testUser.email)
+        assertEquals(testUserDisplayName, testUser.displayName)
+
+        this.testUser = testUser
     }
 
     @Test
     fun testUserLogin() {
-        // ... test user login
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserDTO(
+            testUserEmail,
+            testUserPassword
+        )
+        val loginResponse: ResponseEntity<String> = restTemplate.postForEntity(loginUrl, loginRequestBody, String::class.java)
+        assertEquals(HttpStatus.OK, loginResponse.statusCode)
     }
 
     @Test
@@ -37,7 +57,23 @@ class UserFlowInteractionTest {
 
     @Test
     fun testUpdateAccount() {
-        // ... test updating user account
+        val updateUrl = endpoints.users
+        val changedDisplayName = "test changed display name"
+
+        testUser.displayName = changedDisplayName
+
+        val requestEntity = HttpEntity(testUser)
+        val updateResponse: ResponseEntity<String> = restTemplate.exchange(
+            updateUrl,
+            HttpMethod.PUT,
+            requestEntity,
+            String::class.java
+        )
+        assertEquals(HttpStatus.OK, updateResponse.statusCode)
+
+        // Deserialize response
+        val changedUser: User = objectMapper.readValue(updateResponse.body!!)
+        assertEquals(changedDisplayName, changedUser.displayName)
     }
 
     @Test

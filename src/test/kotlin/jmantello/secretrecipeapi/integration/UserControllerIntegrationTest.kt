@@ -78,7 +78,5 @@ class UserControllerIntegrationTest {
         val changedUser: User = objectMapper.readValue(updateResponse.body!!)
         assertEquals(changedDisplayName, changedUser.displayName)
 
-
     }
-
 }
