@@ -47,7 +47,7 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     @PostMapping
     fun createRecipe(@RequestBody recipeRequest: CreateRecipeRequest): ResponseEntity<out Any> {
         return when(val result = service.create(recipeRequest)) {
-            is Result.Success -> created(result)
+            is Result.Success -> created(result.data)
             is Result.Error -> badRequest(result.message)
         }
     }

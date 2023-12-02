@@ -11,6 +11,7 @@ class EndpointBuilder(val host: String, val port: Int) {
 
     // Users
     val users = "$baseUrl/api/users"
+    fun publishedRecipes(publisherId: Long) = "$users/$publisherId/published-recipes"
 
     // Recipes
     val recipes = "$baseUrl/api/recipes"

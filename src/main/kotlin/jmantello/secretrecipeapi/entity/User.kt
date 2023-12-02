@@ -23,6 +23,8 @@ class User() {
             field = BCryptPasswordEncoder().encode(value)
         }
 
+    var displayName: String = ""
+
     @JsonProperty("isActive")
     var isActive: Boolean = true
 
@@ -30,7 +32,6 @@ class User() {
     var isAdmin: Boolean = false
 
     var dateCreated: String = LocalDateTime.now().toString()
-    var displayName: String = ""
 
     @ManyToMany
     @JoinTable(
@@ -58,4 +59,12 @@ class RegisterUserDTO(
 class LoginUserDTO(
     var email: String,
     var password: String
+)
+
+class UserResponseDTO(
+    var id: Long,
+    var email: String,
+    var displayName: String,
+    var isAdmin: Boolean,
+    var dateCreated: String,
 )
