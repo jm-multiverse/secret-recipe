@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import jmantello.secretrecipeapi.entity.LoginUserDTO
 import jmantello.secretrecipeapi.entity.RegisterUserDTO
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.util.Endpoint
+import jmantello.secretrecipeapi.util.Endpoints
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +23,7 @@ class UserControllerIntegrationTest {
     @LocalServerPort
     private var port: Int = 0
     private val host: String = "http://localhost"
-    private val endpoint: Endpoint by lazy { Endpoint(host, port) }
+    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -35,11 +35,11 @@ class UserControllerIntegrationTest {
 
     @Test
     fun testUpdateUser() {
-        val updateUrl = endpoint.users
+        val updateUrl = endpoints.users
         val changedDisplayName = "test changed display name"
 
         // Register
-        val registerUrl = endpoint.register
+        val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
@@ -54,7 +54,7 @@ class UserControllerIntegrationTest {
         assertEquals(testUserDisplayName, testUser.displayName)
 
         // Login
-        val loginUrl = endpoint.login
+        val loginUrl = endpoints.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword

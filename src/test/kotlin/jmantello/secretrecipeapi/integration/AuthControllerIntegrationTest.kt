@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import jmantello.secretrecipeapi.entity.LoginUserDTO
 import jmantello.secretrecipeapi.entity.RegisterUserDTO
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.util.Endpoint
+import jmantello.secretrecipeapi.util.Endpoints
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class AuthControllerIntegrationTest {
     @LocalServerPort
     private var port: Int = 0
     private var host: String = "http://localhost"
-    private val endpoint: Endpoint by lazy { Endpoint(host, port) }
+    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -34,7 +34,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun testRegisterLoginLogout() {
         // Register
-        val registerUrl = endpoint.register
+        val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
@@ -49,7 +49,7 @@ class AuthControllerIntegrationTest {
         assertEquals(testUserDisplayName, testUser.displayName)
 
         // Login
-        val loginUrl = endpoint.login
+        val loginUrl = endpoints.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
@@ -58,7 +58,7 @@ class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.OK, loginResponse.statusCode)
 
         // Logout
-        val logoutUrl = endpoint.logout
+        val logoutUrl = endpoints.logout
         val logoutResponse: ResponseEntity<String> = restTemplate.postForEntity(logoutUrl, null, String::class.java)
         assertEquals(HttpStatus.OK, logoutResponse.statusCode)
     }

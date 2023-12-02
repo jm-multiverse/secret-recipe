@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.integration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import jmantello.secretrecipeapi.entity.*
-import jmantello.secretrecipeapi.util.Endpoint
+import jmantello.secretrecipeapi.util.Endpoints
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +22,7 @@ class RecipeControllerIntegrationTest {
     @LocalServerPort
     private var port: Int = 0
     private val host: String = "http://localhost"
-    private val endpoint: Endpoint by lazy { Endpoint(host, port) }
+    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -34,10 +34,10 @@ class RecipeControllerIntegrationTest {
 
     @Test
     fun testPublishRecipe() {
-        val publishUrl = endpoint.recipes
+        val publishUrl = endpoints.recipes
 
         // Register
-        val registerUrl = endpoint.register
+        val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
@@ -52,7 +52,7 @@ class RecipeControllerIntegrationTest {
         assertEquals(testUserDisplayName, testUser.displayName)
 
         // Login
-        val loginUrl = endpoint.login
+        val loginUrl = endpoints.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
@@ -86,7 +86,7 @@ class RecipeControllerIntegrationTest {
         assertEquals(title, createdRecipe.title)
         assertEquals(content, createdRecipe.content)
 
-        val publishedRecipesUrl = endpoint.publishedRecipes(publisherId)
+        val publishedRecipesUrl = endpoints.publishedRecipes(publisherId)
         val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
             publishedRecipesUrl,
             mutableListOf<Recipe>()
