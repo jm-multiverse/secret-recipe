@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -69,6 +70,7 @@ class RecipeControllerIntegrationTest {
             content
         )
 
+        // Post request
         val requestEntity = HttpEntity(createRecipeRequest)
         val postResponse: ResponseEntity<String> = restTemplate.exchange(
             publishUrl,
@@ -80,10 +82,17 @@ class RecipeControllerIntegrationTest {
 
         // Deserialize response
         val createdRecipe: Recipe = objectMapper.readValue(postResponse.body!!)
-        assertEquals(publisherId, createdRecipe.publisher?.id ?: false)
+        assertEquals(publisherId, createdRecipe.publisher!!.id)
         assertEquals(title, createdRecipe.title)
         assertEquals(content, createdRecipe.content)
 
-    }
+        val publishedRecipesUrl = endpointBuilder.publishedRecipes(publisherId)
+        val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
+            publishedRecipesUrl,
+            mutableListOf<Recipe>()
+        )
 
+        val usersRecipes =  getPublishedRecipesResponse.body!!
+        // TODO: Test results from getting users recipes.
+    }
 }
