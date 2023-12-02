@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.util
 
-class EndpointBuilder(val host: String, val port: Int) {
+class Endpoints(val host: String, val port: Int) {
     val baseUrl = "$host:$port"
 
     // Auth
