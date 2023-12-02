@@ -19,7 +19,6 @@ import kotlin.test.assertTrue
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthControllerIntegrationTest {
 
-
     @LocalServerPort
     private var port: Int = 0
     private var host: String = "http://localhost"
