@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import jmantello.secretrecipeapi.entity.LoginUserDTO
 import jmantello.secretrecipeapi.entity.RegisterUserDTO
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.util.EndpointBuilder
+import jmantello.secretrecipeapi.util.Endpoint
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +14,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import kotlin.test.assertTrue
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthControllerIntegrationTest {
@@ -22,7 +21,7 @@ class AuthControllerIntegrationTest {
     @LocalServerPort
     private var port: Int = 0
     private var host: String = "http://localhost"
-    private val endpointBuilder: EndpointBuilder by lazy { EndpointBuilder(host, port) }
+    private val endpoint: Endpoint by lazy { Endpoint(host, port) }
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -35,7 +34,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun testRegisterLoginLogout() {
         // Register
-        val registerUrl = endpointBuilder.register
+        val registerUrl = endpoint.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
@@ -50,7 +49,7 @@ class AuthControllerIntegrationTest {
         assertEquals(testUserDisplayName, testUser.displayName)
 
         // Login
-        val loginUrl = endpointBuilder.login
+        val loginUrl = endpoint.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
@@ -59,7 +58,7 @@ class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.OK, loginResponse.statusCode)
 
         // Logout
-        val logoutUrl = endpointBuilder.logout
+        val logoutUrl = endpoint.logout
         val logoutResponse: ResponseEntity<String> = restTemplate.postForEntity(logoutUrl, null, String::class.java)
         assertEquals(HttpStatus.OK, logoutResponse.statusCode)
     }

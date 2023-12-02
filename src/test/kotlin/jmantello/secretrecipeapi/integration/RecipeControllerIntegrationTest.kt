@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.integration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import jmantello.secretrecipeapi.entity.*
-import jmantello.secretrecipeapi.util.EndpointBuilder
+import jmantello.secretrecipeapi.util.Endpoint
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +22,7 @@ class RecipeControllerIntegrationTest {
     @LocalServerPort
     private var port: Int = 0
     private val host: String = "http://localhost"
-    private val endpointBuilder: EndpointBuilder by lazy { EndpointBuilder(host, port) }
+    private val endpoint: Endpoint by lazy { Endpoint(host, port) }
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -34,10 +34,10 @@ class RecipeControllerIntegrationTest {
 
     @Test
     fun testPublishRecipe() {
-        val publishUrl = endpointBuilder.recipes
+        val publishUrl = endpoint.recipes
 
         // Register
-        val registerUrl = endpointBuilder.register
+        val registerUrl = endpoint.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
@@ -52,7 +52,7 @@ class RecipeControllerIntegrationTest {
         assertEquals(testUserDisplayName, testUser.displayName)
 
         // Login
-        val loginUrl = endpointBuilder.login
+        val loginUrl = endpoint.login
         val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
@@ -86,7 +86,7 @@ class RecipeControllerIntegrationTest {
         assertEquals(title, createdRecipe.title)
         assertEquals(content, createdRecipe.content)
 
-        val publishedRecipesUrl = endpointBuilder.publishedRecipes(publisherId)
+        val publishedRecipesUrl = endpoint.publishedRecipes(publisherId)
         val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
             publishedRecipesUrl,
             mutableListOf<Recipe>()
