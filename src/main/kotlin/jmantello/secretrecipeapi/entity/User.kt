@@ -65,6 +65,7 @@ class UserResponseDTO(
     var id: Long,
     var email: String,
     var displayName: String,
+    var isActive: Boolean,
     var isAdmin: Boolean,
     var dateCreated: String,
 )
