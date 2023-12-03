@@ -1,7 +1,22 @@
 package jmantello.secretrecipeapi.integration
 
-import org.junit.jupiter.api.Test
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.util.Endpoints
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserFlowInteractionTest {
 
@@ -19,9 +34,19 @@ class UserFlowInteractionTest {
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
 
-    @Test
-    @Order(1)
-    fun testUserRegistration() {
+    @BeforeAll
+    fun setupClass() {
+        testUserRegistration()
+        testUserLogin()
+    }
+
+    @AfterAll
+    fun teardownClass() {
+        testLogoutAndLogin()
+        testDeleteAccount()
+    }
+
+    private fun testUserRegistration() {
         // Post Request
         val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
@@ -33,15 +58,12 @@ class UserFlowInteractionTest {
         assertEquals(HttpStatus.CREATED, registerResponse.statusCode)
 
         // Deserialize User
-        val testUser: User = objectMapper.readValue(registerResponse.body!!)
+        testUser = objectMapper.readValue(registerResponse.body!!)
         assertEquals(testUserEmail, testUser.email)
         assertEquals(testUserDisplayName, testUser.displayName)
-
-        this.testUser = testUser
     }
 
-    @Test
-    fun testUserLogin() {
+    private fun testUserLogin() {
         // Post Request
         val loginUrl = endpoints.login
         val loginRequestBody = LoginUserDTO(
@@ -53,11 +75,13 @@ class UserFlowInteractionTest {
     }
 
     @Test
+    @Order(3)
     fun testGetUserById() {
         // ... test getting user by id
     }
 
     @Test
+    @Order(4)
     fun testUpdateAccount() {
         // Change Test User
         val updateUrl = endpoints.users
@@ -81,8 +105,10 @@ class UserFlowInteractionTest {
     }
 
     @Test
+    @Order(5)
     fun testPublishRecipes() {
         // TODO: Create more than one recipe request
+        val publishUrl = endpoints.recipes
 
         // Create Recipe Request
         val publisherId = testUser.id
@@ -112,7 +138,9 @@ class UserFlowInteractionTest {
     }
 
     @Test
+    @Order(6)
     fun testGetPublishedRecipes() {
+        val publisherId = testUser.id
         val publishedRecipesUrl = endpoints.publishedRecipes(publisherId)
         val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
             publishedRecipesUrl,
@@ -124,47 +152,52 @@ class UserFlowInteractionTest {
     }
 
     @Test
+    @Order(7)
     fun testSaveRecipes() {
         // ... test saving recipes
     }
 
     @Test
+    @Order(8)
     fun testGetSavedRecipes() {
         // ... test getting user's saved recipes
     }
 
     @Test
+    @Order(9)
     fun testGetAllRecipes() {
         // ... test getting all recipes
     }
 
     @Test
+    @Order(10)
     fun testPublishReviews() {
         // ... test publishing reviews
     }
 
     @Test
+    @Order(11)
     fun testGetPublishedReviews() {
         // ... test getting user's published reviews
     }
 
     @Test
+    @Order(12)
     fun testFollowAndFollowers() {
         // ... test following another user and getting followers
     }
 
     @Test
+    @Order(13)
     fun testLikeReview() {
         // ... test liking a review and viewing likes
     }
 
-    @Test
-    fun testLogoutAndLogin() {
+    private fun testLogoutAndLogin() {
         // ... test logout and login
     }
 
-    @Test
-    fun testDeleteAccount() {
+    private fun testDeleteAccount() {
         // ... test deleting user account
     }
 }
