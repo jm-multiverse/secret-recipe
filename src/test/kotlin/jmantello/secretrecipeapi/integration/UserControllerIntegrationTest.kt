@@ -79,5 +79,4 @@ class UserControllerIntegrationTest {
         assertEquals(changedDisplayName, changedUser.displayName)
 
     }
-
 }
