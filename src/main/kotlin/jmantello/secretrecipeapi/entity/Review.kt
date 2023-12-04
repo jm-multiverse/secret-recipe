@@ -12,7 +12,7 @@ class Review {
     val id: Long = 0
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    val datePublished: LocalDateTime = LocalDateTime.now()
+    val datePublished: String = LocalDateTime.now().toString()
 
     @ManyToOne
     @JsonIdentityReference(alwaysAsId = true)
@@ -28,6 +28,17 @@ class Review {
 class PublishReviewRequest(
     val publisherId: Long,
     val title: String,
-    val rating: Double,
     val content: String,
+    val rating: Double,
+)
+
+class ReviewResponse(
+    val id: Long,
+    val publisher: User?,
+    val title: String,
+    val content: String,
+    val rating: Double,
+    val datePublished: String,
+    val likes: MutableList<Long>,
+    val isPrivate: Boolean
 )

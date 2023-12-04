@@ -86,7 +86,7 @@ class RecipeControllerIntegrationTest {
         assertEquals(title, createdRecipe.title)
         assertEquals(content, createdRecipe.content)
 
-        val publishedRecipesUrl = endpoints.publishedRecipes(publisherId)
+        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
         val getPublishedRecipesResponse: ResponseEntity<MutableList<Recipe>> = restTemplate.getForEntity(
             publishedRecipesUrl,
             mutableListOf<Recipe>()
