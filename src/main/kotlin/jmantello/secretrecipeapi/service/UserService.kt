@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.service
 
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.LoginUserDTO
+import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.RegisterUserDTO
 import jmantello.secretrecipeapi.exception.ResourceNotFoundException
 import jmantello.secretrecipeapi.repository.RecipeRepository
@@ -53,7 +54,7 @@ class UserService(
         }
     }
 
-    fun saveRecipeForUser(userId: Long, recipeId: Long) {
+    fun saveRecipeForUser(userId: Long, recipeId: Long): List<Recipe> {
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val recipe = recipeRepository.findById(recipeId).orElseThrow { RecipeNotFoundException(recipeId) }
 
@@ -61,6 +62,8 @@ class UserService(
             user.savedRecipes.add(recipe)
             userRepository.save(user)
         }
+
+        return user.savedRecipes
     }
 }
 
