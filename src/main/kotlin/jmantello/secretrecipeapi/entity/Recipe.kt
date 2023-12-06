@@ -27,7 +27,7 @@ class Recipe() {
     @Lob
     var content: String = ""
     val tags: MutableList<String> = mutableListOf()
-    val reviews: MutableList<Long> = mutableListOf()
+    val reviews: List<Long> = mutableListOf()
 
     @JsonProperty("isPrivate")
     var isPrivate: Boolean = false
@@ -43,9 +43,9 @@ class RecipeResponse(
     val id: Long,
     val title: String,
     val content: String,
-    val datePublished: LocalDateTime,
-    val publisher: User?,
+    val datePublished: String,
+    val publisherId: Long,
     val tags: List<String>,
-    val reviews: List<Review>,
+    val reviews: List<Long>,
     var isPrivate: Boolean,
 )

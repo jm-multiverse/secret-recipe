@@ -74,7 +74,7 @@ class UserController(
         return ok(recipes)
     }
 
-    @GetMapping("{id}/reviews")
+    @GetMapping("{id}/published-reviews")
     fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<out Any> {
         val user = userService.findByIdOrNull(id)
             ?: return notFound("User with id $id not found.")

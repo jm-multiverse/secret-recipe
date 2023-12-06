@@ -20,9 +20,12 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class UserFlowInteractionTest{
 
     // TODO: Explore using WebClient as a newer alternative to restTemplate
@@ -55,7 +58,6 @@ class UserFlowInteractionTest{
 
     @BeforeAll
     fun setupClass() {
-
         testUserRegistration()
         testUserLogin()
     }
@@ -95,7 +97,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(3)
+    @Order(1)
     fun testGetUserById() {
         val userId = testUser.id
         val getUserUrl = endpoints.getUser(userId)
@@ -114,7 +116,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(4)
+    @Order(2)
     fun testUpdateAccount() {
         // Change Test User
         val updateUrl = endpoints.users
@@ -138,7 +140,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(5)
+    @Order(3)
     fun testPublishRecipes() {
         // TODO: Create more than one recipe request
         val publishUrl = endpoints.recipes
@@ -163,7 +165,7 @@ class UserFlowInteractionTest{
 
         // Deserialize Response
         val createdRecipe = postResponse.body ?: fail("Response body was supposed to contain a newly created recipe, but was null.")
-        assertEquals(publisherId, createdRecipe.publisher!!.id)
+        assertEquals(publisherId, createdRecipe.publisherId)
         assertEquals(recipeTitle, createdRecipe.title)
         assertEquals(recipeContent, createdRecipe.content)
 
@@ -171,7 +173,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(6)
+    @Order(4)
     fun testGetPublishedRecipes() {
         val publisherId = testUser.id
         val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
@@ -193,7 +195,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(7)
+    @Order(5)
     fun testSaveRecipes() {
         val userId = testUser.id
         val recipeId = testRecipe.id
@@ -212,28 +214,28 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(8)
+    @Order(6)
     fun testGetSavedRecipes() {
         val userId = testUser.id
-        val publishedRecipesUrl = endpoints.getSavedRecipes(userId)
+        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
 
         val requestEntity = HttpEntity.EMPTY
         val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
 
-        val getPublishedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-            publishedRecipesUrl,
+        val getSavedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
+            savedRecipesUrl,
             HttpMethod.GET,
             requestEntity,
             responseType
         )
 
-        val usersSavedRecipes = getPublishedRecipesResponse.body ?: fail("Response body from getting saved recipes was supposed to contain recipes, but was null.")
+        val usersSavedRecipes = getSavedRecipesResponse.body ?: fail("Response body from getting saved recipes was supposed to contain recipes, but was null.")
         val savedRecipe = usersSavedRecipes[0]
-        assertEquals(testRecipe, savedRecipe)
+        assertEquals(testRecipe, savedRecipe) // May need to compare prop
     }
 
     @Test
-    @Order(9)
+    @Order(7)
     fun testGetAllRecipes() {
         val getRecipesUrl = endpoints.recipes
         val requestEntity = HttpEntity.EMPTY
@@ -255,7 +257,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(10)
+    @Order(8)
     fun testPublishReviews() {
         val publisherId = testUser.id
         val publishedReviewUrl = endpoints.reviews
@@ -280,7 +282,7 @@ class UserFlowInteractionTest{
 
         // Deserialize Review Response
         val createdReview = postResponse.body ?: fail("Response body was supposed to contain a newly created recipe, but was null.")
-        assertEquals(publisherId, createdReview.publisher!!.id)
+        assertEquals(publisherId, createdReview.publisherId)
         assertEquals(reviewTitle, createdReview.title)
         assertEquals(reviewContent, createdReview.content)
         assertEquals(reviewRating, createdReview.rating)
@@ -289,7 +291,7 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(11)
+    @Order(9)
     fun testGetPublishedReviews() {
         val publisherId = testUser.id
         val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
@@ -311,13 +313,13 @@ class UserFlowInteractionTest{
     }
 
     @Test
-    @Order(12)
+    @Order(10)
     fun testFollowAndFollowers() {
         // ... test following another user and getting followers
     }
 
     @Test
-    @Order(13)
+    @Order(11)
     fun testLikeReview() {
         // ... test liking a review and viewing likes
     }

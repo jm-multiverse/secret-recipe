@@ -34,7 +34,7 @@ class PublishReviewRequest(
 
 class ReviewResponse(
     val id: Long,
-    val publisher: User?,
+    val publisherId: Long,
     val title: String,
     val content: String,
     val rating: Double,
