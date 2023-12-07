@@ -6,6 +6,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
+@Table(name = "reviews")
 class Review {
     @Id
     @GeneratedValue
@@ -15,13 +16,25 @@ class Review {
     val datePublished: String = LocalDateTime.now().toString()
 
     @ManyToOne
-    @JsonIdentityReference(alwaysAsId = true)
+    @JoinColumn(name = "user_id")
     var publisher: User? = null
 
     var title: String = ""
     var rating: Double = 0.0
     @Lob var content: String = ""
-    val likes: MutableList<Long> = mutableListOf()
+
+    @ManyToOne
+    @JoinColumn(name = "recipe_id")
+    var recipe: Recipe? = null
+
+    @ManyToMany
+    @JoinTable(
+        name = "review_likes",
+        joinColumns = [JoinColumn(name = "review_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
+    var likes: MutableList<User> = mutableListOf()
+
     var isPrivate: Boolean = false
 }
 

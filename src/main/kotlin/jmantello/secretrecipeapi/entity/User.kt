@@ -41,9 +41,22 @@ class User() {
     )
     var savedRecipes: MutableList<Recipe> = mutableListOf()
 
-    var reviews: MutableList<Long> = mutableListOf()
-    var followers: MutableList<Long> = mutableListOf()
-    var following: MutableList<Long> = mutableListOf()
+    @OneToMany(mappedBy = "publisher")
+    var publishedRecipes: MutableList<Recipe> = mutableListOf()
+
+    @OneToMany(mappedBy = "publisher")
+    var publishedReviews: MutableList<Review> = mutableListOf()
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_followers",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "follower_id")]
+    )
+    var followers: MutableList<User> = mutableListOf()
+
+    @ManyToMany(mappedBy = "followers")
+    var following: MutableList<User> = mutableListOf()
 
     fun validatePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)
