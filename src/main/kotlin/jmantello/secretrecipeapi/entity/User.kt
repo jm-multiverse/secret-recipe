@@ -64,6 +64,10 @@ class User {
     fun validatePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)
     }
+
+    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> {
+        return publishedRecipes.take(limit)
+    }
 }
 
 // Builder
