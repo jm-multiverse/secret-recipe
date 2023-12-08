@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi.entity
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -8,7 +9,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "recipes")
-class Recipe() {
+class Recipe {
     @Id
     @GeneratedValue
     val id: Long = 0
@@ -16,6 +17,7 @@ class Recipe() {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     val datePublished: String = LocalDateTime.now().toString()
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
     var publisher: User? = null
@@ -31,9 +33,6 @@ class Recipe() {
     @JsonProperty("isPrivate")
     var isPrivate: Boolean = false
 
-    @Transient
-    var overallRating: Double? = null
-
     @ManyToMany
     @JoinTable(
         name = "recipe_saves",
@@ -48,7 +47,36 @@ class Recipe() {
         if (reviews.isEmpty()) return null
 
         val totalRating = reviews.sumOf { it.rating }
-        return totalRating.toDouble() / reviews.size
+        return totalRating / reviews.size
+    }
+}
+
+// Recipe Builder
+class RecipeBuilder {
+    private val recipe = Recipe()
+
+    fun publisher(publisher: User): RecipeBuilder {
+        recipe.publisher = publisher
+        return this
+    }
+
+    fun title(title: String): RecipeBuilder {
+        recipe.title = title
+        return this
+    }
+
+    fun content(content: String): RecipeBuilder {
+        recipe.content = content
+        return this
+    }
+
+    fun tags(tags: List<String>): RecipeBuilder {
+        recipe.tags.addAll(tags)
+        return this
+    }
+
+    fun build(): Recipe {
+        return recipe
     }
 }
 
