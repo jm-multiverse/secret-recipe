@@ -9,7 +9,7 @@ import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
 import jmantello.secretrecipeapi.entity.CreateRecipeRequest
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.service.RecipeService
-import jmantello.secretrecipeapi.service.Result
+import jmantello.secretrecipeapi.util.Result
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.DeleteMapping

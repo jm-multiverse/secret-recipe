@@ -4,6 +4,7 @@ import jmantello.secretrecipeapi.entity.PublishReviewRequest
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
+import jmantello.secretrecipeapi.util.Result
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 

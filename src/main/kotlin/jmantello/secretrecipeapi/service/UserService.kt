@@ -1,15 +1,18 @@
 package jmantello.secretrecipeapi.service
 
+import jmantello.secretrecipeapi.dto.LoginRequest
+import jmantello.secretrecipeapi.dto.RegisterUserRequest
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.LoginUserDTO
 import jmantello.secretrecipeapi.entity.Recipe
-import jmantello.secretrecipeapi.entity.RegisterUserDTO
+import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.entity.builder.UserBuilder
+import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.exception.ResourceNotFoundException
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
+import jmantello.secretrecipeapi.util.Result
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
 
 class UserNotFoundException(userId: Long) : ResourceNotFoundException("User with ID $userId not found")
 
@@ -27,25 +30,23 @@ class UserService(
     fun isEmailRegistered(email: String): Boolean =
         userRepository.findByEmail(email) != null
 
-    fun register(dto: RegisterUserDTO): Result<User> {
-        if (isEmailRegistered(dto.email)) {
-            return Result.Error("New users must not use an email associated with an existing account")
+    fun register(request: RegisterUserRequest): Result<UserDTO> {
+        if (isEmailRegistered(request.email)) {
+            return Result.Error("Cannot register user because email is associated with an existing account.")
         }
 
-        val user = User()
-        user.email = dto.email
-        user.password = dto.password
-        user.displayName = dto.displayName
+        val user = UserBuilder().buildFromRegisterRequest(request)
+
         userRepository.save(user)
 
-        return Result.Success(user)
+        return Result.Success(UserMapper.toDto(user))
     }
 
-    fun login(dto: LoginUserDTO): Result<User> {
-        val user = findByEmail(dto.email)
+    fun login(request: LoginRequest): Result<User> {
+        val user = findByEmail(request.email)
             ?: return Result.Error("User not found")
 
-        val authorized = user.validatePassword(dto.password)
+        val authorized = user.validatePassword(request.password)
 
         return if (authorized) {
             Result.Success(user)

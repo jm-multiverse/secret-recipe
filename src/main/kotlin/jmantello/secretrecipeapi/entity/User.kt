@@ -7,6 +7,20 @@ import jakarta.persistence.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
+class UserDTO(
+    val id: Long,
+    val email: String,
+    val displayName: String,
+    val isAdmin: Boolean,
+    val isActive: Boolean,
+    val dateCreated: String,
+    val publishedRecipes: List<Long>,
+    val savedRecipes: List<Long>,
+    val publishedReviews: List<Long>,
+    val followers: List<Long>,
+    val following: List<Long>
+)
+
 @Entity
 @Table(name="users")
 class User {
@@ -46,7 +60,6 @@ class User {
     )
     var savedRecipes: MutableList<Recipe> = mutableListOf()
 
-
     @OneToMany(mappedBy = "publisher")
     var publishedReviews: MutableList<Review> = mutableListOf()
 
@@ -69,58 +82,3 @@ class User {
         return publishedRecipes.take(limit)
     }
 }
-
-// Builder
-class UserBuilder {
-    private val user = User()
-
-    fun email(email: String): UserBuilder {
-        user.email = email
-        return this
-    }
-
-    fun password(password: String): UserBuilder {
-        user.password = password
-        return this
-    }
-
-    fun displayName(displayName: String): UserBuilder {
-        user.displayName = displayName
-        return this
-    }
-
-    fun isAdmin(isAdmin: Boolean): UserBuilder {
-        user.isAdmin = isAdmin
-        return this
-    }
-
-    fun isActive(isActive: Boolean): UserBuilder {
-        user.isActive = isActive
-        return this
-    }
-
-    fun build(): User {
-        return user
-    }
-}
-
-// DTOs
-class RegisterUserDTO(
-    var email: String,
-    var password: String,
-    var displayName: String,
-)
-
-class LoginUserDTO(
-    var email: String,
-    var password: String
-)
-
-class UserResponseDTO(
-    var id: Long,
-    var email: String,
-    var displayName: String,
-    var isAdmin: Boolean,
-    var isActive: Boolean,
-    var dateCreated: String,
-)
