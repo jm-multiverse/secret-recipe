@@ -1,8 +1,12 @@
 package jmantello.secretrecipeapi.config
 
+<<<<<<< HEAD
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
+=======
+import jmantello.secretrecipeapi.entity.*
+>>>>>>> 7730c1013be10ac4816840f8323758167fae641f
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
+<<<<<<< HEAD
 import jmantello.secretrecipeapi.entity.mapper.RecipeMapper
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
+=======
+>>>>>>> 7730c1013be10ac4816840f8323758167fae641f
 import java.time.LocalDateTime
 
 class RecipeDTO(
