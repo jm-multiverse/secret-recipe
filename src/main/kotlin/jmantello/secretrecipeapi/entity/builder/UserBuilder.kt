@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.entity.builder
 
 import jmantello.secretrecipeapi.dto.RegisterUserRequest
 import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.entity.UserDTO
 
 class UserBuilder {
     private val user = User()
@@ -36,6 +37,12 @@ class UserBuilder {
             email = request.email
             password = request.password // Remember to handle password hashing appropriately
             displayName = request.displayName
+        }
+    }
+
+    fun buildFromDTO(userDTO: UserDTO): User {
+        return User().apply {
+            // TODO: Implement UserBuilder().buildFromDTO
         }
     }
 

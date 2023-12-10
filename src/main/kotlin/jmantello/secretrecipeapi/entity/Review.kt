@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi.entity
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
+import jmantello.secretrecipeapi.entity.mapper.ReviewMapper
 import java.time.LocalDateTime
 
 class ReviewDTO(
@@ -50,4 +51,6 @@ class Review {
     var likes: MutableList<User> = mutableListOf()
 
     var isPrivate: Boolean = false
+
+    fun toDTO(): ReviewDTO = ReviewMapper.toDto(this)
 }

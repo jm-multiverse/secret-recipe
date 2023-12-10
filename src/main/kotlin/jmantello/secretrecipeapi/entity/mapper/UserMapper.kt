@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.entity.mapper
 
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.entity.builder.UserBuilder
 
 object UserMapper {
     fun toDto(user: User): UserDTO {
@@ -18,5 +19,10 @@ object UserMapper {
             followers = user.followers.map { it.id },
             following = user.following.map { it.id }
         )
+    }
+
+    fun toEntity(userDTO: UserDTO): User {
+        // TODO: Implement userDTO to entity
+        return UserBuilder().build()
     }
 }

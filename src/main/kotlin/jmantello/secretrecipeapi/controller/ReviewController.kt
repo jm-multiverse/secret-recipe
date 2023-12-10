@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.entity.PublishReviewRequest
+import jmantello.secretrecipeapi.dto.CreateReviewRequest
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.service.ReviewService
 import org.springframework.http.ResponseEntity
@@ -29,7 +29,7 @@ class ReviewController(private val service: ReviewService) {
     }
 
     @PostMapping
-    fun publishReview(@RequestBody request: PublishReviewRequest): ResponseEntity<Any> =
+    fun publishReview(@RequestBody request: CreateReviewRequest): ResponseEntity<Any> =
         ResponseEntity.status(201).body(service.publish(request))
 
     @PutMapping

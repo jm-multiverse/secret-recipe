@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.dto
 
-class LoginRequest(
+class LoginUserRequest(
     var email: String,
     var password: String
 )

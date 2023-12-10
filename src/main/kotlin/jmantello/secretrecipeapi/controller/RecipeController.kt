@@ -6,12 +6,13 @@ import io.micrometer.core.instrument.Timer
 import jmantello.secretrecipeapi.ResponseEntity.Companion.badRequest
 import jmantello.secretrecipeapi.ResponseEntity.Companion.created
 import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
-import jmantello.secretrecipeapi.entity.CreateRecipeRequest
+import jmantello.secretrecipeapi.ResponseEntity.Companion.ok
+import jmantello.secretrecipeapi.dto.CreateRecipeRequest
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.service.RecipeService
+import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result
 import org.springframework.http.ResponseEntity
-import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -37,7 +38,7 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     fun getRecipes(): ResponseEntity<out Any> = ok(service.findAll())
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Long): ResponseEntity<out Any> {
+    fun getRecipeById(@PathVariable id: Long): ResponseEntity<ApiResponse<Recipe>> {
         val recipe = service.findByIdOrNull(id)
             ?: return notFound("Recipe with id $id not found.")
 
@@ -45,7 +46,7 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     }
 
     @PostMapping
-    fun createRecipe(@RequestBody recipeRequest: CreateRecipeRequest): ResponseEntity<out Any> {
+    fun createRecipe(@RequestBody recipeRequest: CreateRecipeRequest): ResponseEntity<ApiResponse<Recipe>> {
         return when(val result = service.create(recipeRequest)) {
             is Result.Success -> created(result.data)
             is Result.Error -> badRequest(result.message)
@@ -53,9 +54,9 @@ class RecipeController(private val service: RecipeService, private val meterRegi
     }
 
     @PutMapping
-    fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<out Any> {
+    fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<ApiResponse<Recipe>> {
         return when(val result = service.update(recipe)) {
-            is Result.Success -> ok(result)
+            is Result.Success -> ok(result.data)
             is Result.Error -> badRequest(result.message)
         }
     }

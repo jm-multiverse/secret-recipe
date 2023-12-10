@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.entity.PublishReviewRequest
+import jmantello.secretrecipeapi.dto.CreateReviewRequest
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
@@ -17,7 +17,7 @@ class ReviewService(
     fun findByIdOrNull(id: Long): Review? = reviewRepository.findByIdOrNull(id)
     fun findAllPublishedByUserId(publisherId: Long?): MutableList<Review> = reviewRepository.findAllByPublisherId(publisherId)
     fun save(review: Review): Review = reviewRepository.save(review)
-    fun publish(reviewRequest: PublishReviewRequest): Result<Review> {
+    fun publish(reviewRequest: CreateReviewRequest): Result<Review> {
         val user = userRepository.findByIdOrNull(reviewRequest.publisherId)
             ?: return Result.Error("User with id ${reviewRequest.publisherId} not found")
 

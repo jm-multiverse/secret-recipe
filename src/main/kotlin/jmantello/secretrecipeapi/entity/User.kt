@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
+import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
@@ -81,4 +82,14 @@ class User {
     fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> {
         return publishedRecipes.take(limit)
     }
+
+    fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> {
+        return savedRecipes.take(limit)
+    }
+
+    fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> {
+        return publishedReviews.take(limit)
+    }
+
+    fun toDTO(): UserDTO = UserMapper.toDto(this)
 }

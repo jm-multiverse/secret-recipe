@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
+import jmantello.secretrecipeapi.entity.mapper.RecipeMapper
+import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import java.time.LocalDateTime
 
 class RecipeDTO(
@@ -64,4 +66,6 @@ class Recipe {
     fun getSaves(limit: Int = this.saves.size): List<User> {
         return this.saves.take(limit)
     }
+
+    fun toDTO(): RecipeDTO = RecipeMapper.toDto(this)
 }
