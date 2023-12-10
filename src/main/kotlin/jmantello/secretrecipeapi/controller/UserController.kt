@@ -1,10 +1,12 @@
 package jmantello.secretrecipeapi.controller
 
 import jmantello.secretrecipeapi.ResponseEntity.Companion.badRequest
+import jmantello.secretrecipeapi.ResponseEntity.Companion.internalServerError
 import jmantello.secretrecipeapi.ResponseEntity.Companion.noContent
 import jmantello.secretrecipeapi.ResponseEntity.Companion.notFound
 import jmantello.secretrecipeapi.ResponseEntity.Companion.ok
 import jmantello.secretrecipeapi.dto.LoginUserRequest
+import jmantello.secretrecipeapi.dto.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
@@ -14,6 +16,7 @@ import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,18 +40,20 @@ class UserController(
     fun createUser(@RequestBody dto: LoginUserRequest): ResponseEntity<ApiResponse<String>> =
         badRequest("New users must be registered through the authentication endpoint: 'api/auth/register'.")
 
-    @PutMapping
-    fun updateUser(@RequestBody user: UserDTO): ResponseEntity<ApiResponse<UserDTO>> {
-        return when(val result = userService.update(user)) {
+    @PutMapping("/{id}")
+    fun updateUser(@PathVariable userId: Long, @Valid @RequestBody userDTO: UpdateUserRequest): ResponseEntity<ApiResponse<UserDTO>> {
+        return when(val result = userService.update(userId, userDTO)) {
             is Success -> ok(result.data)
             is Error -> badRequest(result.message)
         }
     }
 
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable id: Long): ResponseEntity<ApiResponse<Nothing>> {
-        userService.deleteById(id)
-        return noContent()
+    fun deleteUser(@PathVariable id: Long): ResponseEntity<ApiResponse<Any>> {
+        return when(val result = userService.deleteById(id)) {
+            is Success -> noContent()
+            is Error -> internalServerError(result.message)
+        }
     }
     @GetMapping("{id}/published-recipes")
     fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> {

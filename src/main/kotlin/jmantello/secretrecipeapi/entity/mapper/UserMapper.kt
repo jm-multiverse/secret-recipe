@@ -20,9 +20,4 @@ object UserMapper {
             following = user.following.map { it.id }
         )
     }
-
-    fun toEntity(userDTO: UserDTO): User {
-        // TODO: Implement userDTO to entity
-        return UserBuilder().build()
-    }
 }

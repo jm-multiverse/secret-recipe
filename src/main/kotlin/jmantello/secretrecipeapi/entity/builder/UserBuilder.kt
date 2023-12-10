@@ -1,8 +1,8 @@
 package jmantello.secretrecipeapi.entity.builder
 
 import jmantello.secretrecipeapi.dto.RegisterUserRequest
+import jmantello.secretrecipeapi.dto.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
 
 class UserBuilder {
     private val user = User()
@@ -40,9 +40,17 @@ class UserBuilder {
         }
     }
 
-    fun buildFromDTO(userDTO: UserDTO): User {
-        return User().apply {
-            // TODO: Implement UserBuilder().buildFromDTO
+    fun buildFromDTO(userDTO: UpdateUserRequest, user: User): User {
+        return user.apply {
+            userDTO.email?.let { this.email = it }
+            userDTO.password?.let { this.password = it }
+            userDTO.displayName?.let { this.displayName = it }
+            userDTO.isAdmin?.let { this.isAdmin = it }
+            userDTO.publishedRecipes?.let { this.publishedRecipes = it.toMutableList() }
+            userDTO.savedRecipes?.let { this.savedRecipes = it.toMutableList() }
+            userDTO.publishedReviews?.let { this.publishedReviews = it.toMutableList() }
+            userDTO.followers?.let { this.followers = it.toMutableList() }
+            userDTO.following?.let { this.following = it.toMutableList() }
         }
     }
 

@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi.service
 import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.dto.LoginUserRequest
 import jmantello.secretrecipeapi.dto.RegisterUserRequest
+import jmantello.secretrecipeapi.dto.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
@@ -40,17 +41,21 @@ class UserService(
 
     // TODO: Add @Transactional annotations to services
     @Transactional
-    fun update(userDTO: UserDTO): Result<UserDTO> {
-        // TODO: Implement update user logic
+    fun update(userId:Long, userDTO: UpdateUserRequest): Result<UserDTO> {
         // TODO: Validate userDTO before attempting to save it
-        val foundUser = findByIdOrNull(userDTO.id)
-            ?: Error(userNotFound(userId = userDTO.id))
+        val foundUser = findByIdOrNull(userId)
+            ?: return Error(userNotFound(userId))
 
-        return Error("Update user not implemented yet.")
+        val user = UserBuilder().buildFromDTO(userDTO, foundUser)
+        val result = userRepository.save(user).toDTO()
+        return Success(result)
     }
 
     fun save(user: User): User = userRepository.save(user)
-    fun deleteById(id: Long): Unit = userRepository.deleteById(id)
+    fun deleteById(id: Long): Result<Any> {
+        userRepository.deleteById(id)
+        return Success("Successfully deleted user with ID: $id")
+    }
     fun isEmailRegistered(email: String): Boolean =
         userRepository.findByEmail(email) != null
 

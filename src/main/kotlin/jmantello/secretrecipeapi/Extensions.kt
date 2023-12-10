@@ -54,5 +54,9 @@ class ResponseEntity {
 
         fun <T : Any> noContent(): ResponseEntity<ApiResponse<T>> =
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+
+        fun <T : Any> internalServerError(message: String): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse(error = message))
+
     }
 }

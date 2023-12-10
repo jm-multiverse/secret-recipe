@@ -25,17 +25,18 @@ repositories {
 }
 
 dependencies {
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("io.jsonwebtoken:jjwt:0.9.1")
+	implementation("javax.validation:validation-api:2.0.1.Final")
+	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("org.springframework.security:spring-security-config")
-	implementation("io.jsonwebtoken:jjwt:0.9.1")
-	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
