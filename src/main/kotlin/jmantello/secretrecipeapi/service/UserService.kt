@@ -23,11 +23,13 @@ class UserService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository
 ) {
-
+    // TODO: Validate DTOs before attempting to save it
+    // TODO: Add @Transactional annotations to services
     fun userNotFound(userId: Long) = "User with ID $userId not found."
     fun recipeNotFound(recipeId: Long) = "Recipe with ID $recipeId not found."
-    fun findAll(): List<UserDTO> =
-        userRepository.findAll().map { it.toDTO() }
+
+    fun findAll(): Result<List<UserDTO>> =
+        Success(userRepository.findAll().map { it.toDTO() })
 
     fun findById(id: Long): Result<UserDTO> {
         val user = userRepository.findByIdOrNull(id)
@@ -39,10 +41,8 @@ class UserService(
     fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
 
-    // TODO: Add @Transactional annotations to services
     @Transactional
     fun update(userId:Long, userDTO: UpdateUserRequest): Result<UserDTO> {
-        // TODO: Validate userDTO before attempting to save it
         val foundUser = findByIdOrNull(userId)
             ?: return Error(userNotFound(userId))
 

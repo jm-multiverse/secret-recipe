@@ -35,7 +35,7 @@ class UserBuilder {
     fun buildFromRegisterRequest(request: RegisterUserRequest): User {
         return User().apply {
             email = request.email
-            password = request.password // Remember to handle password hashing appropriately
+            password = request.password
             displayName = request.displayName
         }
     }
