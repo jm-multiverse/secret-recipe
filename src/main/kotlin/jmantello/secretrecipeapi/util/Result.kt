@@ -1,4 +1,4 @@
-package jmantello.secretrecipeapi.service
+package jmantello.secretrecipeapi.util
 
 sealed class Result<out T> {
     data class Success<T>(val data: T) : Result<T>()

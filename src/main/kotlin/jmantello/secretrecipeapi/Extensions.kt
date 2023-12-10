@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi
 
+import jmantello.secretrecipeapi.util.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import java.time.LocalDateTime
@@ -36,13 +37,22 @@ fun String.toSlug() = lowercase(Locale.getDefault())
 
 class ResponseEntity {
     companion object {
-        fun created(result: Any) =
-            ResponseEntity.status(HttpStatus.CREATED).body(result)
+        fun <T : Any> ok(result: T): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.OK).body(ApiResponse(data = result))
 
-        fun notFound(message: String) =
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(message)
+        fun <T : Any> created(result: T): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse(data = result))
 
-        fun badRequest(message: String) =
-            ResponseEntity.badRequest().body(message)
+        fun <T : Any> notFound(message: String): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse(error = message))
+
+        fun <T : Any> badRequest(message: String): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse(error = message))
+
+        fun <T : Any> unauthorized(message: String): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse(error = message))
+
+        fun <T : Any> noContent(): ResponseEntity<ApiResponse<T>> =
+            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

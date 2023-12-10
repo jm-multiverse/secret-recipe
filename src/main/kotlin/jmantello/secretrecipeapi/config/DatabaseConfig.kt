@@ -1,6 +1,8 @@
 package jmantello.secretrecipeapi.config
 
-import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
+import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
+import jmantello.secretrecipeapi.entity.builder.UserBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository

@@ -1,15 +1,19 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.LoginUserDTO
-import jmantello.secretrecipeapi.entity.Recipe
-import jmantello.secretrecipeapi.entity.RegisterUserDTO
+import jakarta.transaction.Transactional
+import jmantello.secretrecipeapi.dto.LoginUserRequest
+import jmantello.secretrecipeapi.dto.RegisterUserRequest
+import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.entity.builder.UserBuilder
+import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.exception.ResourceNotFoundException
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
+import jmantello.secretrecipeapi.util.Result
+import jmantello.secretrecipeapi.util.Result.Error
+import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
 
 class UserNotFoundException(userId: Long) : ResourceNotFoundException("User with ID $userId not found")
 
@@ -19,51 +23,103 @@ class UserService(
     private val recipeRepository: RecipeRepository
 ) {
 
-    fun findAll(): Iterable<User> = userRepository.findAll()
+    fun userNotFound(userId: Long) = "User with ID $userId not found."
+    fun recipeNotFound(recipeId: Long) = "Recipe with ID $recipeId not found."
+    fun findAll(): List<UserDTO> =
+        userRepository.findAll().map { it.toDTO() }
+
+    fun findById(id: Long): Result<UserDTO> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return Error("User with id: $id not found.")
+
+        return Success(UserMapper.toDto(user))
+    }
+
     fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
+
+    // TODO: Add @Transactional annotations to services
+    @Transactional
+    fun update(userDTO: UserDTO): Result<UserDTO> {
+        // TODO: Implement update user logic
+        // TODO: Validate userDTO before attempting to save it
+        val foundUser = findByIdOrNull(userDTO.id)
+            ?: Error(userNotFound(userId = userDTO.id))
+
+        return Error("Update user not implemented yet.")
+    }
+
     fun save(user: User): User = userRepository.save(user)
     fun deleteById(id: Long): Unit = userRepository.deleteById(id)
     fun isEmailRegistered(email: String): Boolean =
         userRepository.findByEmail(email) != null
 
-    fun register(dto: RegisterUserDTO): Result<User> {
-        if (isEmailRegistered(dto.email)) {
-            return Result.Error("New users must not use an email associated with an existing account")
-        }
+    fun register(request: RegisterUserRequest): Result<UserDTO> {
+        if (isEmailRegistered(request.email))
+            return Error("Cannot register user because the email provided is already associated with an existing account.")
 
-        val user = User()
-        user.email = dto.email
-        user.password = dto.password
-        user.displayName = dto.displayName
+        val user = UserBuilder().buildFromRegisterRequest(request)
         userRepository.save(user)
 
-        return Result.Success(user)
+        return Success(UserMapper.toDto(user))
     }
 
-    fun login(dto: LoginUserDTO): Result<User> {
-        val user = findByEmail(dto.email)
-            ?: return Result.Error("User not found")
+    fun login(request: LoginUserRequest): Result<User> {
+        val errorMessage = "Login failed. User not found or incorrect password"
 
-        val authorized = user.validatePassword(dto.password)
+        val user = findByEmail(request.email)
+            ?: return Error(errorMessage)
 
-        return if (authorized) {
-            Result.Success(user)
-        } else {
-            Result.Error("Invalid password")
-        }
+        val authorized = user.validatePassword(request.password)
+
+        return if (authorized)
+            Success(user)
+        else
+            Error(errorMessage)
     }
 
-    fun saveRecipeForUser(userId: Long, recipeId: Long): List<Recipe> {
-        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
-        val recipe = recipeRepository.findById(recipeId).orElseThrow { RecipeNotFoundException(recipeId) }
+    fun saveRecipeForUser(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return Error(userNotFound(userId))
+
+        val recipe = recipeRepository.findByIdOrNull(recipeId)
+            ?: return Error(recipeNotFound(recipeId))
 
         if (!user.savedRecipes.contains(recipe)) {
             user.savedRecipes.add(recipe)
             userRepository.save(user)
         }
 
-        return user.savedRecipes
+        val response = user.savedRecipes.map { it.toDTO() }
+
+        return Success(response)
+    }
+
+    fun getPublishedRecipes(userId: Long): Result<List<RecipeDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(userNotFound(userId))
+
+        val recipes = user.getPublishedRecipes().map { it.toDTO() }
+
+        return Success(recipes)
+    }
+
+    fun getSavedRecipes(userId: Long): Result<List<RecipeDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(userNotFound(userId))
+
+        val recipes = user.getSavedRecipes().map { it.toDTO() }
+
+        return Success(recipes)
+    }
+
+    fun getPublishedReviews(userId: Long): Result<List<ReviewDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(userNotFound(userId))
+
+        val reviews = user.getPublishedReviews().map { it.toDTO() }
+
+        return Success(reviews)
     }
 }
 
