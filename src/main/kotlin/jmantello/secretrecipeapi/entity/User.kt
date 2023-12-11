@@ -20,6 +20,7 @@ class UserDTO(
     val publishedReviews: List<Long>,
     val followers: List<Long>,
     val following: List<Long>
+    // TODO: Update long id values to their corresponding entity
 )
 
 @Entity
@@ -79,17 +80,14 @@ class User {
         return BCryptPasswordEncoder().matches(password, this.password)
     }
 
-    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> {
-        return publishedRecipes.take(limit)
-    }
+    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> =
+        publishedRecipes.take(limit)
 
-    fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> {
-        return savedRecipes.take(limit)
-    }
+    fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> =
+         savedRecipes.take(limit)
 
-    fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> {
-        return publishedReviews.take(limit)
-    }
+    fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
+        publishedReviews.take(limit)
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)
 }
