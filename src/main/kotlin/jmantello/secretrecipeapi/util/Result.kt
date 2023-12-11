@@ -4,6 +4,18 @@ import org.springframework.http.HttpStatus
 
 sealed class Result<out T> {
     abstract val status: HttpStatus
-    data class Success<T>(val data: T, override val status: HttpStatus = HttpStatus.OK) : Result<T>()
-    data class Error(val message: String, override val status: HttpStatus = HttpStatus.BAD_REQUEST) : Result<Nothing>()
+
+    data class Success<T>(
+        override val status: HttpStatus,
+        val data: T,
+    ) : Result<T>() {
+        constructor(data: T) : this(HttpStatus.OK, data)
+    }
+
+    data class Error(
+        override val status: HttpStatus,
+        val message: String,
+    ) : Result<Nothing>() {
+        constructor(message: String) : this(HttpStatus.BAD_REQUEST, message)
+    }
 }

@@ -1,8 +1,10 @@
 package jmantello.secretrecipeapi.controller
 
 import jmantello.secretrecipeapi.dto.CreateReviewRequest
-import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.service.ReviewService
+import jmantello.secretrecipeapi.util.ApiResponse
+import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,24 +19,21 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/reviews")
 class ReviewController(private val service: ReviewService) {
     @GetMapping
-    fun getReviews(): ResponseEntity<Any> =
-        ResponseEntity.ok(service.findAll())
+    fun getReviews(): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(service.findAll())
 
     @GetMapping("/{id}")
-    fun getReviewById(@PathVariable id: Long): ResponseEntity<Any> {
-        val review = service.findByIdOrNull(id)
-            ?: return ResponseEntity.status(404).body("Review with id $id not found.")
-
-        return ResponseEntity.ok(review)
-    }
+    fun getReviewById(@PathVariable id: Long): ResponseEntity<ApiResponse<ReviewDTO>> =
+        respond(service.findById(id))
 
     @PostMapping
-    fun publishReview(@RequestBody request: CreateReviewRequest): ResponseEntity<Any> =
-        ResponseEntity.status(201).body(service.publish(request))
+    fun publishReview(@RequestBody request: CreateReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
+        respond(service.create(request))
 
+    // TODO: Create update review dto
     @PutMapping
-    fun updateReview(@RequestBody review: Review): ResponseEntity<Any> =
-        ResponseEntity.ok(service.save(review))
+    fun updateReview(@RequestBody review: ReviewDTO): ResponseEntity<ApiResponse<ReviewDTO>> =
+        respond(service.update(review))
 
     @DeleteMapping("/{id}")
     fun deleteReview(@PathVariable id: Long): ResponseEntity<Any> =

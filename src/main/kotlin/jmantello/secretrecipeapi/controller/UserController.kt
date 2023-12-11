@@ -11,6 +11,7 @@ import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -19,14 +20,14 @@ import javax.validation.Valid
 @RequestMapping("/api/users")
 class UserController(
     private val userService: UserService,
-    private val recipeService: RecipeService,
-    private val reviewService: ReviewService
 ) {
     @GetMapping
-    fun getUsers(): ResponseEntity<ApiResponse<List<UserDTO>>> = respond(userService.findAll())
+    fun getUsers(): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.findAll())
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: Long): ResponseEntity<ApiResponse<UserDTO>> = respond(userService.findById(id))
+    fun getUserById(@PathVariable id: Long): ResponseEntity<ApiResponse<UserDTO>> =
+        respond(userService.findById(id))
 
     @PostMapping
     fun createUser(@RequestBody dto: LoginUserRequest): ResponseEntity<ApiResponse<String>> =
@@ -40,7 +41,8 @@ class UserController(
         respond(userService.update(userId, userDTO))
 
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable id: Long): ResponseEntity<ApiResponse<Any>> = respond(userService.deleteById(id))
+    fun deleteUser(@PathVariable id: Long): ResponseEntity<ApiResponse<Any>> =
+        respond(userService.deleteById(id))
 
     @GetMapping("{id}/published-recipes")
     fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
@@ -50,7 +52,8 @@ class UserController(
     fun saveRecipe(
         @PathVariable userId: Long,
         @PathVariable recipeId: Long
-    ): ResponseEntity<ApiResponse<List<RecipeDTO>>> = respond(userService.saveRecipeForUser(userId, recipeId))
+    ): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
+        respond(userService.saveRecipeForUser(userId, recipeId))
 
     @GetMapping("{id}/saved-recipes")
     fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
