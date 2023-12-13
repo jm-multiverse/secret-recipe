@@ -21,6 +21,7 @@ class DatabaseConfig {
         reviewRepository: ReviewRepository
     ) = ApplicationRunner {
 
+        // Create Users
         val admin = UserBuilder()
             .email("admin@email.com")
             .password("admin")
@@ -40,6 +41,7 @@ class DatabaseConfig {
             .displayName("Lucy Sandoval")
             .build()
 
+        // Create Recipes
         val recipe = RecipeBuilder()
             .publisher(user1)
             .title("Egg Sandwich")
@@ -47,6 +49,7 @@ class DatabaseConfig {
             .tags(listOf("Snack"))
             .build()
 
+        // Create Reviews
         val review = ReviewBuilder()
             .publisher(user2)
             .recipe(recipe)

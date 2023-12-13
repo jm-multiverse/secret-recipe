@@ -29,16 +29,21 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("javax.validation:validation-api:2.0.1.Final")
 	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("org.springframework.security:spring-security-config")
+
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	runtimeOnly("com.h2database:h2")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.mockito", module = "mockito-core")
 	}

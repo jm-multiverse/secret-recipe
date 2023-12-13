@@ -1,101 +1,128 @@
-//package jmantello.secretrecipeapi.integration
-//
-//import com.fasterxml.jackson.databind.ObjectMapper
-//import com.fasterxml.jackson.module.kotlin.readValue
-//import jmantello.secretrecipeapi.entity.*
-//import jmantello.secretrecipeapi.service.RecipeService
-//import jmantello.secretrecipeapi.service.ReviewService
-//import jmantello.secretrecipeapi.service.UserService
-//import jmantello.secretrecipeapi.util.Endpoints
-//import org.junit.jupiter.api.*
-//import org.junit.jupiter.api.Assertions.assertEquals
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.boot.test.context.SpringBootTest
-//import org.springframework.boot.test.web.client.TestRestTemplate
-//import org.springframework.boot.test.web.client.exchange
-//import org.springframework.boot.test.web.client.getForEntity
-//import org.springframework.boot.test.web.server.LocalServerPort
-//import org.springframework.core.ParameterizedTypeReference
-//import org.springframework.http.HttpEntity
-//import org.springframework.http.HttpMethod
-//import org.springframework.http.HttpStatus
-//import org.springframework.http.ResponseEntity
-//import org.springframework.test.context.ActiveProfiles
-//
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-//@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@ActiveProfiles("test")
-//class UserFlowInteractionTest{
-//
-//    // TODO: Explore using WebClient as a newer alternative to restTemplate
-//
-//    @LocalServerPort
-//    private var port: Int = 0
-//    private var host: String = "http://localhost"
-//    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
-//
-//    @Autowired private lateinit var restTemplate: TestRestTemplate
-//    val objectMapper = ObjectMapper()
-//
-//    @Autowired private lateinit var userService: UserService
-//    @Autowired private lateinit var recipeService: RecipeService
-//    @Autowired private lateinit var reviewService: ReviewService
-//
-//    private lateinit var testUser: User
-//    private var testUserEmail = "testuser@example.com"
-//    private var testUserPassword = "testpassword"
-//    private var testUserDisplayName = "testdisplayname"
-//
-//    private lateinit var testRecipe: Recipe
-//    val recipeTitle = "Cheese Steak Sandwich"
-//    val recipeContent = "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
-//
-//    private lateinit var testReview: Review
-//    val reviewTitle = "Meh."
-//    val reviewContent = "I thought this was going to be great, but..."
-//    val reviewRating = 3.0
-//
-//    @BeforeAll
-//    fun setupClass() {
-//        testUserRegistration()
-//        testUserLogin()
-//    }
-//
-//    @AfterAll
-//    fun teardownClass() {
+package jmantello.secretrecipeapi.integration
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import jmantello.secretrecipeapi.dto.LoginUserRequest
+import jmantello.secretrecipeapi.dto.RegisterUserRequest
+import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.service.RecipeService
+import jmantello.secretrecipeapi.service.ReviewService
+import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.util.ApiResponse
+import jmantello.secretrecipeapi.util.Endpoints
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class UserFlowTest {
+
+    // TODO: Explore using WebClient as a newer alternative to restTemplate
+
+    @LocalServerPort
+    private var port: Int = 0
+    private var host: String = "http://localhost"
+    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
+
+    @Autowired
+    private lateinit var webClientBuilder: WebClient.Builder
+    private lateinit var webClient: WebClient
+
+    @Autowired
+    private lateinit var restTemplate: TestRestTemplate
+    val objectMapper = ObjectMapper()
+
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var recipeService: RecipeService
+
+    @Autowired
+    private lateinit var reviewService: ReviewService
+
+    private lateinit var testUser: User
+    private var testUserEmail = "testuser@example.com"
+    private var testUserPassword = "testpassword"
+    private var testUserDisplayName = "testdisplayname"
+
+    private lateinit var testRecipe: Recipe
+    val recipeTitle = "Cheese Steak Sandwich"
+    val recipeContent =
+        "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
+
+    private lateinit var testReview: Review
+    val reviewTitle = "Meh."
+    val reviewContent = "I thought this was going to be great, but..."
+    val reviewRating = 3.0
+
+    @BeforeAll
+    fun setupClass() {
+        val baseUrl = "http://localhost:$port"
+        webClient = webClientBuilder.baseUrl(baseUrl).build()
+        testUserRegistration()
+        testUserLogin()
+    }
+
+    @AfterAll
+    fun teardownClass() {
 //        testLogoutAndLogin()
 //        testDeleteAccount()
-//    }
-//
-//    private fun testUserRegistration() {
-//        // Post Request
-//        val registerUrl = endpoints.register
-//        val registerRequestBody = RegisterUserDTO(
-//            testUserEmail,
-//            testUserPassword,
-//            testUserDisplayName
-//        )
-//        val registerResponse: ResponseEntity<String> = restTemplate.postForEntity(registerUrl, registerRequestBody, String::class.java)
-//        assertEquals(HttpStatus.CREATED, registerResponse.statusCode)
-//
-//        // Deserialize User
-//        testUser = objectMapper.readValue(registerResponse.body!!)
-//        assertEquals(testUserEmail, testUser.email)
-//        assertEquals(testUserDisplayName, testUser.displayName)
-//    }
-//
-//    private fun testUserLogin() {
-//        // Post Request
-//        val loginUrl = endpoints.login
-//        val loginRequestBody = LoginUserDTO(
-//            testUserEmail,
-//            testUserPassword
-//        )
-//        val loginResponse: ResponseEntity<String> = restTemplate.postForEntity(loginUrl, loginRequestBody, String::class.java)
-//        assertEquals(HttpStatus.OK, loginResponse.statusCode)
-//    }
-//
+    }
+
+    private fun testUserRegistration() = runBlocking {
+        // Post Request
+        val registerUrl = endpoints.register
+        val registerRequestBody = RegisterUserRequest(
+            testUserEmail,
+            testUserPassword,
+            testUserDisplayName
+        )
+
+        val response: ResponseEntity<ApiResponse<UserDTO>> = webClient.post()
+            .uri(registerUrl)
+            .bodyValue(registerRequestBody)
+            .retrieve()
+            .awaitBody<ResponseEntity<ApiResponse<UserDTO>>>()
+
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertNotNull(response.body)
+
+        val userDTO = response.body!!.data!!
+        assertEquals(testUserEmail, userDTO.email)
+        assertEquals(testUserDisplayName, userDTO.displayName)
+    }
+
+    private fun testUserLogin() = runBlocking {
+        // Post Request
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserRequest(
+            testUserEmail,
+            testUserPassword
+        )
+
+        val response: ResponseEntity<ApiResponse<UserDTO>> = webClient.post()
+            .uri(loginUrl)
+            .bodyValue(loginRequestBody)
+            .retrieve()
+            .awaitBody<ResponseEntity<ApiResponse<UserDTO>>>()
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
+
 //    @Test
 //    @Order(1)
 //    fun testGetUserById() {
@@ -331,4 +358,4 @@
 //    private fun testDeleteAccount() {
 //        // ... test deleting user account
 //    }
-//}
+}

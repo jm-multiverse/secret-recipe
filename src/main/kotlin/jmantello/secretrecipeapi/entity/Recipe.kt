@@ -13,7 +13,7 @@ class RecipeDTO(
     val content: String,
     val publisherId: Long,
     val datePublished: String,
-    val reviews: List<Long>,
+    val reviews: List<ReviewDTO>,
     val tags: List<String>,
     val rating: Double?,
     var isPrivate: Boolean,

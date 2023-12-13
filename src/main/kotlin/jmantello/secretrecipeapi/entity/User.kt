@@ -15,12 +15,12 @@ class UserDTO(
     val isAdmin: Boolean,
     val isActive: Boolean,
     val dateCreated: String,
-    val publishedRecipes: List<Long>,
-    val savedRecipes: List<Long>,
-    val publishedReviews: List<Long>,
-    val followers: List<Long>,
-    val following: List<Long>
-    // TODO: Update long id values to their corresponding entity
+    val publishedRecipes: List<RecipeDTO>,
+    val savedRecipes: List<RecipeDTO>,
+    val publishedReviews: List<ReviewDTO>,
+    val followers: List<UserDTO>,
+    val following: List<UserDTO>
+    // TODO: Consider updating long id values to their corresponding entity
 )
 
 @Entity
