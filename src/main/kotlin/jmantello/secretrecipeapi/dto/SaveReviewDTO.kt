@@ -1,11 +1,10 @@
 package jmantello.secretrecipeapi.dto
 
-import jmantello.secretrecipeapi.entity.Recipe
-import jmantello.secretrecipeapi.entity.Review
-import jmantello.secretrecipeapi.entity.User
-import javax.validation.constraints.*
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
+import javax.validation.constraints.Size
 
-class UpdateReviewDTO(
+class SaveReviewDTO(
     @Size(max = 100) // Title length limit
     val title: String?,
 

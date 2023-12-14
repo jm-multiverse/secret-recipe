@@ -1,8 +1,7 @@
 package jmantello.secretrecipeapi.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.dto.UserCredentialsDTO
 import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
@@ -108,7 +107,7 @@ class UserFlowTest {
     private fun testUserLogin() = runBlocking {
         // Post Request
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserCredentialsDTO(
             testUserEmail,
             testUserPassword
         )

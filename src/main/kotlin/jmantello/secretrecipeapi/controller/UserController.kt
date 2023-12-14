@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.dto.UserCredentialsDTO
+import jmantello.secretrecipeapi.dto.SaveUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.UserDTO
@@ -27,13 +27,13 @@ class UserController(
         respond(userService.findById(id))
 
     @PostMapping
-    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<ApiResponse<String>> =
+    fun createUser(@RequestBody dto: UserCredentialsDTO): ResponseEntity<ApiResponse<String>> =
         respond(Error("New users must be registered through the authentication endpoint: 'api/auth/register'."))
 
     @PutMapping("/{id}")
     fun updateUser(
         @PathVariable userId: Long,
-        @Valid @RequestBody userDTO: UpdateUserDTO
+        @Valid @RequestBody userDTO: SaveUserDTO
     ): ResponseEntity<ApiResponse<UserDTO>> =
         respond(userService.update(userId, userDTO))
 

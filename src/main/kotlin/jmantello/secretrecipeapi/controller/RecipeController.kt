@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.controller
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import jmantello.secretrecipeapi.dto.CreateRecipeDTO
+import jmantello.secretrecipeapi.dto.SaveRecipeDTO
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.service.RecipeService
@@ -33,7 +33,7 @@ class RecipeController(private val service: RecipeService, private val meterRegi
         respond(service.findById(id))
 
     @PostMapping
-    fun createRecipe(@RequestBody recipeRequest: CreateRecipeDTO): ResponseEntity<ApiResponse<Recipe>> =
+    fun createRecipe(@RequestBody recipeRequest: SaveRecipeDTO): ResponseEntity<ApiResponse<Recipe>> =
         respond(service.create(recipeRequest))
 
     // TODO: Create UpdateRecipe DTO

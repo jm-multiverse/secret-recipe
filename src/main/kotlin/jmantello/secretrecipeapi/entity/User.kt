@@ -40,7 +40,7 @@ class User {
             field = BCryptPasswordEncoder().encode(value)
         }
 
-    var displayName: String = ""
+    var displayName: String? = ""
 
     @JsonProperty("isAdmin")
     var isAdmin: Boolean = false
