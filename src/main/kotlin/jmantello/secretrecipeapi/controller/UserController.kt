@@ -1,17 +1,14 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.dto.LoginUserRequest
-import jmantello.secretrecipeapi.dto.UpdateUserRequest
+import jmantello.secretrecipeapi.dto.LoginUserDTO
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.UserDTO
-import jmantello.secretrecipeapi.service.RecipeService
-import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -30,13 +27,13 @@ class UserController(
         respond(userService.findById(id))
 
     @PostMapping
-    fun createUser(@RequestBody dto: LoginUserRequest): ResponseEntity<ApiResponse<String>> =
+    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<ApiResponse<String>> =
         respond(Error("New users must be registered through the authentication endpoint: 'api/auth/register'."))
 
     @PutMapping("/{id}")
     fun updateUser(
         @PathVariable userId: Long,
-        @Valid @RequestBody userDTO: UpdateUserRequest
+        @Valid @RequestBody userDTO: UpdateUserDTO
     ): ResponseEntity<ApiResponse<UserDTO>> =
         respond(userService.update(userId, userDTO))
 

@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.dto
 
-class RegisterUserRequest(
+class RegisterUserDTO(
     var email: String,
     var password: String,
     var displayName: String,

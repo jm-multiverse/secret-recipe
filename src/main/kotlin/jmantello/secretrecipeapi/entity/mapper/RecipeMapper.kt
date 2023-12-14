@@ -15,7 +15,7 @@ object RecipeMapper {
             title = recipe.title,
             content = recipe.content,
             isPrivate = recipe.isPrivate,
-            reviews = recipe.reviews.map { it.id },
+            reviews = recipe.reviews.map { it.toDTO() },
             tags = recipe.tags.toList(),
             rating = recipe.calculateOverallRating()
         )

@@ -1,12 +1,11 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.dto.CreateReviewRequest
+import jmantello.secretrecipeapi.dto.CreateReviewDTO
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.notFoundMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.reviewNotFoundMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userNotFoundMessage
 import jmantello.secretrecipeapi.util.Result
@@ -50,7 +49,7 @@ class ReviewService(
         return Success(response)
     }
 
-    fun create(request: CreateReviewRequest): Result<ReviewDTO> {
+    fun create(request: CreateReviewDTO): Result<ReviewDTO> {
         val user = userRepository.findByIdOrNull(request.publisherId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(request.publisherId))
 

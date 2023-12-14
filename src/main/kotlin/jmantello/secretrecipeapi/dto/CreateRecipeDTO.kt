@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.dto
 
-class CreateRecipeRequest(
+class CreateRecipeDTO(
     val publisherId: Long,
     val title: String,
     val content: String,

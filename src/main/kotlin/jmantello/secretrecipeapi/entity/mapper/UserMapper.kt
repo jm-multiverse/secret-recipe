@@ -13,11 +13,11 @@ object UserMapper {
             isAdmin = user.isAdmin,
             isActive = user.isActive,
             dateCreated = user.dateCreated,
-            publishedRecipes = user.publishedRecipes.map { it.id },
-            savedRecipes = user.savedRecipes.map { it.id },
-            publishedReviews = user.publishedReviews.map { it.id },
-            followers = user.followers.map { it.id },
-            following = user.following.map { it.id }
+            publishedRecipes = user.publishedRecipes.map { it.toDTO() },
+            savedRecipes = user.savedRecipes.map { it.toDTO() },
+            publishedReviews = user.publishedReviews.map { it.toDTO() },
+            followers = user.followers.map { it.toDTO() },
+            following = user.following.map { it.toDTO() }
         )
     }
 }

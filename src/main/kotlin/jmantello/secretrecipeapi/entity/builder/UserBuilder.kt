@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.entity.builder
 
-import jmantello.secretrecipeapi.dto.RegisterUserRequest
-import jmantello.secretrecipeapi.dto.UpdateUserRequest
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.User
 
 class UserBuilder {
@@ -32,7 +32,7 @@ class UserBuilder {
         return this
     }
 
-    fun buildFromRegisterRequest(request: RegisterUserRequest): User {
+    fun buildFromRegisterRequest(request: RegisterUserDTO): User {
         return User().apply {
             email = request.email
             password = request.password
@@ -40,7 +40,7 @@ class UserBuilder {
         }
     }
 
-    fun buildFromDTO(userDTO: UpdateUserRequest, user: User): User {
+    fun buildFromDTO(userDTO: UpdateUserDTO, user: User): User {
         return user.apply {
             userDTO.email?.let { this.email = it }
             userDTO.password?.let { this.password = it }

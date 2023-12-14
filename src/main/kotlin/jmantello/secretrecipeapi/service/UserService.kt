@@ -1,9 +1,9 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.dto.LoginUserRequest
-import jmantello.secretrecipeapi.dto.RegisterUserRequest
-import jmantello.secretrecipeapi.dto.UpdateUserRequest
+import jmantello.secretrecipeapi.dto.LoginUserDTO
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
@@ -13,6 +13,7 @@ import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.recipeNotFoundMessage
+import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userDeletedMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userNotFoundMessage
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
@@ -35,7 +36,7 @@ class UserService(
 
     fun findById(id: Long): Result<UserDTO> {
         val user = userRepository.findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, "User with id: $id not found.")
+            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
 
         return Success(user.toDTO())
     }
@@ -47,7 +48,7 @@ class UserService(
         userRepository.findByEmail(email)
 
     @Transactional
-    fun update(userId: Long, userDTO: UpdateUserRequest): Result<UserDTO> {
+    fun update(userId: Long, userDTO: UpdateUserDTO): Result<UserDTO> {
         val foundUser = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
 
@@ -61,13 +62,13 @@ class UserService(
 
     fun deleteById(id: Long): Result<Any> {
         userRepository.deleteById(id)
-        return Success(NO_CONTENT, "Successfully deleted user with ID: $id")
+        return Success(NO_CONTENT, userDeletedMessage(id))
     }
 
     fun isEmailRegistered(email: String): Boolean =
         userRepository.findByEmail(email) != null
 
-    fun register(request: RegisterUserRequest): Result<UserDTO> {
+    fun register(request: RegisterUserDTO): Result<UserDTO> {
         if (isEmailRegistered(request.email))
             return Error(
                 BAD_REQUEST,
@@ -80,7 +81,7 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun login(request: LoginUserRequest): Result<User> {
+    fun login(request: LoginUserDTO): Result<User> {
         val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)
