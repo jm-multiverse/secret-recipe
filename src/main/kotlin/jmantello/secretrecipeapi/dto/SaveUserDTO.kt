@@ -19,4 +19,7 @@ class SaveUserDTO(
 
     @Nullable
     val isAdmin: Boolean?,
+
+    @Nullable
+    val isActive: Boolean?
 )

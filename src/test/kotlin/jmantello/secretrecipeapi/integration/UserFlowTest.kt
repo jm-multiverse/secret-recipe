@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.dto.SaveUserDTO
 import jmantello.secretrecipeapi.dto.UserCredentialsDTO
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
@@ -93,7 +94,7 @@ class UserFlowTest {
     @Test
     @Order(0)
     fun testUserRegistration(): Unit = runBlocking {
-        // Post Request
+
         val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
@@ -116,12 +117,15 @@ class UserFlowTest {
         assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
+
+        // Set test user
+        testUser = userService.findByIdOrNull(userDTO.id) ?: fail("User was not found by user service.")
     }
 
     @Test
     @Order(1)
     fun testUserLogin(): Unit = runBlocking {
-        // Post Request
+
         val loginUrl = endpoints.login
         val loginRequestBody = UserCredentialsDTO(
             testUserEmail,
@@ -141,48 +145,64 @@ class UserFlowTest {
     }
 
 
-//    @Test
-//    @Order(1)
-//    fun testGetUserById() {
-//        val userId = testUser.id
-//        val getUserUrl = endpoints.getUser(userId)
-//        val getUserResponse: ResponseEntity<UserResponseDTO> = restTemplate.getForEntity(
-//            getUserUrl,
-//            HttpMethod.GET,
-//            UserResponseDTO::class
-//        )
-//        val userResponse = getUserResponse.body ?: fail("Response body from getUser was to contain User but was null.")
-//        assertEquals(userId, userResponse.id)
-//        assertEquals(testUser.email, userResponse.email)
-//        assertEquals(testUser.displayName, userResponse.displayName)
-//        assertEquals(testUser.isActive, userResponse.isActive)
-//        assertEquals(testUser.isAdmin, userResponse.isAdmin)
-//        assertEquals(testUser.dateCreated, userResponse.dateCreated)
-//    }
-//
-//    @Test
-//    @Order(2)
-//    fun testUpdateAccount() {
-//        // Change Test User
-//        val updateUrl = endpoints.users
-//        val changedDisplayName = "test changed display name"
-//
-//        testUser.displayName = changedDisplayName
-//
-//        // Put Request
-//        val requestEntity = HttpEntity(testUser)
-//        val updateResponse: ResponseEntity<String> = restTemplate.exchange(
-//            updateUrl,
-//            HttpMethod.PUT,
-//            requestEntity,
-//            String::class.java
-//        )
-//        assertEquals(HttpStatus.OK, updateResponse.statusCode)
-//
-//        // Deserialize response
-//        val changedUser: User = objectMapper.readValue(updateResponse.body!!)
-//        assertEquals(changedDisplayName, changedUser.displayName)
-//    }
+    @Test
+    @Order(2)
+    fun testGetUserById() = runBlocking {
+
+        val getUserUrl = endpoints.getUser(testUser.id)
+        val response = webClient.get()
+            .uri(getUserUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
+
+        val userDTO = apiResponse.data ?: fail("Response body data was null.")
+        assertEquals(testUser.id, userDTO.id)
+        assertEquals(testUser.email, userDTO.email)
+        assertEquals(testUser.displayName, userDTO.displayName)
+        assertEquals(testUser.isActive, userDTO.isActive)
+        assertEquals(testUser.isAdmin, userDTO.isAdmin)
+        assertEquals(testUser.dateCreated, userDTO.dateCreated)
+    }
+
+    @Test
+    @Order(4)
+    fun testUpdateAccount() = runBlocking {
+        // Change Test User
+        val updateUrl = endpoints.users
+        val changedDisplayName = "test changed display name"
+
+        val request = SaveUserDTO(
+            id = testUser.id,
+            email = null,
+            password = null,
+            displayName = changedDisplayName,
+            isActive = null,
+            isAdmin = null,
+        )
+
+        // Put Request
+        val response = webClient.put()
+            .uri(updateUrl)
+            .bodyValue(testUser)
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
+
+        assertEquals(OK, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
+
+        val userDTO = apiResponse.data ?: fail("Response body data was null.")
+        assertEquals(testUser.id, userDTO.id)
+        assertEquals(testUser.email, userDTO.email)
+        assertEquals(testUser.displayName, userDTO.displayName)
+        assertEquals(testUser.isActive, userDTO.isActive)
+        assertEquals(testUser.isAdmin, userDTO.isAdmin)
+        assertEquals(testUser.dateCreated, userDTO.dateCreated)
+    }
 //
 //    @Test
 //    @Order(3)
