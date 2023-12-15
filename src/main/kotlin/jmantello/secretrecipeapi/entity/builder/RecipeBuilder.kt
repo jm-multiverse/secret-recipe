@@ -21,8 +21,8 @@ class RecipeBuilder {
         return this
     }
 
-    fun tags(tags: List<String>): RecipeBuilder {
-        recipe.tags.addAll(tags)
+    fun tags(tags: List<String>?): RecipeBuilder {
+        tags?.let { recipe.tags.addAll(it) }
         return this
     }
 

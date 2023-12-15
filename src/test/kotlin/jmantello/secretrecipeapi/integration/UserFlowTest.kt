@@ -1,30 +1,38 @@
 package jmantello.secretrecipeapi.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UserCredentialsDTO
-import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Endpoints
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.toEntity
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 class UserFlowTest {
 
@@ -56,6 +64,7 @@ class UserFlowTest {
     private var testUserEmail = "testuser@example.com"
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
+    private var testUserIsAdmin = false
 
     private lateinit var testRecipe: Recipe
     val recipeTitle = "Cheese Steak Sandwich"
@@ -71,8 +80,8 @@ class UserFlowTest {
     fun setupClass() {
         val baseUrl = "http://localhost:$port"
         webClient = webClientBuilder.baseUrl(baseUrl).build()
-        testUserRegistration()
-        testUserLogin()
+//        testUserRegistration()
+//        testUserLogin()
     }
 
     @AfterAll
@@ -81,30 +90,37 @@ class UserFlowTest {
 //        testDeleteAccount()
     }
 
-    private fun testUserRegistration() = runBlocking {
+    @Test
+    @Order(0)
+    fun testUserRegistration(): Unit = runBlocking {
         // Post Request
         val registerUrl = endpoints.register
         val registerRequestBody = RegisterUserDTO(
             testUserEmail,
             testUserPassword,
-            testUserDisplayName
+            testUserDisplayName,
+            testUserIsAdmin
         )
 
-        val response: ResponseEntity<ApiResponse<UserDTO>> = webClient.post()
+        val response = webClient.post()
             .uri(registerUrl)
             .bodyValue(registerRequestBody)
-            .retrieve()
-            .awaitBody<ResponseEntity<ApiResponse<UserDTO>>>()
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
 
-        assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertNotNull(response.body)
+        assertEquals(CREATED, response.statusCode)
 
-        val userDTO = response.body!!.data!!
+        val apiResponse = response.body ?: fail("Response body was null.")
+
+        val userDTO = apiResponse.data ?: fail("Response body data was null.")
+        assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
     }
 
-    private fun testUserLogin() = runBlocking {
+    @Test
+    @Order(1)
+    fun testUserLogin(): Unit = runBlocking {
         // Post Request
         val loginUrl = endpoints.login
         val loginRequestBody = UserCredentialsDTO(
@@ -112,13 +128,16 @@ class UserFlowTest {
             testUserPassword
         )
 
-        val response: ResponseEntity<ApiResponse<UserDTO>> = webClient.post()
+        val response: ResponseEntity<ApiResponse<String>> = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .retrieve()
-            .awaitBody<ResponseEntity<ApiResponse<UserDTO>>>()
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
 
-        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(OK, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
     }
 
 

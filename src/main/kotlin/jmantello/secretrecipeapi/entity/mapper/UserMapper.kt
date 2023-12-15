@@ -9,7 +9,7 @@ object UserMapper {
         return UserDTO(
             id = user.id,
             email = user.email,
-            displayName = user.displayName,
+            displayName = user.displayName!!,
             isAdmin = user.isAdmin,
             isActive = user.isActive,
             dateCreated = user.dateCreated,

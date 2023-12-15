@@ -39,11 +39,11 @@ class RecipeService(
         val user = userRepository.findByIdOrNull(publisherId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(publisherId))
 
-
         val recipe = RecipeBuilder()
             .publisher(user)
             .title(request.title)
             .content(request.content)
+            .tags(request.tags)
             .build()
 
         val response = recipeRepository.save(recipe)

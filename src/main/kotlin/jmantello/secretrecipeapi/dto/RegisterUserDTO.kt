@@ -4,14 +4,12 @@ import jakarta.annotation.Nullable
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.*
 
-class SaveUserDTO(
-    val id: Long?,
-
+class RegisterUserDTO(
     @Email
-    val email: String?,
+    val email: String,
 
     @ValidPassword
-    val password: String?,
+    val password: String,
 
     @Nullable
     @Size(min = 1, max = 100)

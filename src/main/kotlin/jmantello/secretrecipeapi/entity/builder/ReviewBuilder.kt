@@ -22,7 +22,7 @@ class ReviewBuilder {
         return this
     }
 
-    fun content(content: String): ReviewBuilder {
+    fun content(content: String?): ReviewBuilder {
         review.content = content
         return this
     }

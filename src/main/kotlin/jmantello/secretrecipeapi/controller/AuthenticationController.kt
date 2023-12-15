@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.dto.SaveUserDTO
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UserCredentialsDTO
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.UserService
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 class AuthenticationController(private val userService: UserService) {
 
     @PostMapping("register")
-    fun registerUser(@RequestBody request: SaveUserDTO): ResponseEntity<ApiResponse<UserDTO>> =
+    fun registerUser(@RequestBody request: RegisterUserDTO): ResponseEntity<ApiResponse<UserDTO>> =
         respond(userService.register(request))
 
     @PostMapping("login")

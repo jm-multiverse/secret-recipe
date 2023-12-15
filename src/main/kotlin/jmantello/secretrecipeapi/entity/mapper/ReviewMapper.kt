@@ -12,11 +12,11 @@ object ReviewMapper {
         return ReviewDTO(
             id = review.id,
             datePublished = review.datePublished,
-            publisherId = review.publisher?.id!!,
+            publisherId = review.publisher!!.id,
             title = review.title,
             rating = review.rating,
             content = review.content,
-            recipeId = review.recipe?.id!!,
+            recipeId = review.recipe!!.id,
             likes = review.likes.map(User::id).toList(),
             isPrivate = review.isPrivate,
         )

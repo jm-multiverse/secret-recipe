@@ -9,12 +9,12 @@ import java.time.LocalDateTime
 class ReviewDTO(
     val id: Long,
     val title: String,
-    val content: String,
+    val content: String?,
     val publisherId: Long,
     val recipeId: Long,
     val datePublished: String,
-    val likes: List<Long>,
-    val rating: Double,
+    val likes: List<Long>?,
+    val rating: Double?,
     val isPrivate: Boolean
 )
 
@@ -35,7 +35,7 @@ class Review {
 
     var title: String = ""
     var rating: Double = 0.0
-    @Lob var content: String = ""
+    @Lob var content: String? = ""
 
     @JsonBackReference
     @ManyToOne
