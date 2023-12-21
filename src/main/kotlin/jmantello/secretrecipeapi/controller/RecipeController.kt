@@ -3,7 +3,8 @@ package jmantello.secretrecipeapi.controller
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import jmantello.secretrecipeapi.dto.SaveRecipeDTO
+import jmantello.secretrecipeapi.dto.CreateRecipeDTO
+import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.service.RecipeService
@@ -29,17 +30,19 @@ class RecipeController(private val service: RecipeService, private val meterRegi
         respond(service.findAll())
 
     @GetMapping("/{id}")
-    fun getRecipeById(@PathVariable id: Long): ResponseEntity<ApiResponse<Recipe>> =
+    fun getRecipeById(@PathVariable id: Long): ResponseEntity<ApiResponse<RecipeDTO>> =
         respond(service.findById(id))
 
     @PostMapping
-    fun createRecipe(@RequestBody recipeRequest: SaveRecipeDTO): ResponseEntity<ApiResponse<Recipe>> =
-        respond(service.create(recipeRequest))
+    fun createRecipe(@RequestBody request: CreateRecipeDTO): ResponseEntity<ApiResponse<RecipeDTO>> =
+        respond(service.create(request))
 
-    // TODO: Create UpdateRecipe DTO
-    @PutMapping
-    fun updateRecipe(@RequestBody recipe: Recipe): ResponseEntity<ApiResponse<Recipe>> =
-        respond(service.update(recipe))
+    @PutMapping("/{id}")
+    fun updateRecipe(
+        @PathVariable id: Long,
+        @RequestBody updateRecipeDTO: UpdateRecipeDTO
+    ): ResponseEntity<ApiResponse<RecipeDTO>> =
+        respond(service.update(id, updateRecipeDTO))
 
     @DeleteMapping("/{id}")
     fun deleteRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<Unit>> =

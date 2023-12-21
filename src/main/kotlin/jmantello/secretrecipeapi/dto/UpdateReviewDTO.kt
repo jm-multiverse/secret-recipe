@@ -4,7 +4,7 @@ import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.Size
 
-class SaveReviewDTO(
+class UpdateReviewDTO(
     val publisherId: Long,
 
     @Size(max = 100) // Title length limit

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
@@ -90,4 +91,13 @@ class User {
         publishedReviews.take(limit)
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)
+
+    fun update(userDTO: UpdateUserDTO) {
+        userDTO.email?.let { this.email = it }
+        userDTO.password?.let { this.password = it }
+        userDTO.displayName?.let { this.displayName = it }
+        userDTO.isAdmin?.let { this.isAdmin = it }
+        userDTO.isActive?.let { this.isActive = it }
+
+    }
 }

@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.dto.SaveReviewDTO
+import jmantello.secretrecipeapi.dto.UpdateReviewDTO
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
@@ -49,7 +49,7 @@ class ReviewService(
         return Success(response)
     }
 
-    fun create(request: SaveReviewDTO): Result<ReviewDTO> {
+    fun create(request: UpdateReviewDTO): Result<ReviewDTO> {
         val user = userRepository.findByIdOrNull(request.publisherId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(request.publisherId))
 

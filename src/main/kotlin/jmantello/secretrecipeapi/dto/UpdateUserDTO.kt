@@ -4,22 +4,23 @@ import jakarta.annotation.Nullable
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.*
 
-class SaveUserDTO(
+class UpdateUserDTO(
+    @NotNull
     val id: Long?,
 
     @Email
-    val email: String?,
+    val email: String? = null,
 
     @ValidPassword
-    val password: String?,
+    val password: String? = null,
 
     @Nullable
     @Size(min = 1, max = 100)
-    val displayName: String?,
+    val displayName: String? = null,
 
     @Nullable
-    val isAdmin: Boolean?,
+    val isAdmin: Boolean? = null,
 
     @Nullable
-    val isActive: Boolean?
+    val isActive: Boolean? = null
 )

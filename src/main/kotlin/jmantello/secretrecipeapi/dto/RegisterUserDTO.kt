@@ -16,5 +16,5 @@ class RegisterUserDTO(
     val displayName: String?,
 
     @Nullable
-    val isAdmin: Boolean?,
+    val isAdmin: Boolean? = false,
 )

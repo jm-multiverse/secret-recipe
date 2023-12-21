@@ -1,18 +1,18 @@
 package jmantello.secretrecipeapi.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jmantello.secretrecipeapi.dto.CreateRecipeDTO
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.SaveUserDTO
-import jmantello.secretrecipeapi.dto.UserCredentialsDTO
-import jmantello.secretrecipeapi.entity.Recipe
-import jmantello.secretrecipeapi.entity.Review
-import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.dto.LoginDTO
+import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Endpoints
+import jmantello.secretrecipeapi.util.Result
+import jmantello.secretrecipeapi.util.Result.*
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
@@ -61,7 +61,7 @@ class UserFlowTest {
     @Autowired
     private lateinit var reviewService: ReviewService
 
-    private lateinit var testUser: User
+    private lateinit var testUser: UserDTO
     private var testUserEmail = "testuser@example.com"
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
@@ -71,6 +71,8 @@ class UserFlowTest {
     val recipeTitle = "Cheese Steak Sandwich"
     val recipeContent =
         "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
+    val recipeTags = listOf("cheese", "steak", "sandwich")
+    val recipeIsPrivate = false
 
     private lateinit var testReview: Review
     val reviewTitle = "Meh."
@@ -119,7 +121,11 @@ class UserFlowTest {
         assertEquals(testUserDisplayName, userDTO.displayName)
 
         // Set test user
-        testUser = userService.findByIdOrNull(userDTO.id) ?: fail("User was not found by user service.")
+        val result = userService.findById(userDTO.id)
+        testUser = when (result) {
+            is Success -> result.data
+            is Error -> fail(result.message)
+        }
     }
 
     @Test
@@ -127,7 +133,7 @@ class UserFlowTest {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = UserCredentialsDTO(
+        val loginRequestBody = LoginDTO(
             testUserEmail,
             testUserPassword
         )
@@ -171,22 +177,18 @@ class UserFlowTest {
     @Order(4)
     fun testUpdateAccount() = runBlocking {
         // Change Test User
-        val updateUrl = endpoints.users
+        val updateUrl = endpoints.updateUser(testUser.id)
         val changedDisplayName = "test changed display name"
 
-        val request = SaveUserDTO(
+        val request = UpdateUserDTO(
             id = testUser.id,
-            email = null,
-            password = null,
-            displayName = changedDisplayName,
-            isActive = null,
-            isAdmin = null,
+            displayName = changedDisplayName
         )
 
         // Put Request
         val response = webClient.put()
             .uri(updateUrl)
-            .bodyValue(testUser)
+            .bodyValue(request)
             .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
             .awaitSingle()
 
@@ -198,47 +200,50 @@ class UserFlowTest {
         val userDTO = apiResponse.data ?: fail("Response body data was null.")
         assertEquals(testUser.id, userDTO.id)
         assertEquals(testUser.email, userDTO.email)
-        assertEquals(testUser.displayName, userDTO.displayName)
+        assertEquals(changedDisplayName, userDTO.displayName)
         assertEquals(testUser.isActive, userDTO.isActive)
         assertEquals(testUser.isAdmin, userDTO.isAdmin)
         assertEquals(testUser.dateCreated, userDTO.dateCreated)
     }
+
+    @Test
+    @Order(5)
+    fun testPublishRecipes() = runBlocking {
+        // TODO: Create more than one recipe request
+        val publishUrl = endpoints.recipes
+
+        // Create Recipe Requests
+        val publisherId = testUser.id
+        val request = CreateRecipeDTO(
+            publisherId,
+            recipeTitle,
+            recipeContent,
+            recipeTags,
+            recipeIsPrivate,
+        )
+
+        // Post Request
+        val response = webClient.post()
+            .uri(publishUrl)
+            .bodyValue(request)
+            .exchangeToMono { it.toEntity<ApiResponse<RecipeDTO>>() }
+            .awaitSingle()
+
+        assertEquals(CREATED, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+
+        val recipe = apiResponse.data ?: fail("Response body data was null.")
+
+        assertEquals(publisherId, recipe.publisherId)
+        assertEquals(recipeTitle, recipe.title)
+        assertEquals(recipeContent, recipe.content)
+        assertEquals(recipeTags, recipe.tags)
+        assertEquals(recipeIsPrivate, recipe.isPrivate)
+    }
 //
 //    @Test
-//    @Order(3)
-//    fun testPublishRecipes() {
-//        // TODO: Create more than one recipe request
-//        val publishUrl = endpoints.recipes
-//
-//        // Create Recipe Requests
-//        val publisherId = testUser.id
-//        val createRecipeRequest = CreateRecipeRequest(
-//            publisherId,
-//            recipeTitle,
-//            recipeContent
-//        )
-//
-//        // Post Request
-//        val requestEntity = HttpEntity(createRecipeRequest)
-//        val postResponse: ResponseEntity<RecipeResponse> = restTemplate.exchange(
-//            publishUrl,
-//            HttpMethod.POST,
-//            requestEntity,
-//            RecipeResponse::class
-//        )
-//        assertEquals(HttpStatus.CREATED, postResponse.statusCode)
-//
-//        // Deserialize Response
-//        val createdRecipe = postResponse.body ?: fail("Response body was supposed to contain a newly created recipe, but was null.")
-//        assertEquals(publisherId, createdRecipe.publisherId)
-//        assertEquals(recipeTitle, createdRecipe.title)
-//        assertEquals(recipeContent, createdRecipe.content)
-//
-//        testRecipe = recipeService.findByIdOrNull(createdRecipe.id) ?: fail("Recipe was not found by recipe service.")
-//    }
-//
-//    @Test
-//    @Order(4)
+//    @Order(6)
 //    fun testGetPublishedRecipes() {
 //        val publisherId = testUser.id
 //        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
@@ -279,7 +284,7 @@ class UserFlowTest {
 //    }
 //
 //    @Test
-//    @Order(6)
+//    @Order(7)
 //    fun testGetSavedRecipes() {
 //        val userId = testUser.id
 //        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
@@ -300,7 +305,7 @@ class UserFlowTest {
 //    }
 //
 //    @Test
-//    @Order(7)
+//    @Order(8)
 //    fun testGetAllRecipes() {
 //        val getRecipesUrl = endpoints.recipes
 //        val requestEntity = HttpEntity.EMPTY
@@ -322,7 +327,7 @@ class UserFlowTest {
 //    }
 //
 //    @Test
-//    @Order(8)
+//    @Order(9)
 //    fun testPublishReviews() {
 //        val publisherId = testUser.id
 //        val publishedReviewUrl = endpoints.reviews
@@ -356,7 +361,7 @@ class UserFlowTest {
 //    }
 //
 //    @Test
-//    @Order(9)
+//    @Order(10)
 //    fun testGetPublishedReviews() {
 //        val publisherId = testUser.id
 //        val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
@@ -378,13 +383,13 @@ class UserFlowTest {
 //    }
 //
 //    @Test
-//    @Order(10)
+//    @Order(11)
 //    fun testFollowAndFollowers() {
 //        // ... test following another user and getting followers
 //    }
 //
 //    @Test
-//    @Order(11)
+//    @Order(12)
 //    fun testLikeReview() {
 //        // ... test liking a review and viewing likes
 //    }

@@ -2,8 +2,8 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.SaveUserDTO
-import jmantello.secretrecipeapi.dto.UserCredentialsDTO
+import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.dto.LoginDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
@@ -34,6 +34,7 @@ class UserService(
     fun findAll(): Result<List<UserDTO>> =
         Success(userRepository.findAll().map { it.toDTO() })
 
+    @Transactional
     fun findById(id: Long): Result<UserDTO> {
         val user = userRepository.findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
@@ -41,6 +42,7 @@ class UserService(
         return Success(user.toDTO())
     }
 
+    @Transactional
     fun findByIdOrNull(id: Long): User? =
         userRepository.findByIdOrNull(id)
 
@@ -48,12 +50,13 @@ class UserService(
         userRepository.findByEmail(email)
 
     @Transactional
-    fun update(userId: Long, userDTO: SaveUserDTO): Result<UserDTO> {
-        val foundUser = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+    fun update(id: Long, userDTO: UpdateUserDTO): Result<UserDTO> {
+        val foundUser = findByIdOrNull(id)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
 
-        val user = UserBuilder().buildFromDTO(userDTO, foundUser)
-        val result = userRepository.save(user).toDTO()
+        foundUser.update(userDTO)
+        val result = userRepository.save(foundUser).toDTO()
+
         return Success(result)
     }
 
@@ -81,7 +84,7 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun login(request: UserCredentialsDTO): Result<User> {
+    fun login(request: LoginDTO): Result<User> {
         val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)
