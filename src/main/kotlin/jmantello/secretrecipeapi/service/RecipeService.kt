@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi.service
 
+import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.dto.CreateRecipeDTO
 import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
 import jmantello.secretrecipeapi.entity.Recipe
@@ -24,15 +25,13 @@ class RecipeService(
     fun findAll(): Result<List<RecipeDTO>> =
         Success(recipeRepository.findAll().map { it.toDTO() })
 
+    @Transactional
     fun findById(id: Long): Result<RecipeDTO>  {
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return Error(NOT_FOUND, recipeNotFoundMessage(id))
 
         return Success(recipe.toDTO())
     }
-
-    fun findByIdOrNull(id: Long): Recipe? =
-        recipeRepository.findByIdOrNull(id)
 
     fun create(request: CreateRecipeDTO): Result<RecipeDTO> {
         val publisherId = request.publisherId

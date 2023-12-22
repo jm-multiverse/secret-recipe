@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jmantello.secretrecipeapi.dto.CreateRecipeDTO
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.dto.LoginDTO
+import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Endpoints
-import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.*
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -23,13 +22,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -67,7 +66,7 @@ class UserFlowTest {
     private var testUserDisplayName = "testdisplayname"
     private var testUserIsAdmin = false
 
-    private lateinit var testRecipe: Recipe
+    private lateinit var testRecipe: RecipeDTO
     val recipeTitle = "Cheese Steak Sandwich"
     val recipeContent =
         "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
@@ -133,7 +132,7 @@ class UserFlowTest {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginDTO(
+        val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
         )
@@ -240,94 +239,86 @@ class UserFlowTest {
         assertEquals(recipeContent, recipe.content)
         assertEquals(recipeTags, recipe.tags)
         assertEquals(recipeIsPrivate, recipe.isPrivate)
+
+        // Set test recipe
+        val result = recipeService.findById(recipe.id)
+        testRecipe = when (result) {
+            is Success -> result.data
+            is Error -> fail(result.message)
+        }
     }
-//
+
+    @Test
+    @Order(6)
+    fun testGetPublishedRecipes() = runBlocking {
+        val publisherId = testUser.id
+        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
+
+        val response = webClient.get()
+            .uri(publishedRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+        val recipe = recipes[0]
+        assertEquals(recipeTitle, recipe.title)
+        assertEquals(recipeContent, recipe.content)
+    }
+
+    @Test
+    @Order(7)
+    fun testSaveRecipes() = runBlocking {
+        val userId = testUser.id
+        val recipeId = testRecipe.id
+        val saveRecipeUrl = endpoints.saveRecipe(userId, recipeId)
+
+        val request = webClient.post()
+            .uri(saveRecipeUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = request.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+    }
+
+    @Test
+    @Order(8)
+    fun testGetSavedRecipes() = runBlocking {
+        val userId = testUser.id
+        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
+
+        val response = webClient.get()
+            .uri(savedRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+        val recipe = recipes[0]
+        assertEquals(recipeTitle, recipe.title)
+        assertEquals(recipeContent, recipe.content)
+    }
+
+    @Test
+    @Order(9)
+    fun testGetAllRecipes() = runBlocking {
+        val getRecipesUrl = endpoints.recipes
+
+        val request = webClient.get()
+            .uri(getRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = request.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+
+        assertTrue(recipes.any { it.id == testRecipe.id }, "Recipe with id ${testRecipe.id} not found.")
+    }
+
 //    @Test
-//    @Order(6)
-//    fun testGetPublishedRecipes() {
-//        val publisherId = testUser.id
-//        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getPublishedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            publishedRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersRecipes = getPublishedRecipesResponse.body ?: fail("Response body from getting published recipes was supposed to contain recipes, but was null.")
-//        val createdRecipe = usersRecipes[0]
-//        assertEquals(recipeTitle, createdRecipe.title)
-//        assertEquals(recipeContent, createdRecipe.content)
-//    }
-//
-//    @Test
-//    @Order(5)
-//    fun testSaveRecipes() {
-//        val userId = testUser.id
-//        val recipeId = testRecipe.id
-//        val saveRecipeUrl = endpoints.saveRecipe(userId, recipeId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//
-//        // Post Request
-//        val postResponse: ResponseEntity<RecipeResponse> = restTemplate.exchange(
-//            saveRecipeUrl,
-//            HttpMethod.POST,
-//            requestEntity,
-//            RecipeResponse::class
-//        )
-//        assertEquals(HttpStatus.OK, postResponse.statusCode)
-//    }
-//
-//    @Test
-//    @Order(7)
-//    fun testGetSavedRecipes() {
-//        val userId = testUser.id
-//        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getSavedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            savedRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersSavedRecipes = getSavedRecipesResponse.body ?: fail("Response body from getting saved recipes was supposed to contain recipes, but was null.")
-//        val savedRecipe = usersSavedRecipes[0]
-//        assertEquals(testRecipe, savedRecipe) // May need to compare prop
-//    }
-//
-//    @Test
-//    @Order(8)
-//    fun testGetAllRecipes() {
-//        val getRecipesUrl = endpoints.recipes
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getPublishedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            getRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val recipes = getPublishedRecipesResponse.body ?: fail("Response body from getting all recipes was supposed to contain recipes, but was null.")
-//        val recipe = recipes[0]
-//        assertEquals(testRecipe.id, recipe.id)
-//        assertEquals(testRecipe.title, recipe.title)
-//        assertEquals(testRecipe.content, recipe.content)
-//
-//    }
-//
-//    @Test
-//    @Order(9)
+//    @Order(10)
 //    fun testPublishReviews() {
 //        val publisherId = testUser.id
 //        val publishedReviewUrl = endpoints.reviews

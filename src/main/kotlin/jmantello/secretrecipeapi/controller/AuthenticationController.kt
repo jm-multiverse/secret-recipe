@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.LoginDTO
+import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
@@ -25,7 +25,7 @@ class AuthenticationController(private val userService: UserService) {
 
     @PostMapping("login")
     fun login(
-        @RequestBody request: LoginDTO,
+        @RequestBody request: LoginUserDTO,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<String>> {
         return when (val result = userService.login(request)) {

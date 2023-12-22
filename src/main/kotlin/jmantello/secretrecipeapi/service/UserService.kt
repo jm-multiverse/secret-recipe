@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.service
 import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.dto.LoginDTO
+import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
@@ -84,7 +84,7 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun login(request: LoginDTO): Result<User> {
+    fun login(request: LoginUserDTO): Result<User> {
         val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)
