@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.dto
 
 import javax.validation.constraints.Size
 
-class CreateRecipeDTO(
+class PublishRecipeDTO(
     val publisherId: Long,
 
     @Size(max = 100)

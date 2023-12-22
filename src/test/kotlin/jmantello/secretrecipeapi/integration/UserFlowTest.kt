@@ -1,10 +1,7 @@
 package jmantello.secretrecipeapi.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import jmantello.secretrecipeapi.dto.CreateRecipeDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.dto.LoginUserDTO
+import jmantello.secretrecipeapi.dto.*
 import jmantello.secretrecipeapi.entity.*
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
@@ -73,7 +70,7 @@ class UserFlowTest {
     val recipeTags = listOf("cheese", "steak", "sandwich")
     val recipeIsPrivate = false
 
-    private lateinit var testReview: Review
+    private lateinit var testReview: ReviewDTO
     val reviewTitle = "Meh."
     val reviewContent = "I thought this was going to be great, but..."
     val reviewRating = 3.0
@@ -213,7 +210,7 @@ class UserFlowTest {
 
         // Create Recipe Requests
         val publisherId = testUser.id
-        val request = CreateRecipeDTO(
+        val request = PublishRecipeDTO(
             publisherId,
             recipeTitle,
             recipeContent,
@@ -317,40 +314,47 @@ class UserFlowTest {
         assertTrue(recipes.any { it.id == testRecipe.id }, "Recipe with id ${testRecipe.id} not found.")
     }
 
-//    @Test
-//    @Order(10)
-//    fun testPublishReviews() {
-//        val publisherId = testUser.id
-//        val publishedReviewUrl = endpoints.reviews
-//
-//        // Create Review Requests
-//        val createReviewRequest = PublishReviewRequest(
-//            publisherId,
-//            reviewTitle,
-//            reviewContent,
-//            reviewRating
-//        )
-//
-//        // Post Request
-//        val requestEntity = HttpEntity(createReviewRequest)
-//        val postResponse: ResponseEntity<ReviewResponse> = restTemplate.exchange(
-//            publishedReviewUrl,
-//            HttpMethod.POST,
-//            requestEntity,
-//            ReviewResponse::class
-//        )
-//        assertEquals(HttpStatus.CREATED, postResponse.statusCode)
-//
-//        // Deserialize Review Response
-//        val createdReview = postResponse.body ?: fail("Response body was supposed to contain a newly created recipe, but was null.")
-//        assertEquals(publisherId, createdReview.publisherId)
-//        assertEquals(reviewTitle, createdReview.title)
-//        assertEquals(reviewContent, createdReview.content)
-//        assertEquals(reviewRating, createdReview.rating)
-//
-//        testReview = reviewService.findByIdOrNull(createdReview.id) ?: fail("Review was not found by review service.")
-//    }
-//
+    @Test
+    @Order(10)
+    fun testPublishReviews() = runBlocking {
+        val publisherId = testUser.id
+        val publishedReviewUrl = endpoints.reviews
+
+        // Create Review Requests
+        val request = PublishReviewDTO(
+            publisherId,
+            testRecipe.id,
+            reviewTitle,
+            reviewContent,
+            reviewRating
+        )
+
+        // Post Request
+        val response = webClient.post()
+            .uri(publishedReviewUrl)
+            .bodyValue(request)
+            .exchangeToMono { it.toEntity<ApiResponse<ReviewDTO>>() }
+            .awaitSingle()
+
+        // Deserialize Review Response
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
+
+        val createdReview = apiResponse.data ?: fail("Response body data was null.")
+        assertEquals(publisherId, createdReview.publisherId)
+        assertEquals(testRecipe.id, createdReview.recipeId)
+        assertEquals(reviewTitle, createdReview.title)
+        assertEquals(reviewContent, createdReview.content)
+        assertEquals(reviewRating, createdReview.rating)
+
+        // Set test review
+        val result = reviewService.findById(createdReview.id)
+        testReview = when (result) {
+            is Success -> result.data
+            is Error -> fail(result.message)
+        }
+    }
+
 //    @Test
 //    @Order(10)
 //    fun testGetPublishedReviews() {

@@ -32,6 +32,11 @@ class ReviewBuilder {
         return this
     }
 
+    fun isPrivate(isPrivate: Boolean): ReviewBuilder {
+        review.isPrivate = isPrivate
+        return this
+    }
+
     fun build(): Review {
         return review
     }
