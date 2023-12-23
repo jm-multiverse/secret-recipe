@@ -1,65 +1,139 @@
-//package jmantello.secretrecipeapi.integration
-//
-//import com.fasterxml.jackson.databind.ObjectMapper
-//import com.fasterxml.jackson.module.kotlin.readValue
-//import jmantello.secretrecipeapi.entity.LoginUserDTO
-//import jmantello.secretrecipeapi.entity.RegisterUserDTO
-//import jmantello.secretrecipeapi.entity.User
-//import jmantello.secretrecipeapi.util.Endpoints
-//import org.junit.jupiter.api.Assertions.assertEquals
-//import org.junit.jupiter.api.Test
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.boot.test.context.SpringBootTest
-//import org.springframework.boot.test.web.client.TestRestTemplate
-//import org.springframework.boot.test.web.server.LocalServerPort
-//import org.springframework.http.HttpStatus
-//import org.springframework.http.ResponseEntity
-//
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//class AuthControllerIntegrationTest {
-//
-//    @LocalServerPort
-//    private var port: Int = 0
-//    private var host: String = "http://localhost"
-//    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
-//
-//    @Autowired
-//    private lateinit var restTemplate: TestRestTemplate
-//    val objectMapper = ObjectMapper()
-//
-//    private var testUserEmail = "testuser@example.com"
-//    private var testUserPassword = "testpassword"
-//    private var testUserDisplayName = "testdisplayname"
-//
-//    @Test
-//    fun testRegisterLoginLogout() {
-//        // Register
-//        val registerUrl = endpoints.register
-//        val registerRequestBody = RegisterUserDTO(
-//            testUserEmail,
-//            testUserPassword,
-//            testUserDisplayName
-//        )
-//        val registerResponse: ResponseEntity<String> = restTemplate.postForEntity(registerUrl, registerRequestBody, String::class.java)
-//        assertEquals(HttpStatus.CREATED, registerResponse.statusCode)
-//
-//        // Deserialize User
-//        val testUser: User = objectMapper.readValue(registerResponse.body!!)
-//        assertEquals(testUserEmail, testUser.email)
-//        assertEquals(testUserDisplayName, testUser.displayName)
-//
-//        // Login
-//        val loginUrl = endpoints.login
-//        val loginRequestBody = LoginUserDTO(
-//            testUserEmail,
-//            testUserPassword
-//        )
-//        val loginResponse: ResponseEntity<String> = restTemplate.postForEntity(loginUrl, loginRequestBody, String::class.java)
-//        assertEquals(HttpStatus.OK, loginResponse.statusCode)
-//
-//        // Logout
-//        val logoutUrl = endpoints.logout
-//        val logoutResponse: ResponseEntity<String> = restTemplate.postForEntity(logoutUrl, null, String::class.java)
-//        assertEquals(HttpStatus.OK, logoutResponse.statusCode)
-//    }
-//}
+package jmantello.secretrecipeapi.integration
+
+import jmantello.secretrecipeapi.dto.LoginUserDTO
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.service.RecipeService
+import jmantello.secretrecipeapi.service.ReviewService
+import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.util.ApiResponse
+import jmantello.secretrecipeapi.util.Endpoints
+import jmantello.secretrecipeapi.util.Result
+import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.toEntity
+import kotlin.test.assertNull
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@ActiveProfiles("test")
+class AuthControllerIntegrationTest {
+
+    @LocalServerPort
+    private var port: Int = 0
+    private var host: String = "http://localhost"
+    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
+
+    @Autowired
+    private lateinit var webClientBuilder: WebClient.Builder
+    private lateinit var webClient: WebClient
+
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var recipeService: RecipeService
+
+    @Autowired
+    private lateinit var reviewService: ReviewService
+
+    // Test User
+    private lateinit var testUser: UserDTO
+    private var testUserEmail = "authtestuser@example.com"
+    private var testUserPassword = "authtestpassword"
+    private var testUserDisplayName = "authtestdisplayname"
+    private var testUserIsAdmin = false
+
+    @BeforeAll
+    fun setupClass() {
+        val baseUrl = "http://localhost:$port"
+        webClient = webClientBuilder.baseUrl(baseUrl).build()
+    }
+
+    @Test
+    @Order(0)
+    fun testUserRegistration(): Unit = runBlocking {
+
+        val registerUrl = endpoints.register
+        val registerRequestBody = RegisterUserDTO(
+            testUserEmail,
+            testUserPassword,
+            testUserDisplayName,
+            testUserIsAdmin
+        )
+
+        val response = webClient.post()
+            .uri(registerUrl)
+            .bodyValue(registerRequestBody)
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
+
+        Assertions.assertEquals(HttpStatus.CREATED, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        val userDTO = apiResponse.data ?: fail("Response body data was null.")
+
+        Assertions.assertNotNull(userDTO.id)
+        Assertions.assertEquals(testUserEmail, userDTO.email)
+        Assertions.assertEquals(testUserDisplayName, userDTO.displayName)
+
+        // Set test user
+        val result = userService.findById(userDTO.id)
+        testUser = when (result) {
+            is Result.Success -> result.data
+            is Result.Error -> fail(result.message)
+        }
+    }
+
+    @Test
+    @Order(1)
+    fun testUserLogin(): Unit = runBlocking {
+
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserDTO(
+            testUserEmail,
+            testUserPassword
+        )
+
+        val response: ResponseEntity<ApiResponse<String>> = webClient.post()
+            .uri(loginUrl)
+            .bodyValue(loginRequestBody)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
+    }
+
+    @Test
+    @Order(2)
+    fun testLogout() = runBlocking {
+        // Logout
+        val logoutUrl = endpoints.logout
+        val logoutResponse = webClient.post()
+            .uri(logoutUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        Assertions.assertEquals(HttpStatus.OK, logoutResponse.statusCode)
+
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserDTO(
+            testUserEmail,
+            testUserPassword
+        )
+    }
+
+}

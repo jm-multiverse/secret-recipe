@@ -16,8 +16,8 @@ object UserMapper {
             publishedRecipes = user.publishedRecipes.map { it.toDTO() },
             savedRecipes = user.savedRecipes.map { it.toDTO() },
             publishedReviews = user.publishedReviews.map { it.toDTO() },
-            followers = user.followers.map { it.toDTO() },
-            following = user.following.map { it.toDTO() }
+            followers = user.followers.map { it.id },
+            following = user.following.map { it.id }
         )
     }
 }

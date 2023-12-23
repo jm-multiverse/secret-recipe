@@ -17,9 +17,10 @@ class Endpoints(val host: String, val port: Int) {
     fun saveRecipe(userId: Long, recipeId: Long) = "$users/$userId/save-recipe/$recipeId"
     fun getSavedRecipes(id: Long) = "$users/$id/saved-recipes"
     fun getPublishedReviews(id: Long) = "$users/$id/published-reviews"
-    fun followers(id: Long): Any = "$users/$id/followers"
-    fun follow(userId: Long, followerId: Long)
-        = "$users/$userId/follow/$followerId"
+    fun followers(id: Long) = "$users/$id/followers"
+    fun follow(userId: Long, followerId: Long) = "$users/$userId/follow/$followerId"
+    fun likeReview(userId: Long, reviewId: Long) = "$users/$userId/like-review/$reviewId"
+    fun deleteUser(id: Long) = "$users/$id"
 
     // Recipes
     val recipes = "$baseUrl/recipes"

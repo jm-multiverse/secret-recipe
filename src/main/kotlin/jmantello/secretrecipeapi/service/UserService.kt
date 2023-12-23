@@ -1,9 +1,9 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
+import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
@@ -11,6 +11,7 @@ import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.repository.RecipeRepository
+import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.recipeNotFoundMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userDeletedMessage
@@ -25,11 +26,11 @@ import org.springframework.stereotype.Service
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val recipeRepository: RecipeRepository
+    private val recipeRepository: RecipeRepository,
+    private val reviewRepository: ReviewRepository,
 ) {
     // TODO: Validate DTOs before attempting to save
     // TODO: Add @Transactional annotations to services
-    // TODO: Consider extracting error messages
 
     fun findAll(): Result<List<UserDTO>> =
         Success(userRepository.findAll().map { it.toDTO() })
@@ -63,8 +64,13 @@ class UserService(
     fun save(user: User): User =
         userRepository.save(user)
 
+    @Transactional
     fun deleteById(id: Long): Result<Any> {
-        userRepository.deleteById(id)
+        val user = findByIdOrNull(id)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+
+        user.isActive = false
+        userRepository.save(user)
         return Success(NO_CONTENT, userDeletedMessage(id))
     }
 
@@ -143,6 +149,7 @@ class UserService(
         return Success(reviews)
     }
 
+    @Transactional
     fun getFollowers(id: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
@@ -150,6 +157,17 @@ class UserService(
         val followers = user.followers.map { it.toDTO() }
 
         return Success(followers)
+    }
+
+
+    @Transactional
+    fun getFollowing(id: Long): Result<List<UserDTO>> {
+        val user = findByIdOrNull(id)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+
+        val following = user.following.map { it.toDTO() }
+
+        return Success(following)
     }
 
     @Transactional
@@ -160,12 +178,43 @@ class UserService(
         val follower = findByIdOrNull(followerId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
 
-        if (!user.followers.contains(follower)) {
-            user.followers.add(follower)
+        follower.follow(user)
+        val response = follower.following.map { it.toDTO() }
+        return Success(response)
+    }
+
+    @Transactional
+    fun unfollow(userId: Long, followerId: Long): Result<List<UserDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+
+        val follower = findByIdOrNull(followerId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
+
+        if (user.followers.contains(follower)) {
+            user.followers.remove(follower)
             userRepository.save(user)
         }
 
         val response = user.followers.map { it.toDTO() }
+
+        return Success(response)
+    }
+
+    @Transactional
+    fun likeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: return Error(NOT_FOUND, recipeNotFoundMessage(reviewId))
+
+        if (!user.likedReviews.contains(review)) {
+            user.likedReviews.add(review)
+            userRepository.save(user)
+        }
+
+        val response = user.likedReviews.map { it.toDTO() }
 
         return Success(response)
     }

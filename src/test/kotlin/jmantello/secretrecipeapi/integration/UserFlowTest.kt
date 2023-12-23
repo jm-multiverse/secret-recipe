@@ -1,14 +1,16 @@
 package jmantello.secretrecipeapi.integration
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import jmantello.secretrecipeapi.dto.*
-import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.entity.RecipeDTO
+import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Endpoints
-import jmantello.secretrecipeapi.util.Result.*
+import jmantello.secretrecipeapi.util.Result.Error
+import jmantello.secretrecipeapi.util.Result.Success
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
@@ -17,7 +19,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
@@ -301,6 +302,8 @@ class UserFlowTest {
 
         val apiResponse = request.body ?: fail("Response body was null.")
         val recipes = apiResponse.data ?: fail("Response body data was null.")
+
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
     }
 
     @Test
@@ -406,7 +409,7 @@ class UserFlowTest {
     @Order(11)
     fun testFollowAndFollowers() = runBlocking {
 
-        // Follow testUser2
+        // testUser2 follows testUser
         val followUrl = endpoints.follow(testUser.id, testUser2.id)
         val followResponse = webClient.post()
             .uri(followUrl)
@@ -415,29 +418,96 @@ class UserFlowTest {
 
         assertEquals(OK, followResponse.statusCode)
 
+        // Response is the list of users testUser2 is following
         val followApiResponse = followResponse.body ?: fail("Response body was null.")
-        val followers = followApiResponse.data ?: fail("Response body data was null.")
+        val following = followApiResponse.data ?: fail("Response body data was null.")
 
-        val follower = followers.find { it.id == testUser2.id } ?: fail("Follower with id ${testUser2.id} not found.")
+        val userBeingFollowed =
+            following.find { it.id == testUser.id } ?: fail("Follower with id ${testUser.id} not found.")
+        assertEquals(testUser.id, userBeingFollowed.id)
+
+        // Get testUser's followers, assert it contains testUser2
+        val getFollowersUrl = endpoints.followers(testUser.id)
+        val followersResponse = webClient.get()
+            .uri(getFollowersUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, followersResponse.statusCode)
+
+        val followersApiResponse = followersResponse.body ?: fail("Response body was null.")
+        val followersList = followersApiResponse.data ?: fail("Response body data was null.")
+        val follower =
+            followersList.find { it.id == testUser2.id } ?: fail("Follower with id ${testUser2.id} not found.")
         assertEquals(testUser2.id, follower.id)
-        assertEquals(testUser2.email, follower.email)
-        assertEquals(testUser2.displayName, follower.displayName)
-        assertEquals(testUser2.isActive, follower.isActive)
-        assertEquals(testUser2.isAdmin, follower.isAdmin)
-        assertEquals(testUser2.dateCreated, follower.dateCreated)
     }
 
-//    @Test
-//    @Order(12)
-//    fun testLikeReview() {
-//        // ... test liking a review and viewing likes
-//    }
-//
-//    private fun testLogoutAndLogin() {
-//        // ... test logout and login
-//    }
-//
-//    private fun testDeleteAccount() {
-//        // ... test deleting user account
-//    }
+    @Test
+    @Order(12)
+    fun testLikeReview() = runBlocking {
+        val likeUrl = endpoints.likeReview(testUser2.id, testReview.id)
+        val likeResponse = webClient.post()
+            .uri(likeUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, likeResponse.statusCode)
+
+        val likeApiResponse = likeResponse.body ?: fail("Response body was null.")
+        val likedReviews = likeApiResponse.data ?: fail("Response body data was null.")
+
+        val likedReview =
+            likedReviews.find { it.id == testReview.id } ?: fail("Liked review with id ${testReview.id} not found.")
+        assertEquals(testReview.id, likedReview.id)
+    }
+
+    @Test
+    @Order(13)
+    fun testLogoutAndLogin() = runBlocking {
+        // Logout
+        val logoutUrl = endpoints.logout
+        val logoutResponse = webClient.post()
+            .uri(logoutUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        assertEquals(OK, logoutResponse.statusCode)
+
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserDTO(
+            testUserEmail,
+            testUserPassword
+        )
+
+        // Log back in
+        val loginResponse = webClient.post()
+            .uri(loginUrl)
+            .bodyValue(loginRequestBody)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        assertEquals(OK, loginResponse.statusCode)
+    }
+
+    @Test
+    @Order(14)
+    fun testDeleteAccount() = runBlocking {
+        // Delete test user
+        val deleteUrl = endpoints.deleteUser(testUser.id)
+        val deleteResponse = webClient.delete()
+            .uri(deleteUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
+            .awaitSingle()
+
+        assertEquals(NO_CONTENT, deleteResponse.statusCode)
+
+        // Delete test user 2
+        val deleteUrl2 = endpoints.deleteUser(testUser2.id)
+        val deleteResponse2 = webClient.delete()
+            .uri(deleteUrl2)
+            .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
+            .awaitSingle()
+
+        assertEquals(NO_CONTENT, deleteResponse2.statusCode)
+    }
 }

@@ -42,6 +42,7 @@ class Review {
     @JoinColumn(name = "recipe_id")
     var recipe: Recipe? = null
 
+    @JsonBackReference
     @ManyToMany
     @JoinTable(
         name = "review_likes",
