@@ -1,18 +1,15 @@
 package jmantello.secretrecipeapi.integration
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import jmantello.secretrecipeapi.dto.CreateRecipeDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.dto.LoginDTO
-import jmantello.secretrecipeapi.entity.*
+import jmantello.secretrecipeapi.dto.*
+import jmantello.secretrecipeapi.entity.RecipeDTO
+import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
-import jmantello.secretrecipeapi.util.Endpoints
-import jmantello.secretrecipeapi.util.Result
-import jmantello.secretrecipeapi.util.Result.*
+import jmantello.secretrecipeapi.util.Result.Error
+import jmantello.secretrecipeapi.util.Result.Success
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
@@ -21,36 +18,18 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-class UserFlowTest {
-
-    // TODO: Explore using WebClient as a newer alternative to restTemplate
-
-    @LocalServerPort
-    private var port: Int = 0
-    private var host: String = "http://localhost"
-    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
-
-    @Autowired
-    private lateinit var webClientBuilder: WebClient.Builder
-    private lateinit var webClient: WebClient
-
-    @Autowired
-    private lateinit var restTemplate: TestRestTemplate
-    val objectMapper = ObjectMapper()
+class UserFlowTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var userService: UserService
@@ -61,36 +40,36 @@ class UserFlowTest {
     @Autowired
     private lateinit var reviewService: ReviewService
 
+    // Test User
     private lateinit var testUser: UserDTO
     private var testUserEmail = "testuser@example.com"
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
     private var testUserIsAdmin = false
 
-    private lateinit var testRecipe: Recipe
+    // Test User 2
+    private lateinit var testUser2: UserDTO
+    private var testUser2Email = "testuser2@example.com"
+    private var testUser2Password = "testpassword"
+    private var testUser2DisplayName = "testdisplayname2"
+    private var testUser2IsAdmin = false
+
+    // Test Recipe
+    private lateinit var testRecipe: RecipeDTO
     val recipeTitle = "Cheese Steak Sandwich"
     val recipeContent =
         "I love cheese, I love steak, and I love sandwiches. This means that a cheese steak sandwich is sure to knock it out of the park. First you take the cheese..."
     val recipeTags = listOf("cheese", "steak", "sandwich")
     val recipeIsPrivate = false
 
-    private lateinit var testReview: Review
+    // Test Review
+    private lateinit var testReview: ReviewDTO
     val reviewTitle = "Meh."
     val reviewContent = "I thought this was going to be great, but..."
     val reviewRating = 3.0
 
-    @BeforeAll
-    fun setupClass() {
-        val baseUrl = "http://localhost:$port"
-        webClient = webClientBuilder.baseUrl(baseUrl).build()
-//        testUserRegistration()
-//        testUserLogin()
-    }
-
     @AfterAll
     fun teardownClass() {
-//        testLogoutAndLogin()
-//        testDeleteAccount()
     }
 
     @Test
@@ -114,8 +93,8 @@ class UserFlowTest {
         assertEquals(CREATED, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
-
         val userDTO = apiResponse.data ?: fail("Response body data was null.")
+
         assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
@@ -126,6 +105,31 @@ class UserFlowTest {
             is Success -> result.data
             is Error -> fail(result.message)
         }
+
+        // Register and set test user 2
+        val registerRequestBody2 = RegisterUserDTO(
+            testUser2Email,
+            testUser2Password,
+            testUser2DisplayName,
+            testUser2IsAdmin
+        )
+
+        val response2 = webClient.post()
+            .uri(registerUrl)
+            .bodyValue(registerRequestBody2)
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
+
+        assertEquals(CREATED, response2.statusCode)
+
+        val apiResponse2 = response2.body ?: fail("Response body was null.")
+        val userDTO2 = apiResponse2.data ?: fail("Response body data was null.")
+
+        val result2 = userService.findById(userDTO2.id)
+        testUser2 = when (result2) {
+            is Success -> result2.data
+            is Error -> fail(result2.message)
+        }
     }
 
     @Test
@@ -133,7 +137,7 @@ class UserFlowTest {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginDTO(
+        val loginRequestBody = LoginUserDTO(
             testUserEmail,
             testUserPassword
         )
@@ -149,7 +153,6 @@ class UserFlowTest {
         val apiResponse = response.body ?: fail("Response body was null.")
         assertNull(apiResponse.error)
     }
-
 
     @Test
     @Order(2)
@@ -214,7 +217,7 @@ class UserFlowTest {
 
         // Create Recipe Requests
         val publisherId = testUser.id
-        val request = CreateRecipeDTO(
+        val request = PublishRecipeDTO(
             publisherId,
             recipeTitle,
             recipeContent,
@@ -232,7 +235,6 @@ class UserFlowTest {
         assertEquals(CREATED, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
-
         val recipe = apiResponse.data ?: fail("Response body data was null.")
 
         assertEquals(publisherId, recipe.publisherId)
@@ -240,165 +242,254 @@ class UserFlowTest {
         assertEquals(recipeContent, recipe.content)
         assertEquals(recipeTags, recipe.tags)
         assertEquals(recipeIsPrivate, recipe.isPrivate)
+
+        // Set test recipe
+        val result = recipeService.findById(recipe.id)
+        testRecipe = when (result) {
+            is Success -> result.data
+            is Error -> fail(result.message)
+        }
     }
-//
-//    @Test
-//    @Order(6)
-//    fun testGetPublishedRecipes() {
-//        val publisherId = testUser.id
-//        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getPublishedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            publishedRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersRecipes = getPublishedRecipesResponse.body ?: fail("Response body from getting published recipes was supposed to contain recipes, but was null.")
-//        val createdRecipe = usersRecipes[0]
-//        assertEquals(recipeTitle, createdRecipe.title)
-//        assertEquals(recipeContent, createdRecipe.content)
-//    }
-//
-//    @Test
-//    @Order(5)
-//    fun testSaveRecipes() {
-//        val userId = testUser.id
-//        val recipeId = testRecipe.id
-//        val saveRecipeUrl = endpoints.saveRecipe(userId, recipeId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//
-//        // Post Request
-//        val postResponse: ResponseEntity<RecipeResponse> = restTemplate.exchange(
-//            saveRecipeUrl,
-//            HttpMethod.POST,
-//            requestEntity,
-//            RecipeResponse::class
-//        )
-//        assertEquals(HttpStatus.OK, postResponse.statusCode)
-//    }
-//
-//    @Test
-//    @Order(7)
-//    fun testGetSavedRecipes() {
-//        val userId = testUser.id
-//        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getSavedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            savedRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersSavedRecipes = getSavedRecipesResponse.body ?: fail("Response body from getting saved recipes was supposed to contain recipes, but was null.")
-//        val savedRecipe = usersSavedRecipes[0]
-//        assertEquals(testRecipe, savedRecipe) // May need to compare prop
-//    }
-//
-//    @Test
-//    @Order(8)
-//    fun testGetAllRecipes() {
-//        val getRecipesUrl = endpoints.recipes
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Recipe>>() {}
-//
-//        val getPublishedRecipesResponse: ResponseEntity<List<Recipe>> = restTemplate.exchange(
-//            getRecipesUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val recipes = getPublishedRecipesResponse.body ?: fail("Response body from getting all recipes was supposed to contain recipes, but was null.")
-//        val recipe = recipes[0]
-//        assertEquals(testRecipe.id, recipe.id)
-//        assertEquals(testRecipe.title, recipe.title)
-//        assertEquals(testRecipe.content, recipe.content)
-//
-//    }
-//
-//    @Test
-//    @Order(9)
-//    fun testPublishReviews() {
-//        val publisherId = testUser.id
-//        val publishedReviewUrl = endpoints.reviews
-//
-//        // Create Review Requests
-//        val createReviewRequest = PublishReviewRequest(
-//            publisherId,
-//            reviewTitle,
-//            reviewContent,
-//            reviewRating
-//        )
-//
-//        // Post Request
-//        val requestEntity = HttpEntity(createReviewRequest)
-//        val postResponse: ResponseEntity<ReviewResponse> = restTemplate.exchange(
-//            publishedReviewUrl,
-//            HttpMethod.POST,
-//            requestEntity,
-//            ReviewResponse::class
-//        )
-//        assertEquals(HttpStatus.CREATED, postResponse.statusCode)
-//
-//        // Deserialize Review Response
-//        val createdReview = postResponse.body ?: fail("Response body was supposed to contain a newly created recipe, but was null.")
-//        assertEquals(publisherId, createdReview.publisherId)
-//        assertEquals(reviewTitle, createdReview.title)
-//        assertEquals(reviewContent, createdReview.content)
-//        assertEquals(reviewRating, createdReview.rating)
-//
-//        testReview = reviewService.findByIdOrNull(createdReview.id) ?: fail("Review was not found by review service.")
-//    }
-//
-//    @Test
-//    @Order(10)
-//    fun testGetPublishedReviews() {
-//        val publisherId = testUser.id
-//        val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Review>>() {}
-//
-//        val getPublishedReviewsResponse: ResponseEntity<List<Review>> = restTemplate.exchange(
-//            publishedReviewsUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersReviews = getPublishedReviewsResponse.body ?: fail("Response body from getting published reviews was supposed to contain recipes, but was null.")
-//        val createdReview = usersReviews[0]
-//        assertEquals(reviewTitle, createdReview.title)
-//        assertEquals(reviewContent, createdReview.content)
-//    }
-//
-//    @Test
-//    @Order(11)
-//    fun testFollowAndFollowers() {
-//        // ... test following another user and getting followers
-//    }
-//
-//    @Test
-//    @Order(12)
-//    fun testLikeReview() {
-//        // ... test liking a review and viewing likes
-//    }
-//
-//    private fun testLogoutAndLogin() {
-//        // ... test logout and login
-//    }
-//
-//    private fun testDeleteAccount() {
-//        // ... test deleting user account
-//    }
+
+    @Test
+    @Order(6)
+    fun testGetPublishedRecipes() = runBlocking {
+        val publisherId = testUser.id
+        val publishedRecipesUrl = endpoints.getPublishedRecipes(publisherId)
+
+        val response = webClient.get()
+            .uri(publishedRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
+        assertEquals(recipeTitle, recipe.title)
+        assertEquals(recipeContent, recipe.content)
+    }
+
+    @Test
+    @Order(7)
+    fun testSaveRecipes() = runBlocking {
+        val userId = testUser.id
+        val recipeId = testRecipe.id
+        val saveRecipeUrl = endpoints.saveRecipe(userId, recipeId)
+
+        val request = webClient.post()
+            .uri(saveRecipeUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = request.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
+    }
+
+    @Test
+    @Order(8)
+    fun testGetSavedRecipes() = runBlocking {
+        val userId = testUser.id
+        val savedRecipesUrl = endpoints.getSavedRecipes(userId)
+
+        val response = webClient.get()
+            .uri(savedRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
+        assertEquals(recipeTitle, recipe.title)
+        assertEquals(recipeContent, recipe.content)
+    }
+
+    @Test
+    @Order(9)
+    fun testGetAllRecipes() = runBlocking {
+        val getRecipesUrl = endpoints.recipes
+
+        val request = webClient.get()
+            .uri(getRecipesUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
+            .awaitSingle()
+
+        val apiResponse = request.body ?: fail("Response body was null.")
+        val recipes = apiResponse.data ?: fail("Response body data was null.")
+
+        assertTrue(recipes.any { it.id == testRecipe.id }, "Recipe with id ${testRecipe.id} not found.")
+    }
+
+    @Test
+    @Order(10)
+    fun testPublishReviews() = runBlocking {
+        val publisherId = testUser.id
+        val publishedReviewUrl = endpoints.reviews
+
+        // Create Review Requests
+        val request = PublishReviewDTO(
+            publisherId,
+            testRecipe.id,
+            reviewTitle,
+            reviewContent,
+            reviewRating
+        )
+
+        // Post Request
+        val response = webClient.post()
+            .uri(publishedReviewUrl)
+            .bodyValue(request)
+            .exchangeToMono { it.toEntity<ApiResponse<ReviewDTO>>() }
+            .awaitSingle()
+
+        assertEquals(CREATED, response.statusCode)
+
+        // Deserialize Review Response
+        val apiResponse = response.body ?: fail("Response body was null.")
+        assertNull(apiResponse.error)
+
+        val createdReview = apiResponse.data ?: fail("Response body data was null.")
+        assertEquals(publisherId, createdReview.publisherId)
+        assertEquals(testRecipe.id, createdReview.recipeId)
+        assertEquals(reviewTitle, createdReview.title)
+        assertEquals(reviewContent, createdReview.content)
+        assertEquals(reviewRating, createdReview.rating)
+
+        // Set test review
+        val result = reviewService.findById(createdReview.id)
+        testReview = when (result) {
+            is Success -> result.data
+            is Error -> fail(result.message)
+        }
+    }
+
+    @Test
+    @Order(11)
+    fun testGetPublishedReviews() = runBlocking {
+        val publisherId = testUser.id
+        val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
+
+        val response = webClient.get()
+            .uri(publishedReviewsUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        val usersReviews = apiResponse.data ?: fail("Response body data was null.")
+
+        val createdReview =
+            usersReviews.find { it.id == testReview.id } ?: fail("Review with id ${testReview.id} not found.")
+        assertEquals(reviewTitle, createdReview.title)
+        assertEquals(reviewContent, createdReview.content)
+    }
+
+    @Test
+    @Order(11)
+    fun testFollowAndFollowers() = runBlocking {
+
+        // testUser2 follows testUser
+        val followUrl = endpoints.follow(testUser.id, testUser2.id)
+        val followResponse = webClient.post()
+            .uri(followUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, followResponse.statusCode)
+
+        // Response is the list of users testUser2 is following
+        val followApiResponse = followResponse.body ?: fail("Response body was null.")
+        val following = followApiResponse.data ?: fail("Response body data was null.")
+
+        val userBeingFollowed =
+            following.find { it.id == testUser.id } ?: fail("Follower with id ${testUser.id} not found.")
+        assertEquals(testUser.id, userBeingFollowed.id)
+
+        // Get testUser's followers, assert it contains testUser2
+        val getFollowersUrl = endpoints.followers(testUser.id)
+        val followersResponse = webClient.get()
+            .uri(getFollowersUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, followersResponse.statusCode)
+
+        val followersApiResponse = followersResponse.body ?: fail("Response body was null.")
+        val followersList = followersApiResponse.data ?: fail("Response body data was null.")
+        val follower =
+            followersList.find { it.id == testUser2.id } ?: fail("Follower with id ${testUser2.id} not found.")
+        assertEquals(testUser2.id, follower.id)
+    }
+
+    @Test
+    @Order(12)
+    fun testLikeReview() = runBlocking {
+        val likeUrl = endpoints.likeReview(testUser2.id, testReview.id)
+        val likeResponse = webClient.post()
+            .uri(likeUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, likeResponse.statusCode)
+
+        val likeApiResponse = likeResponse.body ?: fail("Response body was null.")
+        val likedReviews = likeApiResponse.data ?: fail("Response body data was null.")
+
+        val likedReview =
+            likedReviews.find { it.id == testReview.id } ?: fail("Liked review with id ${testReview.id} not found.")
+        assertEquals(testReview.id, likedReview.id)
+    }
+
+    @Test
+    @Order(13)
+    fun testLogoutAndLogin() = runBlocking {
+        // Logout
+        val logoutUrl = endpoints.logout
+        val logoutResponse = webClient.post()
+            .uri(logoutUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        assertEquals(OK, logoutResponse.statusCode)
+
+        val loginUrl = endpoints.login
+        val loginRequestBody = LoginUserDTO(
+            testUserEmail,
+            testUserPassword
+        )
+
+        // Log back in
+        val loginResponse = webClient.post()
+            .uri(loginUrl)
+            .bodyValue(loginRequestBody)
+            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .awaitSingle()
+
+        assertEquals(OK, loginResponse.statusCode)
+    }
+
+    @Test
+    @Order(14)
+    fun testDeleteAccount() = runBlocking {
+        // Delete test user
+        val deleteUrl = endpoints.deleteUser(testUser.id)
+        val deleteResponse = webClient.delete()
+            .uri(deleteUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
+            .awaitSingle()
+
+        assertEquals(NO_CONTENT, deleteResponse.statusCode)
+
+        // Delete test user 2
+        val deleteUrl2 = endpoints.deleteUser(testUser2.id)
+        val deleteResponse2 = webClient.delete()
+            .uri(deleteUrl2)
+            .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
+            .awaitSingle()
+
+        assertEquals(NO_CONTENT, deleteResponse2.statusCode)
+    }
 }

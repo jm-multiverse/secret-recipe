@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.dto.LoginDTO
+import jmantello.secretrecipeapi.dto.LoginUserDTO
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
@@ -27,7 +27,7 @@ class UserController(
         respond(userService.findById(id))
 
     @PostMapping
-    fun createUser(@RequestBody dto: LoginDTO): ResponseEntity<ApiResponse<String>> =
+    fun createUser(@RequestBody dto: LoginUserDTO): ResponseEntity<ApiResponse<String>> =
         respond(Error("New users must be registered through the authentication endpoint: 'api/auth/register'."))
 
     @PutMapping("/{id}")
@@ -59,4 +59,34 @@ class UserController(
     @GetMapping("{id}/published-reviews")
     fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
         respond(userService.getPublishedReviews(id))
+
+    @GetMapping("{id}/followers")
+    fun followers(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.getFollowers(id))
+
+    @GetMapping("{id}/following")
+    fun following(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.getFollowing(id))
+
+    @PostMapping("{userId}/follow/{followerId}")
+    fun follow(
+        @PathVariable userId: Long,
+        @PathVariable followerId: Long
+    ): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.follow(userId, followerId))
+
+    @PostMapping("{userId}/unfollow/{followerId}")
+    fun unfollow(
+        @PathVariable userId: Long,
+        @PathVariable followerId: Long
+    ): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.unfollow(userId, followerId))
+
+    @PostMapping("{userId}/like-review/{reviewId}")
+        fun likeReview(
+            @PathVariable userId: Long,
+            @PathVariable reviewId: Long
+        ): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+            respond(userService.likeReview(userId, reviewId))
+
 }

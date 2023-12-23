@@ -1,8 +1,6 @@
 package jmantello.secretrecipeapi.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.*
 import jakarta.persistence.*
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
@@ -19,10 +17,11 @@ class UserDTO(
     val publishedRecipes: List<RecipeDTO>,
     val savedRecipes: List<RecipeDTO>,
     val publishedReviews: List<ReviewDTO>,
-    val followers: List<UserDTO>,
-    val following: List<UserDTO>
-    // TODO: Consider updating long id values to their corresponding entity
+    val followers: List<Long>,
+    val following: List<Long>
 )
+
+// TODO: Consider replacing RecipeDTO and ReviewDTO with IDs
 
 @Entity
 @Table(name="users")
@@ -63,18 +62,30 @@ class User {
     )
     var savedRecipes: MutableList<Recipe> = mutableListOf()
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "publisher")
     var publishedReviews: MutableList<Review> = mutableListOf()
 
-    @ManyToMany(mappedBy = "followers")
-    var following: MutableList<User> = mutableListOf()
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+        name = "review_likes",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "review_id")]
+    )
+    var likedReviews: MutableList<Review> = mutableListOf()
 
+    @JsonManagedReference
     @ManyToMany
     @JoinTable(
         name = "user_followers",
-        joinColumns = [JoinColumn(name = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "follower_id")]
+        joinColumns = [JoinColumn(name = "follower_id")], // User who follows
+        inverseJoinColumns = [JoinColumn(name = "followed_id")] // User being followed
     )
+    var following: MutableList<User> = mutableListOf()
+
+    @JsonBackReference
+    @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf()
 
     fun validatePassword(password: String): Boolean {
@@ -98,6 +109,18 @@ class User {
         userDTO.displayName?.let { this.displayName = it }
         userDTO.isAdmin?.let { this.isAdmin = it }
         userDTO.isActive?.let { this.isActive = it }
-
     }
+
+    fun follow(user: User) {
+        if(this == user) return
+        if(this.following.contains(user)) return
+        this.following.add(user)
+    }
+
+    fun unfollow(user: User) {
+        if(this == user) return
+        if(!this.following.contains(user)) return
+        this.following.remove(user)
+    }
+
 }

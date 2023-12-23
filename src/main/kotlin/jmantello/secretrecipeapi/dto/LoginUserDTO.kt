@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.dto
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.Email
 
-open class LoginDTO(
+class LoginUserDTO(
     @Email
     var email: String,
 
