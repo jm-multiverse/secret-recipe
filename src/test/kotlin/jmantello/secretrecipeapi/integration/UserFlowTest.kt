@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.toEntity
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -98,6 +99,7 @@ class UserFlowTest : IntegrationTestBase() {
         assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
+        assertEquals(testUserIsAdmin, userDTO.isAdmin)
 
         // Set test user
         val result = userService.findById(userDTO.id)
@@ -167,6 +169,7 @@ class UserFlowTest : IntegrationTestBase() {
         val apiResponse = response.body ?: fail("Response body was null.")
         assertNull(apiResponse.error)
 
+        // Validate response body data
         val userDTO = apiResponse.data ?: fail("Response body data was null.")
         assertEquals(testUser.id, userDTO.id)
         assertEquals(testUser.email, userDTO.email)
@@ -181,11 +184,11 @@ class UserFlowTest : IntegrationTestBase() {
     fun testUpdateAccount() = runBlocking {
         // Change Test User
         val updateUrl = endpoints.updateUser(testUser.id)
-        val changedDisplayName = "test changed display name"
+        val testUserDisplayName = "test changed display name"
 
         val request = UpdateUserDTO(
             id = testUser.id,
-            displayName = changedDisplayName
+            displayName = testUserDisplayName
         )
 
         // Put Request
@@ -203,7 +206,7 @@ class UserFlowTest : IntegrationTestBase() {
         val userDTO = apiResponse.data ?: fail("Response body data was null.")
         assertEquals(testUser.id, userDTO.id)
         assertEquals(testUser.email, userDTO.email)
-        assertEquals(changedDisplayName, userDTO.displayName)
+        assertEquals(testUserDisplayName, userDTO.displayName)
         assertEquals(testUser.isActive, userDTO.isActive)
         assertEquals(testUser.isAdmin, userDTO.isAdmin)
         assertEquals(testUser.dateCreated, userDTO.dateCreated)
@@ -426,6 +429,37 @@ class UserFlowTest : IntegrationTestBase() {
 
     @Test
     @Order(12)
+    fun testUnfollow() = runBlocking {
+        // testUser2 unfollows testUser
+        val unfollowUrl = endpoints.unfollow(testUser.id, testUser2.id)
+        val unfollowResponse = webClient.post()
+            .uri(unfollowUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, unfollowResponse.statusCode)
+
+        // Response is testUser2 following list
+        val unfollowApiResponse = unfollowResponse.body ?: fail("Response body was null.")
+        val followingList = unfollowApiResponse.data ?: fail("Response body data was null.")
+        assertFalse(followingList.any { it.id == testUser.id }, "Follower with id ${testUser.id} found after unfollow.")
+
+        // Get testUser's followers, assert it does not contain testUser2
+        val getFollowersUrl = endpoints.followers(testUser.id)
+        val followersResponse = webClient.get()
+            .uri(getFollowersUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, followersResponse.statusCode)
+
+        val followersApiResponse = followersResponse.body ?: fail("Response body was null.")
+        val followersList = followersApiResponse.data ?: fail("Response body data was null.")
+        assertFalse(followersList.any { it.id == testUser2.id }, "Follower with id ${testUser2.id} found after unfollow.")
+    }
+
+    @Test
+    @Order(13)
     fun testLikeReview() = runBlocking {
         val likeUrl = endpoints.likeReview(testUser2.id, testReview.id)
         val likeResponse = webClient.post()
@@ -444,7 +478,7 @@ class UserFlowTest : IntegrationTestBase() {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     fun testLogoutAndLogin() = runBlocking {
         // Logout
         val logoutUrl = endpoints.logout
@@ -472,7 +506,7 @@ class UserFlowTest : IntegrationTestBase() {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     fun testDeleteAccount() = runBlocking {
         // Delete test user
         val deleteUrl = endpoints.deleteUser(testUser.id)

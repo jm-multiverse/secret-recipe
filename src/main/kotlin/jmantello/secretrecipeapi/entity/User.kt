@@ -14,9 +14,9 @@ class UserDTO(
     val isAdmin: Boolean,
     val isActive: Boolean,
     val dateCreated: String,
-    val publishedRecipes: List<RecipeDTO>,
-    val savedRecipes: List<RecipeDTO>,
-    val publishedReviews: List<ReviewDTO>,
+    val publishedRecipes: List<Long>,
+    val savedRecipes: List<Long>,
+    val publishedReviews: List<Long>,
     val followers: List<Long>,
     val following: List<Long>
 )
@@ -121,6 +121,11 @@ class User {
         if(this == user) return
         if(!this.following.contains(user)) return
         this.following.remove(user)
+    }
+
+    fun likeReview(review: Review) {
+        if(this.likedReviews.contains(review)) return
+        this.likedReviews.add(review)
     }
 
 }

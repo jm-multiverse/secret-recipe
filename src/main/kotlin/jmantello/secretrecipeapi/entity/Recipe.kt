@@ -14,7 +14,7 @@ class RecipeDTO(
     val content: String,
     val publisherId: Long,
     val datePublished: String,
-    val reviews: List<ReviewDTO>,
+    val reviews: List<Long>,
     val tags: List<String>,
     val rating: Double?,
     var isPrivate: Boolean,
