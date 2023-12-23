@@ -59,4 +59,26 @@ class UserController(
     @GetMapping("{id}/published-reviews")
     fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
         respond(userService.getPublishedReviews(id))
+
+    @GetMapping("{id}/followers")
+    fun followers(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.getFollowers(id))
+
+//    @GetMapping("{id}/following")
+//    fun following(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
+//        respond(userService.getFollowing(id))
+//
+    @PostMapping("{userId}/follow/{followerId}")
+    fun follow(
+        @PathVariable userId: Long,
+        @PathVariable followerId: Long
+    ): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.follow(userId, followerId))
+
+//    @PostMapping("{userId}/unfollow/{followerId}")
+//    fun unfollow(
+//        @PathVariable userId: Long,
+//        @PathVariable followerId: Long
+//    ): ResponseEntity<ApiResponse<List<UserDTO>>> =
+//        respond(userService.unfollow(userId, followerId))
 }

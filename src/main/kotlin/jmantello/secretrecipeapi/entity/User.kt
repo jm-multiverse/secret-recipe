@@ -63,12 +63,15 @@ class User {
     )
     var savedRecipes: MutableList<Recipe> = mutableListOf()
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "publisher")
     var publishedReviews: MutableList<Review> = mutableListOf()
 
+    @JsonManagedReference
     @ManyToMany(mappedBy = "followers")
     var following: MutableList<User> = mutableListOf()
 
+    @JsonManagedReference
     @ManyToMany
     @JoinTable(
         name = "user_followers",
@@ -98,6 +101,8 @@ class User {
         userDTO.displayName?.let { this.displayName = it }
         userDTO.isAdmin?.let { this.isAdmin = it }
         userDTO.isActive?.let { this.isActive = it }
-
     }
+
+//    fun getFollowersToDTO(): List<UserDTO> =
+//        followers.map { it.toDTO() }
 }

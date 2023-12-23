@@ -142,5 +142,32 @@ class UserService(
 
         return Success(reviews)
     }
+
+    fun getFollowers(id: Long): Result<List<UserDTO>> {
+        val user = findByIdOrNull(id)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+
+        val followers = user.followers.map { it.toDTO() }
+
+        return Success(followers)
+    }
+
+    @Transactional
+    fun follow(userId: Long, followerId: Long): Result<List<UserDTO>> {
+        val user = findByIdOrNull(userId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+
+        val follower = findByIdOrNull(followerId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
+
+        if (!user.followers.contains(follower)) {
+            user.followers.add(follower)
+            userRepository.save(user)
+        }
+
+        val response = user.followers.map { it.toDTO() }
+
+        return Success(response)
+    }
 }
 

@@ -33,8 +33,6 @@ import kotlin.test.assertTrue
 @ActiveProfiles("test")
 class UserFlowTest {
 
-    // TODO: Explore using WebClient as a newer alternative to restTemplate
-
     @LocalServerPort
     private var port: Int = 0
     private var host: String = "http://localhost"
@@ -45,10 +43,6 @@ class UserFlowTest {
     private lateinit var webClient: WebClient
 
     @Autowired
-    private lateinit var restTemplate: TestRestTemplate
-    val objectMapper = ObjectMapper()
-
-    @Autowired
     private lateinit var userService: UserService
 
     @Autowired
@@ -57,12 +51,21 @@ class UserFlowTest {
     @Autowired
     private lateinit var reviewService: ReviewService
 
+    // Test User
     private lateinit var testUser: UserDTO
     private var testUserEmail = "testuser@example.com"
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
     private var testUserIsAdmin = false
 
+    // Test User 2
+    private lateinit var testUser2: UserDTO
+    private var testUser2Email = "testuser2@example.com"
+    private var testUser2Password = "testpassword"
+    private var testUser2DisplayName = "testdisplayname2"
+    private var testUser2IsAdmin = false
+
+    // Test Recipe
     private lateinit var testRecipe: RecipeDTO
     val recipeTitle = "Cheese Steak Sandwich"
     val recipeContent =
@@ -70,6 +73,7 @@ class UserFlowTest {
     val recipeTags = listOf("cheese", "steak", "sandwich")
     val recipeIsPrivate = false
 
+    // Test Review
     private lateinit var testReview: ReviewDTO
     val reviewTitle = "Meh."
     val reviewContent = "I thought this was going to be great, but..."
@@ -79,14 +83,10 @@ class UserFlowTest {
     fun setupClass() {
         val baseUrl = "http://localhost:$port"
         webClient = webClientBuilder.baseUrl(baseUrl).build()
-//        testUserRegistration()
-//        testUserLogin()
     }
 
     @AfterAll
     fun teardownClass() {
-//        testLogoutAndLogin()
-//        testDeleteAccount()
     }
 
     @Test
@@ -110,8 +110,8 @@ class UserFlowTest {
         assertEquals(CREATED, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
-
         val userDTO = apiResponse.data ?: fail("Response body data was null.")
+
         assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
@@ -121,6 +121,31 @@ class UserFlowTest {
         testUser = when (result) {
             is Success -> result.data
             is Error -> fail(result.message)
+        }
+
+        // Register and set test user 2
+        val registerRequestBody2 = RegisterUserDTO(
+            testUser2Email,
+            testUser2Password,
+            testUser2DisplayName,
+            testUser2IsAdmin
+        )
+
+        val response2 = webClient.post()
+            .uri(registerUrl)
+            .bodyValue(registerRequestBody2)
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
+            .awaitSingle()
+
+        assertEquals(CREATED, response2.statusCode)
+
+        val apiResponse2 = response2.body ?: fail("Response body was null.")
+        val userDTO2 = apiResponse2.data ?: fail("Response body data was null.")
+
+        val result2 = userService.findById(userDTO2.id)
+        testUser2 = when (result2) {
+            is Success -> result2.data
+            is Error -> fail(result2.message)
         }
     }
 
@@ -145,7 +170,6 @@ class UserFlowTest {
         val apiResponse = response.body ?: fail("Response body was null.")
         assertNull(apiResponse.error)
     }
-
 
     @Test
     @Order(2)
@@ -228,7 +252,6 @@ class UserFlowTest {
         assertEquals(CREATED, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
-
         val recipe = apiResponse.data ?: fail("Response body data was null.")
 
         assertEquals(publisherId, recipe.publisherId)
@@ -259,7 +282,7 @@ class UserFlowTest {
         val apiResponse = response.body ?: fail("Response body was null.")
 
         val recipes = apiResponse.data ?: fail("Response body data was null.")
-        val recipe = recipes[0]
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
         assertEquals(recipeTitle, recipe.title)
         assertEquals(recipeContent, recipe.content)
     }
@@ -293,7 +316,7 @@ class UserFlowTest {
 
         val apiResponse = response.body ?: fail("Response body was null.")
         val recipes = apiResponse.data ?: fail("Response body data was null.")
-        val recipe = recipes[0]
+        val recipe = recipes.find { it.id == testRecipe.id } ?: fail("Recipe with id ${testRecipe.id} not found.")
         assertEquals(recipeTitle, recipe.title)
         assertEquals(recipeContent, recipe.content)
     }
@@ -336,6 +359,8 @@ class UserFlowTest {
             .exchangeToMono { it.toEntity<ApiResponse<ReviewDTO>>() }
             .awaitSingle()
 
+        assertEquals(CREATED, response.statusCode)
+
         // Deserialize Review Response
         val apiResponse = response.body ?: fail("Response body was null.")
         assertNull(apiResponse.error)
@@ -355,34 +380,53 @@ class UserFlowTest {
         }
     }
 
-//    @Test
-//    @Order(10)
-//    fun testGetPublishedReviews() {
-//        val publisherId = testUser.id
-//        val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
-//
-//        val requestEntity = HttpEntity.EMPTY
-//        val responseType = object : ParameterizedTypeReference<List<Review>>() {}
-//
-//        val getPublishedReviewsResponse: ResponseEntity<List<Review>> = restTemplate.exchange(
-//            publishedReviewsUrl,
-//            HttpMethod.GET,
-//            requestEntity,
-//            responseType
-//        )
-//
-//        val usersReviews = getPublishedReviewsResponse.body ?: fail("Response body from getting published reviews was supposed to contain recipes, but was null.")
-//        val createdReview = usersReviews[0]
-//        assertEquals(reviewTitle, createdReview.title)
-//        assertEquals(reviewContent, createdReview.content)
-//    }
-//
-//    @Test
-//    @Order(11)
-//    fun testFollowAndFollowers() {
-//        // ... test following another user and getting followers
-//    }
-//
+    @Test
+    @Order(11)
+    fun testGetPublishedReviews() = runBlocking {
+        val publisherId = testUser.id
+        val publishedReviewsUrl = endpoints.getPublishedReviews(publisherId)
+
+        val response = webClient.get()
+            .uri(publishedReviewsUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, response.statusCode)
+
+        val apiResponse = response.body ?: fail("Response body was null.")
+        val usersReviews = apiResponse.data ?: fail("Response body data was null.")
+
+        val createdReview =
+            usersReviews.find { it.id == testReview.id } ?: fail("Review with id ${testReview.id} not found.")
+        assertEquals(reviewTitle, createdReview.title)
+        assertEquals(reviewContent, createdReview.content)
+    }
+
+    @Test
+    @Order(11)
+    fun testFollowAndFollowers() = runBlocking {
+
+        // Follow testUser2
+        val followUrl = endpoints.follow(testUser.id, testUser2.id)
+        val followResponse = webClient.post()
+            .uri(followUrl)
+            .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
+            .awaitSingle()
+
+        assertEquals(OK, followResponse.statusCode)
+
+        val followApiResponse = followResponse.body ?: fail("Response body was null.")
+        val followers = followApiResponse.data ?: fail("Response body data was null.")
+
+        val follower = followers.find { it.id == testUser2.id } ?: fail("Follower with id ${testUser2.id} not found.")
+        assertEquals(testUser2.id, follower.id)
+        assertEquals(testUser2.email, follower.email)
+        assertEquals(testUser2.displayName, follower.displayName)
+        assertEquals(testUser2.isActive, follower.isActive)
+        assertEquals(testUser2.isAdmin, follower.isAdmin)
+        assertEquals(testUser2.dateCreated, follower.dateCreated)
+    }
+
 //    @Test
 //    @Order(12)
 //    fun testLikeReview() {
