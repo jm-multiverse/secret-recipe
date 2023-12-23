@@ -7,7 +7,6 @@ import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
-import jmantello.secretrecipeapi.util.Endpoints
 import jmantello.secretrecipeapi.util.Result
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -15,11 +14,9 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertNull
 
@@ -27,16 +24,7 @@ import kotlin.test.assertNull
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-class AuthControllerIntegrationTest {
-
-    @LocalServerPort
-    private var port: Int = 0
-    private var host: String = "http://localhost"
-    private val endpoints: Endpoints by lazy { Endpoints(host, port) }
-
-    @Autowired
-    private lateinit var webClientBuilder: WebClient.Builder
-    private lateinit var webClient: WebClient
+class AuthControllerIntegrationTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var userService: UserService
@@ -53,12 +41,6 @@ class AuthControllerIntegrationTest {
     private var testUserPassword = "authtestpassword"
     private var testUserDisplayName = "authtestdisplayname"
     private var testUserIsAdmin = false
-
-    @BeforeAll
-    fun setupClass() {
-        val baseUrl = "http://localhost:$port"
-        webClient = webClientBuilder.baseUrl(baseUrl).build()
-    }
 
     @Test
     @Order(0)
