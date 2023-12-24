@@ -1,17 +1,17 @@
- # Secret Recipe API
+# Secret Recipe API
+
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Project requirements](#requirements)
-3. [Getting started](#gettingstarted)
+- [Introduction](#introduction)
 
-<div id='introduction'/>
+## Introduction
 
-## Introduction:
+### Project Overview
+Welcome to the GitHub repository for the Secret Recipe API, a RESTful CRUD API designed to simulate a vibrant online community of online foodies. This API uses Kotlin and Spring Boot, and was built over the period of about 6 months for the Back-End and Elective modules of my learning journey with the Multiverse/Expedia Group Software Engineering Apprenticeship.
 
-Secret Recipe API is a place where users can register and log in to view, create, edit, and delete, recipes. The tech stack consists of Kotlin Spring Boot and H2 in-memory database, along with other Spring dependencies. 
+### Purpose and Functionality
+At its core, the Secret Recipe API is designed as a social platform for food enthusiasts to publish their recipes, browse others' recipes, save, like, and review recipes, and follow and be followed by other users. It also allows users to manage the privacy of their recipes, allowing them to choose which recipes are available to the public and which recipes can remain secret. 
 
-<div id='requirements'>
 
 ## Project requirements:
 
@@ -30,7 +30,6 @@ Version Control w/ Git (branching, PRs) 🌳
 Task Management w/ Github Projects 👩‍💼 👨‍💼 🧑‍💼
 Deployment w/ Render, Railway, or your platform of choice 🚀
 Unit Testing w/ Jest, Postman, and/or your tools of choice 🧪
-<div id='gettingstarted'/>
 
 ### Deployed API (Render):
 https://secret-recipe-api.onrender.com/api
