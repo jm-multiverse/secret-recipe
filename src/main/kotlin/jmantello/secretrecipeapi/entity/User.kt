@@ -21,37 +21,29 @@ class UserDTO(
     val following: List<Long>
 )
 
-// TODO: Consider replacing RecipeDTO and ReviewDTO with IDs
-
 @Entity
 @Table(name="users")
-class User {
-
+class User(
     @Id
     @GeneratedValue
-    val id: Long = 0
+    val id: Long = 0,
 
     @Column(unique = true)
-    var email: String = ""
+    var email: String,
 
     @JsonIgnore
-    var password: String = ""
-        set(value) {
-            field = BCryptPasswordEncoder().encode(value)
-        }
-
-    var displayName: String? = ""
+    var password: String,
+    var displayName: String?,
 
     @JsonProperty("isAdmin")
-    var isAdmin: Boolean = false
+    var isAdmin: Boolean,
 
     @JsonProperty("isActive")
-    var isActive: Boolean = true
-
-    var dateCreated: String = LocalDateTime.now().toString()
+    var isActive: Boolean = true,
+    var dateCreated: String = LocalDateTime.now().toString(),
 
     @OneToMany(mappedBy = "publisher")
-    var publishedRecipes: MutableList<Recipe> = mutableListOf()
+    var publishedRecipes: MutableList<Recipe> = mutableListOf(),
 
     @JsonManagedReference
     @ManyToMany
@@ -60,11 +52,11 @@ class User {
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "recipe_id")]
     )
-    var savedRecipes: MutableList<Recipe> = mutableListOf()
+    var savedRecipes: MutableList<Recipe> = mutableListOf(),
 
     @JsonManagedReference
     @OneToMany(mappedBy = "publisher")
-    var publishedReviews: MutableList<Review> = mutableListOf()
+    var publishedReviews: MutableList<Review> = mutableListOf(),
 
     @JsonManagedReference
     @ManyToMany
@@ -73,20 +65,27 @@ class User {
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "review_id")]
     )
-    var likedReviews: MutableList<Review> = mutableListOf()
+    var likedReviews: MutableList<Review> = mutableListOf(),
 
     @JsonManagedReference
     @ManyToMany
     @JoinTable(
         name = "user_followers",
-        joinColumns = [JoinColumn(name = "follower_id")], // User who follows
-        inverseJoinColumns = [JoinColumn(name = "followed_id")] // User being followed
+        joinColumns = [JoinColumn(name = "follower_id")],
+        inverseJoinColumns = [JoinColumn(name = "followed_id")]
     )
-    var following: MutableList<User> = mutableListOf()
+    var following: MutableList<User> = mutableListOf(),
 
     @JsonBackReference
     @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf()
+) {
+
+    init {
+        this.password = BCryptPasswordEncoder().encode(password)
+    }
+
+    fun toDTO(): UserDTO = UserMapper.toDto(this)
 
     fun validatePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)
@@ -100,8 +99,6 @@ class User {
 
     fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
         publishedReviews.take(limit)
-
-    fun toDTO(): UserDTO = UserMapper.toDto(this)
 
     fun update(userDTO: UpdateUserDTO) {
         userDTO.email?.let { this.email = it }
