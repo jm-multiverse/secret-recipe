@@ -14,7 +14,7 @@
 ## Introduction
 
 ### Project Overview
-Welcome to the GitHub repository for the Secret Recipe API, a RESTful CRUD API designed to simulate a vibrant online community of online foodies. This API uses Kotlin and Spring Boot, and was built over the period of about 6 months for the Back-End and Elective modules of my learning journey with the Multiverse/Expedia Group Software Engineering Apprenticeship.
+Welcome to the GitHub repository for the Secret Recipe API, a RESTful CRUD API designed to simulate an online community of foodies. This API uses Kotlin and Spring Boot, and was built over the period of about 6 months for the Back-End and Elective modules of my learning journey with the Multiverse/Expedia Group Software Engineering Apprenticeship.
 
 ### Purpose and Functionality
 At its core, the Secret Recipe API is designed as a social platform for food enthusiasts to publish their recipes, browse others' recipes, save, like, and review recipes, and follow and be followed by other users. It also allows users to manage the privacy of their recipes, allowing them to choose which recipes are available to the public and which recipes can remain secret. 
