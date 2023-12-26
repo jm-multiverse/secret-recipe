@@ -10,7 +10,8 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage](#usage)
-- [API Endpoints and Documentation](#api-endpoints)
+- [API Documentation](#api-documentation)
+  - [Endpoints](#endpoints)
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
   - [Overview](#overview)
@@ -78,7 +79,10 @@ For those preferring direct API interaction via command line, here's an example 
 curl -X GET http://localhost:8080/api/recipes/public
 ```
 
-## API Endpoints
+## API Documentation
+The Secret Recipe API is documented using Postman. The full documentation can be found here: [API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
+
+### Endpoints
 The Secret Recipe API offers a variety of endpoints for interacting with the API. The following is a brief overview of the available endpoints.
 
 - **Authentication**: For user registration, authentication, and authorization.
