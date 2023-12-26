@@ -10,6 +10,20 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Architecture and Design](#architecture-and-design)
+  - [Overview](#overview)
+  - [`Result<T>`](#resultt)
+  - [`ApiResponse<T>`](#apiresponset)
+  - [DTOs](#dtos)
+- [Contributing](#contributing)
+  - [Reporting Issues](#reporting-issues)
+  - [Submitting Changes](#submitting-changes)
+  - [Code of Conduct](#code-of-conduct)
+- [License](#license)
+- [Contact Information](#contact-information)
+- [Acknowledgements](#acknowledgements)
 
 ## Introduction
 
@@ -74,6 +88,65 @@ The Secret Recipe API offers a variety of endpoints for interacting with the API
 
 *Note: For a full list of available endpoints, including request and response formats, refer to the [API Documentation]().*
 
+## Testing
+The Secret Recipe API is tested using the JUnit 5 testing framework. The tests are located in the `src/test/kotlin` directory. To run the tests, use the following command:
+
+```sh
+# Run the tests using the Makefile
+make test
+```
+
+## Architecture and Design
+
+### Overview
+The Secret Recipe API uses a layered architecture, promoting separation of concerns and scalability. The following is a brief overview of the project's architecture and design.
+
+- **Entity**: Entities represent the application's data model, mapped to the database using Spring JPA. These data classes not only facilitate CRUD operations but also support conversion to and from Data Transfer Objects (DTOs). Builders and mappers associated with these entities are also included in this layer for streamlined data handling.
+- **Repository**: The repository layer consists of interfaces defining data access and manipulation methods. These interfaces are extended by Spring Data JPA to automatically generate SQL queries. Repository classes, marked with `@Repository` and `@Transactional`, interact with the database and provide a level of abstraction over data persistence operations.
+- **Service**: The service layer encapsulates the business logic of the application. Annotated with `@Service`, these classes handle data validation, business rule enforcement, and perform operations by interfacing with the repository layer. They play a crucial role in transforming entities into DTOs for further processing or API responses.
+- **Controller**: Controllers, marked with `@RestController`, handle incoming HTTP requests and generate responses. They validate request data, invoke appropriate service layer methods, and return responses encapsulated in `ApiResponse<T>` objects.
+
+### `Result<T>`
+The service layer utilizes `Result<T>` to convey operation outcomes, encapsulating either successful data (`Success<T>`) or error messages (`Error`). This structure simplifies error handling and response generation.
+
+```kotlin
+sealed class Result<out T> {
+    abstract val status: HttpStatus
+
+    data class Success<T>(override val status: HttpStatus, val data: T) 
+      : Result<T>()
+
+    data class Error(override val status: HttpStatus, val message: String) 
+      : Result<Nothing>()
+}
+```
+
+### ApiResponse<T>
+Controllers leverage `ApiResponse<T>` for consistent API responses, containing either data or error details. The ResponseBuilder constructs these responses, ensuring uniformity across different API endpoints.
+
+```kotlin
+data class ApiResponse<out T : Any>(
+    val data: T? = null,
+    val error: String? = null
+)
+
+object ResponseBuilder {
+  fun <T : Any> respond(result: Result<T>): ResponseEntity<ApiResponse<T>> {
+
+    val apiResponse = when (result) {
+      is Result.Success -> ApiResponse(data = result.data)
+      is Result.Error -> ApiResponse(error = result.message)
+    }
+
+    return ResponseEntity.status(result.status).body(apiResponse)
+  }
+}
+```
+
+### DTOs
+Located in the `/dto` directory, DTOs facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
+
+
 ## Contributing
 Contributions to the Secret Recipe API are welcome and valued. Whether it's bug fixes, feature enhancements, or documentation improvements, your input helps in building a better project. Here’s how to contribute:
 
@@ -98,4 +171,17 @@ Once submitted, your pull request will be reviewed by a maintainer to ensure it 
 
 ### Code of Conduct
 We value all contributions and want to ensure a positive experience for all contributors and users. Please review and abide by the [Code of Conduct](CODE_OF_CONDUCT.md) when contributing to this project.
+
+## License
+The Secret Recipe API is licensed under the [GNU General Public License v3.0](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
+## Contact Information
+For any questions, support requests, or to discuss potential collaboration opportunities, feel free to reach out:
+- LinkedIn: [https://www.linkedin.com/in/jonathan-mantello/](https://www.linkedin.com/in/jonathan-mantello/)
+
+## Acknowledgements
+A special thanks to:
+- **Multiverse/Expedia Group** for the apprenticeship program and providing me with the opportunity to learn and grow as a software engineer.
+- My colleagues and fellow apprentices for their support and encouragement throughout the program.
+- The developers of the tools and libraries used in this project, including Kotlin, Spring Boot, Docker, and many others.
 
