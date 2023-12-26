@@ -15,9 +15,9 @@
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
   - [Overview](#overview)
-  - [`Result<T>`](#resultt)
-  - [`ApiResponse<T>`](#apiresponset)
   - [DTOs](#dtos)
+  - [Services Utilizing `Result<T>`](#services-utilizing-resultt)
+  - [Controllers Utilizing `ApiResponse<T>`](#controllers-utilizing-apiresponset)
 - [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
   - [Submitting Changes](#submitting-changes)
@@ -110,26 +110,36 @@ The Secret Recipe API uses a layered architecture, promoting separation of conce
 - **Service**: The service layer encapsulates the business logic of the application. Annotated with `@Service`, these classes handle data validation, business rule enforcement, and perform operations by interfacing with the repository layer. They play a crucial role in transforming entities into DTOs for further processing or API responses.
 - **Controller**: Controllers, marked with `@RestController`, handle incoming HTTP requests and generate responses. They validate request data, invoke appropriate service layer methods, and return responses encapsulated in `ApiResponse<T>` objects.
 
-### `Result<T>`
+
+### DTOs
+Located in the `/dto` directory, DTOs facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
+
+### Services Utilizing `Result<T>`
 The service layer utilizes `Result<T>` to convey operation outcomes, encapsulating either successful data (`Success<T>`) or error messages (`Error`). This structure simplifies error handling and response generation.
 
 ```kotlin
 sealed class Result<out T> {
-    abstract val status: HttpStatus
+  abstract val status: HttpStatus
 
-    data class Success<T>(
-      override val status: HttpStatus, 
-      val data: T
-    ) : Result<T>()
+  data class Success<T>(
+    override val status: HttpStatus,
+    val data: T
+  ) : Result<T>() {
+    constructor(data: T) : this(HttpStatus.OK, data)
+  }
 
-    data class Error(
-      override val status: HttpStatus, 
-      val message: String
-    ) : Result<Nothing>()
+  data class Error(
+    override val status: HttpStatus,
+    val message: String
+  ) : Result<Nothing>() {
+    constructor(message: String) : this(HttpStatus.BAD_REQUEST, message)
+  }
 }
 ```
 
-### `ApiResponse<T>`
+*Note the constructor overloading in the `Success` and `Error` classes. This allows for the omission of the `status` parameter when creating a new `Result` object, defaulting to `HttpStatus.OK` and `HttpStatus.BAD_REQUEST` respectively.*
+
+### Controllers Utilizing `ApiResponse<T>`
 Controllers leverage `ApiResponse<T>` for consistent API responses, containing either data or error details. The ResponseBuilder constructs these responses, ensuring uniformity across different API endpoints.
 
 ```kotlin
@@ -151,9 +161,17 @@ object ResponseBuilder {
 }
 ```
 
-### DTOs
-Located in the `/dto` directory, DTOs facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
+The use of both `Result<T>` and `ApiResponse<T>` allows for a clear separation of concerns between the service and controller layers and simplifies error handling and response generation. The following is an example of how you can call respond with different types of `Result`:
 
+```kotlin
+val successResult: Result<String> = Result.Success("Hello")
+val errorResult: Result<Nothing> = Result.Error("Something went wrong")
+
+val successResponse: ResponseEntity<ApiResponse<String>> = respond(successResult)
+val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
+```
+
+The `T` in `ApiResponse<T>` gets replaced with the actual type of the data in the Result. The respond function is flexible and can work with different types, thanks to the use of generics.
 
 ## Contributing
 Contributions to the Secret Recipe API are welcome and valued. Whether it's bug fixes, feature enhancements, or documentation improvements, your input helps in building a better project. Here’s how to contribute:
