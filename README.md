@@ -10,7 +10,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage](#usage)
-- [API Endpoints](#api-endpoints)
+- [API Endpoints and Documentation](#api-endpoints)
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
   - [Overview](#overview)
@@ -113,15 +113,19 @@ The service layer utilizes `Result<T>` to convey operation outcomes, encapsulati
 sealed class Result<out T> {
     abstract val status: HttpStatus
 
-    data class Success<T>(override val status: HttpStatus, val data: T) 
-      : Result<T>()
+    data class Success<T>(
+      override val status: HttpStatus, 
+      val data: T
+    ) : Result<T>()
 
-    data class Error(override val status: HttpStatus, val message: String) 
-      : Result<Nothing>()
+    data class Error(
+      override val status: HttpStatus, 
+      val message: String
+    ) : Result<Nothing>()
 }
 ```
 
-### ApiResponse<T>
+### `ApiResponse<T>`
 Controllers leverage `ApiResponse<T>` for consistent API responses, containing either data or error details. The ResponseBuilder constructs these responses, ensuring uniformity across different API endpoints.
 
 ```kotlin
