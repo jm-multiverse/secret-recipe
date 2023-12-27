@@ -40,7 +40,7 @@ At its core, the Secret Recipe API is designed as a social platform for food ent
 - **User Profile Management**: Users can customize their online presence. Features includes uploading profile pictures, adding bios, and managing usernames and passwords.
 - **Recipe Creation, Editing, and Deletion**: Provides users with comprehensive tools for managing their recipes. Users can upload images, add descriptions and tags, and list ingredients and instructions.
 - **Recipe Privacy Management**: Enables users to manage the visibility of their recipes. options include sharing publicly, or restricting access to their followers or only themselves.
-- **Recipe Browsing, Saving, Liking, and Reviewing**: Users can discover new recipes, save their favorites ones, express their appreciation through likes, and provide insight through reviews.
+- **Recipe Browsing, Saving, Liking, and Reviewing**: Users can discover new recipes, save their favorites, express their appreciation through likes, and provide insight through reviews.
 - **User Following and Followers**: Users can follow and be followed by other users as well as manage their following list, enabling social connections and enriching the community experience.
 
 ## Getting Started
