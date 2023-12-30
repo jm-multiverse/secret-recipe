@@ -20,27 +20,29 @@ class ReviewDTO(
 
 @Entity
 @Table(name = "reviews")
-class Review {
+class Review(
     @Id
     @GeneratedValue
-    val id: Long = 0
+    val id: Long = 0,
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    val datePublished: String = LocalDateTime.now().toString()
+    val datePublished: String = LocalDateTime.now().toString(),
 
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
-    var publisher: User? = null
+    var publisher: User? = null,
 
-    var title: String = ""
-    var rating: Double = 0.0
-    @Lob var content: String? = ""
+    var title: String = "",
+
+    var rating: Double = 0.0,
+
+    @Lob var content: String? = "",
 
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "recipe_id")
-    var recipe: Recipe? = null
+    var recipe: Recipe? = null,
 
     @JsonBackReference
     @ManyToMany
@@ -49,9 +51,10 @@ class Review {
         joinColumns = [JoinColumn(name = "review_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    var likes: MutableList<User> = mutableListOf()
+    var likes: MutableList<User> = mutableListOf(),
 
-    var isPrivate: Boolean = false
+    var isPrivate: Boolean = false,
+) {
 
     fun toDTO(): ReviewDTO = ReviewMapper.toDto(this)
 }
