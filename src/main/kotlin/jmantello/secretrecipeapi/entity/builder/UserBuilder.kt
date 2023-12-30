@@ -2,21 +2,23 @@ package jmantello.secretrecipeapi.entity.builder
 
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.entity.Recipe
+import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.User
 import java.time.LocalDateTime
 
 class UserBuilder {
-    private var email: String = ""
-    private var password: String = ""
+    private var email: String? = null
+    private var password: String? = null
     private var displayName: String? = null
-    private var isAdmin: Boolean = false
-    private var isActive: Boolean = true
+    private var isAdmin: Boolean? = null
+    private var isActive: Boolean? = null
     private var dateCreated: String? = null
-    private var publishedRecipes: MutableList<Long> = mutableListOf()
-    private var savedRecipes: MutableList<Long> = mutableListOf()
-    private var publishedReviews: MutableList<Long> = mutableListOf()
-    private var followers: MutableList<Long> = mutableListOf()
-    private var following: MutableList<Long> = mutableListOf()
+    private var publishedRecipes: MutableList<Recipe>? = null
+    private var savedRecipes: MutableList<Recipe>? = null
+    private var publishedReviews: MutableList<Review>? = null
+    private var followers: MutableList<User>? = null
+    private var following: MutableList<User>? = null
 
     fun email(email: String): UserBuilder {
         this.email = email
@@ -48,27 +50,27 @@ class UserBuilder {
         return this
     }
 
-    fun publishedRecipes(publishedRecipes: MutableList<Long>): UserBuilder {
+    fun publishedRecipes(publishedRecipes: MutableList<Recipe>): UserBuilder {
         this.publishedRecipes = publishedRecipes
         return this
     }
 
-    fun savedRecipes(savedRecipes: MutableList<Long>): UserBuilder {
+    fun savedRecipes(savedRecipes: MutableList<Recipe>): UserBuilder {
         this.savedRecipes = savedRecipes
         return this
     }
 
-    fun publishedReviews(publishedReviews: MutableList<Long>): UserBuilder {
+    fun publishedReviews(publishedReviews: MutableList<Review>): UserBuilder {
         this.publishedReviews = publishedReviews
         return this
     }
 
-    fun followers(followers: MutableList<Long>): UserBuilder {
+    fun followers(followers: MutableList<User>): UserBuilder {
         this.followers = followers
         return this
     }
 
-    fun following(following: MutableList<Long>): UserBuilder {
+    fun following(following: MutableList<User>): UserBuilder {
         this.following = following
         return this
     }
@@ -78,30 +80,21 @@ class UserBuilder {
             email = request.email,
             password = request.password,
             displayName = request.displayName,
-            isAdmin = request.isAdmin,
-            isActive = true,
-            dateCreated = LocalDateTime.now().toString(),
-            publishedRecipes = mutableListOf(),
-            savedRecipes = mutableListOf(),
-            publishedReviews = mutableListOf(),
-            followers = mutableListOf(),
-            following = mutableListOf()
+            isAdmin = request.isAdmin
         )
     }
 
     fun build(): User {
         return User(
-            email = email,
-            password = password,
-            displayName = displayName,
-            isAdmin = isAdmin,
-            isActive = isActive,
+            email = email?: throw Exception("Email is required"),
+            password = password?: throw Exception("Password is required"),
+            displayName = displayName ?: "",
             dateCreated = dateCreated ?: LocalDateTime.now().toString(),
-            publishedRecipes = mutableListOf(),
-            savedRecipes = mutableListOf(),
-            publishedReviews = mutableListOf(),
-            followers = mutableListOf(),
-            following = mutableListOf()
+            publishedRecipes = publishedRecipes ?: mutableListOf(),
+            savedRecipes = savedRecipes ?: mutableListOf(),
+            publishedReviews = publishedReviews ?: mutableListOf(),
+            followers = followers ?: mutableListOf(),
+            following = following ?: mutableListOf()
         )
     }
 }

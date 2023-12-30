@@ -33,13 +33,15 @@ class User(
 
     @JsonIgnore
     var password: String,
-    var displayName: String?,
+
+    var displayName: String? = "",
 
     @JsonProperty("isAdmin")
-    var isAdmin: Boolean,
+    var isAdmin: Boolean = false,
 
     @JsonProperty("isActive")
     var isActive: Boolean = true,
+
     var dateCreated: String = LocalDateTime.now().toString(),
 
     @OneToMany(mappedBy = "publisher")
@@ -78,7 +80,7 @@ class User(
 
     @JsonBackReference
     @ManyToMany(mappedBy = "following")
-    var followers: MutableList<User> = mutableListOf()
+    var followers: MutableList<User> = mutableListOf(),
 ) {
 
     init {
@@ -124,5 +126,4 @@ class User(
         if(this.likedReviews.contains(review)) return
         this.likedReviews.add(review)
     }
-
 }
