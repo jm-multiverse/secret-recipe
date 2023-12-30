@@ -12,7 +12,7 @@ class PublishRecipeDTO(
     val content: String,
 
     @Size(max = 10) // Assuming a maximum of 10 tags
-    val tags: List<String>?,
+    val tags: List<String> = listOf(),
 
-    val isPrivate: Boolean?,
+    val isPrivate: Boolean? = false,
 )

@@ -191,13 +191,8 @@ class UserService(
         val follower = findByIdOrNull(followerId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
 
-        if (user.followers.contains(follower)) {
-            user.followers.remove(follower)
-            userRepository.save(user)
-        }
-
+        follower.unfollow(user)
         val response = user.followers.map { it.toDTO() }
-
         return Success(response)
     }
 
@@ -209,13 +204,8 @@ class UserService(
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return Error(NOT_FOUND, recipeNotFoundMessage(reviewId))
 
-        if (!user.likedReviews.contains(review)) {
-            user.likedReviews.add(review)
-            userRepository.save(user)
-        }
-
+        user.likeReview(review)
         val response = user.likedReviews.map { it.toDTO() }
-
         return Success(response)
     }
 }

@@ -21,6 +21,7 @@ class Endpoints(val host: String, val port: Int) {
     fun follow(userId: Long, followerId: Long) = "$users/$userId/follow/$followerId"
     fun likeReview(userId: Long, reviewId: Long) = "$users/$userId/like-review/$reviewId"
     fun deleteUser(id: Long) = "$users/$id"
+    fun unfollow(userId: Long, followerId: Long) = "$users/$userId/unfollow/$followerId"
 
     // Recipes
     val recipes = "$baseUrl/recipes"
