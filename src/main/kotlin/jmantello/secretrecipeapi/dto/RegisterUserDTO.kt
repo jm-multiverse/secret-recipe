@@ -13,7 +13,7 @@ class RegisterUserDTO(
 
     @Nullable
     @Size(min = 1, max = 100)
-    val displayName: String?,
+    val displayName: String = "",
 
     @Nullable
     val isAdmin: Boolean = false,
