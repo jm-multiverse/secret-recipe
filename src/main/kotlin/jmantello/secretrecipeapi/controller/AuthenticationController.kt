@@ -62,8 +62,11 @@ class AuthenticationController(
 
     @PostMapping("logout")
     fun logout(response: HttpServletResponse): ResponseEntity<ApiResponse<String>> {
-        val cookie = Cookie.create("token", "", 0, httpOnly = true, secure = true)
-        response.addCookie(cookie)
+        val accessCookie = Cookie.createClear("accessToken")
+        val refreshCookie = Cookie.createClear("refreshToken")
+
+        response.addCookie(accessCookie)
+        response.addCookie(refreshCookie)
 
         return respond(Success("Logout success"))
     }

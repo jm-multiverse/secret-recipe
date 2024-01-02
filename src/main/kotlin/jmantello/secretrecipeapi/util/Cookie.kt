@@ -8,8 +8,17 @@ object Cookie {
         cookie.maxAge = maxAge
         cookie.isHttpOnly = httpOnly
         cookie.secure = secure
-        cookie.path = "/" // Set to root path
+        cookie.path = "/"
         // Set SameSite if needed
+        return cookie
+    }
+
+    fun createClear(name: String): Cookie {
+        val cookie = Cookie(name, "")
+        cookie.maxAge = 0
+        cookie.isHttpOnly = true
+        cookie.secure = true
+        cookie.path = "/"
         return cookie
     }
 }
