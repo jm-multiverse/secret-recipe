@@ -90,7 +90,7 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun login(request: LoginUserDTO): Result<User> {
+    fun authenticate(request: LoginUserDTO): Result<User> {
         val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)

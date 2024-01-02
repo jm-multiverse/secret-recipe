@@ -21,6 +21,11 @@ class UserDTO(
     val following: List<Long>
 )
 
+enum class Role {
+    ADMIN,
+    USER,
+}
+
 @Entity
 @Table(name="users")
 class User(
@@ -81,6 +86,8 @@ class User(
     @JsonBackReference
     @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf(),
+
+    var roles: MutableList<Role> = mutableListOf()
 ) {
 
     init {
