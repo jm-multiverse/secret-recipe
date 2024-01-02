@@ -6,6 +6,7 @@ import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result
 import kotlinx.coroutines.reactive.awaitSingle
@@ -40,7 +41,6 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
     private var testUserEmail = "authtestuser@example.com"
     private var testUserPassword = "authtestpassword"
     private var testUserDisplayName = "authtestdisplayname"
-    private var testUserIsAdmin = false
 
     @Test
     @Order(0)
@@ -51,7 +51,6 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
             testUserEmail,
             testUserPassword,
             testUserDisplayName,
-            testUserIsAdmin
         )
 
         val response = webClient.post()
@@ -87,10 +86,10 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
             testUserPassword
         )
 
-        val response: ResponseEntity<ApiResponse<String>> = webClient.post()
+        val response: ResponseEntity<ApiResponse<UserLoginResponse>> = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
             .awaitSingle()
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)

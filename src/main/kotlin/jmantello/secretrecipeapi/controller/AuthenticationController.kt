@@ -9,7 +9,7 @@ import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
-import jmantello.secretrecipeapi.util.CookieUtil
+import jmantello.secretrecipeapi.util.Cookie
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -53,8 +53,8 @@ class AuthenticationController(
         val accessTokenExpiryDuration = 3600 // seconds, 1 hour
         val refreshTokenExpiryDuration = 604800 // seconds, 1 week
 
-        response.addCookie(CookieUtil.create("accessToken", accessToken, accessTokenExpiryDuration))
-        response.addCookie(CookieUtil.create("refreshToken", refreshToken, refreshTokenExpiryDuration))
+        response.addCookie(Cookie.create("accessToken", accessToken, accessTokenExpiryDuration))
+        response.addCookie(Cookie.create("refreshToken", refreshToken, refreshTokenExpiryDuration))
 
         val userLoginResponse = UserLoginResponse(user.toDTO(), accessToken, refreshToken)
         return respond(Success(userLoginResponse))
@@ -62,7 +62,7 @@ class AuthenticationController(
 
     @PostMapping("logout")
     fun logout(response: HttpServletResponse): ResponseEntity<ApiResponse<String>> {
-        val cookie = CookieUtil.create("token", "", 0, httpOnly = true, secure = true)
+        val cookie = Cookie.create("token", "", 0, httpOnly = true, secure = true)
         response.addCookie(cookie)
 
         return respond(Success("Logout success"))
@@ -84,7 +84,7 @@ class AuthenticationController(
             is Error -> return respond(Error(tokenResult.message))
         }
 
-        val cookie = CookieUtil.create("token", token, 3600, httpOnly = true, secure = true)
+        val cookie = Cookie.create("token", token, 3600, httpOnly = true, secure = true)
         response.addCookie(cookie)
 
         return respond(Success("Refresh success"))
