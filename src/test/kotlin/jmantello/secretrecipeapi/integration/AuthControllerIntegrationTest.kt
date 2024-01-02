@@ -86,7 +86,7 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
             testUserPassword
         )
 
-        val response: ResponseEntity<ApiResponse<UserLoginResponse>> = webClient.post()
+        val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
             .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
@@ -95,6 +95,12 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
+        val userLoginResponse = apiResponse.data ?: fail("Response body data was null.")
+
+        Assertions.assertNotNull(userLoginResponse.accessToken)
+        Assertions.assertNotNull(userLoginResponse.refreshToken)
+        Assertions.assertNotNull(userLoginResponse.user)
+
         assertNull(apiResponse.error)
     }
 
@@ -109,12 +115,5 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
             .awaitSingle()
 
         Assertions.assertEquals(HttpStatus.OK, logoutResponse.statusCode)
-
-        val loginUrl = endpoints.login
-        val loginRequestBody = UserLoginRequest(
-            testUserEmail,
-            testUserPassword
-        )
     }
-
 }
