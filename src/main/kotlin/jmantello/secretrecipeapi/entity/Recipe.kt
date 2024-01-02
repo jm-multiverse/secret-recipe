@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
+import jmantello.secretrecipeapi.transfer.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.mapper.RecipeMapper
 import java.time.LocalDateTime
 
@@ -70,7 +70,7 @@ class Recipe(
 
     fun toDTO(): RecipeDTO = RecipeMapper.toDto(this)
 
-    fun update(recipe: UpdateRecipeDTO) {
+    fun update(recipe: UpdateRecipeRequest) {
         recipe.publisherId // TODO: Implement publisher update
         recipe.title?.let { title = it }
         recipe.content?.let { content = it }

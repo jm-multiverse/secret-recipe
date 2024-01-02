@@ -1,8 +1,8 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer
 
 import javax.validation.constraints.Size
 
-class PublishReviewDTO(
+class PublishReviewRequest(
 
     val publisherId: Long,
     val recipeId: Long,

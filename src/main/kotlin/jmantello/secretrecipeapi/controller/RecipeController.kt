@@ -3,8 +3,8 @@ package jmantello.secretrecipeapi.controller
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import jmantello.secretrecipeapi.dto.PublishRecipeDTO
-import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
+import jmantello.secretrecipeapi.transfer.PublishRecipeRequest
+import jmantello.secretrecipeapi.transfer.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.service.RecipeService
@@ -37,15 +37,15 @@ class RecipeController(
         respond(recipeService.findById(id))
 
     @PostMapping
-    fun createRecipe(@RequestBody request: PublishRecipeDTO): ResponseEntity<ApiResponse<RecipeDTO>> =
+    fun createRecipe(@RequestBody request: PublishRecipeRequest): ResponseEntity<ApiResponse<RecipeDTO>> =
         respond(recipeService.create(request))
 
     @PutMapping("/{id}")
     fun updateRecipe(
         @PathVariable id: Long,
-        @RequestBody updateRecipeDTO: UpdateRecipeDTO
+        @RequestBody request: UpdateRecipeRequest
     ): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(recipeService.update(id, updateRecipeDTO))
+        respond(recipeService.update(id, request))
 
     @DeleteMapping("/{id}")
     fun deleteRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<Unit>> =

@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.dto.*
+import jmantello.secretrecipeapi.transfer.*
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.UserDTO
@@ -78,7 +78,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     fun testUserRegistration(): Unit = runBlocking {
 
         val registerUrl = endpoints.register
-        val registerRequestBody = RegisterUserDTO(
+        val registerRequestBody = RegisterUserRequest(
             testUserEmail,
             testUserPassword,
             testUserDisplayName,
@@ -109,7 +109,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         }
 
         // Register and set test user 2
-        val registerRequestBody2 = RegisterUserDTO(
+        val registerRequestBody2 = RegisterUserRequest(
             testUser2Email,
             testUser2Password,
             testUser2DisplayName,
@@ -139,7 +139,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )
@@ -186,7 +186,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val updateUrl = endpoints.updateUser(testUser.id)
         val testUserDisplayName = "test changed display name"
 
-        val request = UpdateUserDTO(
+        val request = UpdateUserRequest(
             id = testUser.id,
             displayName = testUserDisplayName
         )
@@ -220,7 +220,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         // Create Recipe Requests
         val publisherId = testUser.id
-        val request = PublishRecipeDTO(
+        val request = PublishRecipeRequest(
             publisherId,
             recipeTitle,
             recipeContent,
@@ -332,7 +332,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val publishedReviewUrl = endpoints.reviews
 
         // Create Review Requests
-        val request = PublishReviewDTO(
+        val request = PublishReviewRequest(
             publisherId,
             testRecipe.id,
             reviewTitle,
@@ -490,7 +490,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertEquals(OK, logoutResponse.statusCode)
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )

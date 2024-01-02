@@ -1,10 +1,10 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer
 
 import jakarta.annotation.Nullable
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.*
 
-class RegisterUserDTO(
+class RegisterUserRequest(
     @Email
     val email: String,
 

@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.transfer.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.RegisterUserRequest
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
@@ -47,7 +47,7 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
     fun testUserRegistration(): Unit = runBlocking {
 
         val registerUrl = endpoints.register
-        val registerRequestBody = RegisterUserDTO(
+        val registerRequestBody = RegisterUserRequest(
             testUserEmail,
             testUserPassword,
             testUserDisplayName,
@@ -82,7 +82,7 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )
@@ -112,7 +112,7 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
         Assertions.assertEquals(HttpStatus.OK, logoutResponse.statusCode)
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )

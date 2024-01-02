@@ -1,10 +1,10 @@
 package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.RefreshTokenDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UserLoginResponse
+import jmantello.secretrecipeapi.transfer.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.RefreshTokenRequest
+import jmantello.secretrecipeapi.transfer.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.UserLoginResponse
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.UserService
@@ -27,12 +27,12 @@ class AuthenticationController(
 ) {
 
     @PostMapping("register")
-    fun registerUser(@RequestBody request: RegisterUserDTO): ResponseEntity<ApiResponse<UserDTO>> =
+    fun registerUser(@RequestBody request: RegisterUserRequest): ResponseEntity<ApiResponse<UserDTO>> =
         respond(userService.register(request))
 
     @PostMapping("login")
     fun login(
-        @RequestBody request: LoginUserDTO,
+        @RequestBody request: UserLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<UserLoginResponse>> {
         val user = when (val authenticationResult = userService.authenticate(request)) {
@@ -70,7 +70,7 @@ class AuthenticationController(
 
     @PostMapping("refresh")
     fun refresh(
-        request: RefreshTokenDTO,
+        request: RefreshTokenRequest,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<String>> {
         val refreshToken = request.refreshToken

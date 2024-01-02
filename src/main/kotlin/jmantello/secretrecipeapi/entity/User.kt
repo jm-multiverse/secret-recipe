@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.entity
 
 import com.fasterxml.jackson.annotation.*
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.transfer.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.Role.*
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -120,7 +120,7 @@ class User(
     fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
         publishedReviews.take(limit)
 
-    fun update(userDTO: UpdateUserDTO) {
+    fun update(userDTO: UpdateUserRequest) {
         userDTO.email?.let { this.email = it }
         userDTO.password?.let { this.password = it }
         userDTO.displayName?.let { this.displayName = it }
