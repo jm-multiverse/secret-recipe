@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.transfer.UpdateRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.mapper.RecipeMapper
 import java.time.LocalDateTime
 

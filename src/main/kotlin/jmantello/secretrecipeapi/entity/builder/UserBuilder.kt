@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.entity.builder
 
-import jmantello.secretrecipeapi.transfer.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.Role

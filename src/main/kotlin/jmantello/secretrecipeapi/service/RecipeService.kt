@@ -1,8 +1,8 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.transfer.PublishRecipeRequest
-import jmantello.secretrecipeapi.transfer.UpdateRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder

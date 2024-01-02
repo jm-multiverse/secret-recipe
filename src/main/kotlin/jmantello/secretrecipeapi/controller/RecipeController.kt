@@ -3,8 +3,8 @@ package jmantello.secretrecipeapi.controller
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import jmantello.secretrecipeapi.transfer.PublishRecipeRequest
-import jmantello.secretrecipeapi.transfer.UpdateRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.service.RecipeService

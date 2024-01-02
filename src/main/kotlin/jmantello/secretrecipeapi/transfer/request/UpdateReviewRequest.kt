@@ -1,4 +1,4 @@
-package jmantello.secretrecipeapi.transfer
+package jmantello.secretrecipeapi.transfer.request
 
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min

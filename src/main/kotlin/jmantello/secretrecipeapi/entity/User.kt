@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.entity
 
 import com.fasterxml.jackson.annotation.*
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.transfer.UpdateUserRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.Role.*
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

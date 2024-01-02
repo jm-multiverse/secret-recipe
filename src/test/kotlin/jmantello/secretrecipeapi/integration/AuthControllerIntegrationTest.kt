@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.transfer.UserLoginRequest
-import jmantello.secretrecipeapi.transfer.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService

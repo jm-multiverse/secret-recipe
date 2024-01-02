@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.transfer.UserLoginRequest
-import jmantello.secretrecipeapi.transfer.UpdateUserRequest
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import jmantello.secretrecipeapi.entity.RecipeDTO
 import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.UserDTO

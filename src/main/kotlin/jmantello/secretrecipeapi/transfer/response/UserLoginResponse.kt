@@ -1,4 +1,4 @@
-package jmantello.secretrecipeapi.transfer
+package jmantello.secretrecipeapi.transfer.response
 
 import jmantello.secretrecipeapi.entity.UserDTO
 

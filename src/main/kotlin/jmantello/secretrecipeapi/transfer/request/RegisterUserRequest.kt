@@ -1,4 +1,4 @@
-package jmantello.secretrecipeapi.transfer
+package jmantello.secretrecipeapi.transfer.request
 
 import jakarta.annotation.Nullable
 import jmantello.secretrecipeapi.annotations.ValidPassword

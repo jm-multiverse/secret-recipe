@@ -1,10 +1,10 @@
 package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.transfer.UserLoginRequest
-import jmantello.secretrecipeapi.transfer.RefreshTokenRequest
-import jmantello.secretrecipeapi.transfer.RegisterUserRequest
-import jmantello.secretrecipeapi.transfer.UserLoginResponse
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.request.RefreshTokenRequest
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.UserService
