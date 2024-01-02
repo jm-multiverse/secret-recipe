@@ -1,10 +1,10 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer.request
 
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.Size
 
-class UpdateReviewDTO(
+class UpdateReviewRequest(
     val publisherId: Long,
 
     @Size(max = 100) // Title length limit

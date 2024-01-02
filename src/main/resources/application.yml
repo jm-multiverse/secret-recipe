@@ -5,4 +5,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-ipoahw16nex33s3n.us.auth0.com/
+          issuer-uri: htgittps://dev-ipoahw16nex33s3n.us.auth0.com/

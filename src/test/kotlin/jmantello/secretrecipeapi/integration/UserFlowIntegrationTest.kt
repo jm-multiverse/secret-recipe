@@ -1,12 +1,14 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.dto.*
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.request.*
+import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -19,9 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpStatus.*
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.toEntity
+import kotlin.test.assertContains
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -46,14 +48,12 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     private var testUserEmail = "testuser@example.com"
     private var testUserPassword = "testpassword"
     private var testUserDisplayName = "testdisplayname"
-    private var testUserIsAdmin = false
 
     // Test User 2
     private lateinit var testUser2: UserDTO
     private var testUser2Email = "testuser2@example.com"
     private var testUser2Password = "testpassword"
     private var testUser2DisplayName = "testdisplayname2"
-    private var testUser2IsAdmin = false
 
     // Test Recipe
     private lateinit var testRecipe: RecipeDTO
@@ -78,11 +78,10 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     fun testUserRegistration(): Unit = runBlocking {
 
         val registerUrl = endpoints.register
-        val registerRequestBody = RegisterUserDTO(
+        val registerRequestBody = RegisterUserRequest(
             testUserEmail,
             testUserPassword,
             testUserDisplayName,
-            testUserIsAdmin
         )
 
         val response = webClient.post()
@@ -99,7 +98,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertNotNull(userDTO.id)
         assertEquals(testUserEmail, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
-        assertEquals(testUserIsAdmin, userDTO.isAdmin)
+        assertContains(userDTO.roles, User.Role.USER)
+        assertEquals(User.Status.ACTIVE, userDTO.status)
 
         // Set test user
         val result = userService.findById(userDTO.id)
@@ -109,11 +109,10 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         }
 
         // Register and set test user 2
-        val registerRequestBody2 = RegisterUserDTO(
+        val registerRequestBody2 = RegisterUserRequest(
             testUser2Email,
             testUser2Password,
             testUser2DisplayName,
-            testUser2IsAdmin
         )
 
         val response2 = webClient.post()
@@ -139,15 +138,15 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )
 
-        val response: ResponseEntity<ApiResponse<String>> = webClient.post()
+        val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
             .awaitSingle()
 
         assertEquals(OK, response.statusCode)
@@ -174,9 +173,9 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertEquals(testUser.id, userDTO.id)
         assertEquals(testUser.email, userDTO.email)
         assertEquals(testUser.displayName, userDTO.displayName)
-        assertEquals(testUser.isActive, userDTO.isActive)
-        assertEquals(testUser.isAdmin, userDTO.isAdmin)
         assertEquals(testUser.dateCreated, userDTO.dateCreated)
+        assertEquals(testUser.roles, userDTO.roles)
+        assertEquals(testUser.status, userDTO.status)
     }
 
     @Test
@@ -186,7 +185,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val updateUrl = endpoints.updateUser(testUser.id)
         val testUserDisplayName = "test changed display name"
 
-        val request = UpdateUserDTO(
+        val request = UpdateUserRequest(
             id = testUser.id,
             displayName = testUserDisplayName
         )
@@ -207,9 +206,9 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertEquals(testUser.id, userDTO.id)
         assertEquals(testUser.email, userDTO.email)
         assertEquals(testUserDisplayName, userDTO.displayName)
-        assertEquals(testUser.isActive, userDTO.isActive)
-        assertEquals(testUser.isAdmin, userDTO.isAdmin)
         assertEquals(testUser.dateCreated, userDTO.dateCreated)
+        assertEquals(testUser.roles, userDTO.roles)
+        assertEquals(testUser.status, userDTO.status)
     }
 
     @Test
@@ -220,7 +219,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         // Create Recipe Requests
         val publisherId = testUser.id
-        val request = PublishRecipeDTO(
+        val request = PublishRecipeRequest(
             publisherId,
             recipeTitle,
             recipeContent,
@@ -332,7 +331,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val publishedReviewUrl = endpoints.reviews
 
         // Create Review Requests
-        val request = PublishReviewDTO(
+        val request = PublishReviewRequest(
             publisherId,
             testRecipe.id,
             reviewTitle,
@@ -490,7 +489,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertEquals(OK, logoutResponse.statusCode)
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )
@@ -499,7 +498,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val loginResponse = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
             .awaitSingle()
 
         assertEquals(OK, loginResponse.statusCode)

@@ -1,8 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
-import jmantello.secretrecipeapi.dto.PublishReviewDTO
-import jmantello.secretrecipeapi.dto.UpdateReviewDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
@@ -28,10 +27,10 @@ class ReviewController(private val service: ReviewService) {
         respond(service.findById(id))
 
     @PostMapping
-    fun publishReview(@RequestBody request: PublishReviewDTO): ResponseEntity<ApiResponse<ReviewDTO>> =
+    fun publishReview(@RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
         respond(service.create(request))
 
-    // TODO: Create update review dto
+    // TODO: Create update review transfer
     @PutMapping
     fun updateReview(@RequestBody review: ReviewDTO): ResponseEntity<ApiResponse<ReviewDTO>> =
         respond(service.update(review))

@@ -1,24 +1,25 @@
 package jmantello.secretrecipeapi.entity.builder
 
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.entity.User.*
+import jmantello.secretrecipeapi.entity.User.Role.*
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import java.time.LocalDateTime
 
 class UserBuilder {
     private var email: String? = null
     private var password: String? = null
     private var displayName: String? = null
-    private var isAdmin: Boolean? = null
-    private var isActive: Boolean? = null
     private var dateCreated: String? = null
     private var publishedRecipes: MutableList<Recipe>? = null
     private var savedRecipes: MutableList<Recipe>? = null
     private var publishedReviews: MutableList<Review>? = null
     private var followers: MutableList<User>? = null
     private var following: MutableList<User>? = null
+    private var roles: MutableList<Role> = mutableListOf(USER)
+    private var status: Status? = null
 
     fun email(email: String): UserBuilder {
         this.email = email
@@ -32,16 +33,6 @@ class UserBuilder {
 
     fun displayName(displayName: String): UserBuilder {
         this.displayName = displayName
-        return this
-    }
-
-    fun isAdmin(isAdmin: Boolean): UserBuilder {
-        this.isAdmin = isAdmin
-        return this
-    }
-
-    fun isActive(isActive: Boolean): UserBuilder {
-        this.isActive = isActive
         return this
     }
 
@@ -75,12 +66,28 @@ class UserBuilder {
         return this
     }
 
-    fun buildFromRegisterRequest(request: RegisterUserDTO): User {
+    fun roles(roles: MutableList<Role>): UserBuilder {
+        this.roles = roles
+        return this
+    }
+
+    fun makeAdmin(): UserBuilder {
+        this.roles.add(ADMIN)
+        return this
+    }
+
+    fun status(status: Status): UserBuilder {
+        this.status = status
+        return this
+    }
+
+    fun buildFromRegisterRequest(request: RegisterUserRequest): User {
         return User(
             email = request.email,
             password = request.password,
             displayName = request.displayName,
-            isAdmin = request.isAdmin
+            roles = request.roles,
+            status = request.status,
         )
     }
 
@@ -94,7 +101,8 @@ class UserBuilder {
             savedRecipes = savedRecipes ?: mutableListOf(),
             publishedReviews = publishedReviews ?: mutableListOf(),
             followers = followers ?: mutableListOf(),
-            following = following ?: mutableListOf()
+            following = following ?: mutableListOf(),
+            roles = roles,
         )
     }
 }

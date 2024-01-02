@@ -1,41 +1,59 @@
 package jmantello.secretrecipeapi.service
 
+import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
+import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
+import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.recipeNotFoundMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userDeletedMessage
 import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userNotFoundMessage
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
+import org.hibernate.Session
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus.*
 import org.springframework.stereotype.Service
 
 @Service
+@Transactional
 class UserService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
+    private val entityManager: EntityManager,
 ) {
-    // TODO: Validate DTOs before attempting to save
-    // TODO: Add @Transactional annotations to services
+    private val session: Session
+        get() = entityManager.unwrap(Session::class.java)
 
     fun findAll(): Result<List<UserDTO>> =
         Success(userRepository.findAll().map { it.toDTO() })
 
-    @Transactional
+    fun findActive(): Result<List<UserDTO>> {
+        session
+            .enableFilter(ActiveUsersFilter.NAME)
+            .setParameter("userStatus", ACTIVE)
+
+        val result = userRepository.findAll().map { it.toDTO() }
+
+        session.disableFilter(ActiveUsersFilter.NAME)
+
+        return Success(result)
+    }
+
     fun findById(id: Long): Result<UserDTO> {
         val user = userRepository.findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
@@ -43,15 +61,13 @@ class UserService(
         return Success(user.toDTO())
     }
 
-    @Transactional
     fun findByIdOrNull(id: Long): User? =
         userRepository.findByIdOrNull(id)
 
     fun findByEmail(email: String): User? =
         userRepository.findByEmail(email)
 
-    @Transactional
-    fun update(id: Long, userDTO: UpdateUserDTO): Result<UserDTO> {
+    fun update(id: Long, userDTO: UpdateUserRequest): Result<UserDTO> {
         val foundUser = findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
 
@@ -64,12 +80,11 @@ class UserService(
     fun save(user: User): User =
         userRepository.save(user)
 
-    @Transactional
     fun deleteById(id: Long): Result<Any> {
         val user = findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
 
-        user.isActive = false
+        user.status = SOFT_DELETED
         userRepository.save(user)
         return Success(NO_CONTENT, userDeletedMessage(id))
     }
@@ -77,7 +92,7 @@ class UserService(
     fun isEmailRegistered(email: String): Boolean =
         userRepository.findByEmail(email) != null
 
-    fun register(request: RegisterUserDTO): Result<UserDTO> {
+    fun register(request: RegisterUserRequest): Result<UserDTO> {
         if (isEmailRegistered(request.email))
             return Error(
                 BAD_REQUEST,
@@ -90,21 +105,20 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun login(request: LoginUserDTO): Result<User> {
-        val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
+    fun authenticate(request: UserLoginRequest): Result<User> {
+        val unauthenticatedError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)
-            ?: return loginError
+            ?: return unauthenticatedError
 
         val authorized = user.validatePassword(request.password)
 
         return if (authorized)
             Success(user)
         else
-            loginError
+            unauthenticatedError
     }
 
-    @Transactional
     fun saveRecipeForUser(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
         val user = userRepository.findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
@@ -149,7 +163,6 @@ class UserService(
         return Success(reviews)
     }
 
-    @Transactional
     fun getFollowers(id: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
@@ -160,7 +173,6 @@ class UserService(
     }
 
 
-    @Transactional
     fun getFollowing(id: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(id)
             ?: return Error(NOT_FOUND, userNotFoundMessage(id))
@@ -170,7 +182,6 @@ class UserService(
         return Success(following)
     }
 
-    @Transactional
     fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
@@ -183,7 +194,6 @@ class UserService(
         return Success(response)
     }
 
-    @Transactional
     fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
@@ -196,7 +206,6 @@ class UserService(
         return Success(response)
     }
 
-    @Transactional
     fun likeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
         val user = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))

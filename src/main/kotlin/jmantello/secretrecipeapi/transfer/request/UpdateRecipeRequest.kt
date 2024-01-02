@@ -1,9 +1,9 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer.request
 
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
-class UpdateRecipeDTO(
+class UpdateRecipeRequest(
     @NotNull
     val id: Long? = null,
 

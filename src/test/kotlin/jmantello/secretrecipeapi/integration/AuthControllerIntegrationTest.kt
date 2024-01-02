@@ -1,11 +1,12 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.dto.LoginUserDTO
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result
 import kotlinx.coroutines.reactive.awaitSingle
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertNull
@@ -40,18 +40,16 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
     private var testUserEmail = "authtestuser@example.com"
     private var testUserPassword = "authtestpassword"
     private var testUserDisplayName = "authtestdisplayname"
-    private var testUserIsAdmin = false
 
     @Test
     @Order(0)
     fun testUserRegistration(): Unit = runBlocking {
 
         val registerUrl = endpoints.register
-        val registerRequestBody = RegisterUserDTO(
+        val registerRequestBody = RegisterUserRequest(
             testUserEmail,
             testUserPassword,
             testUserDisplayName,
-            testUserIsAdmin
         )
 
         val response = webClient.post()
@@ -82,20 +80,26 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
     fun testUserLogin(): Unit = runBlocking {
 
         val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
+        val loginRequestBody = UserLoginRequest(
             testUserEmail,
             testUserPassword
         )
 
-        val response: ResponseEntity<ApiResponse<String>> = webClient.post()
+        val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<String>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
             .awaitSingle()
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
 
         val apiResponse = response.body ?: fail("Response body was null.")
+        val userLoginResponse = apiResponse.data ?: fail("Response body data was null.")
+
+        Assertions.assertNotNull(userLoginResponse.accessToken)
+        Assertions.assertNotNull(userLoginResponse.refreshToken)
+        Assertions.assertNotNull(userLoginResponse.user)
+
         assertNull(apiResponse.error)
     }
 
@@ -110,12 +114,5 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
             .awaitSingle()
 
         Assertions.assertEquals(HttpStatus.OK, logoutResponse.statusCode)
-
-        val loginUrl = endpoints.login
-        val loginRequestBody = LoginUserDTO(
-            testUserEmail,
-            testUserPassword
-        )
     }
-
 }

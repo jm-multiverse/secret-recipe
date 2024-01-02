@@ -1,28 +1,28 @@
 package jmantello.secretrecipeapi.entity
 
-import com.fasterxml.jackson.annotation.*
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.entity.User.Role.ADMIN
+import jmantello.secretrecipeapi.entity.User.Role.USER
+import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
+import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
+import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
+import jmantello.secretrecipeapi.transfer.model.UserDTO
+import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
+import org.hibernate.annotations.Filter
+import org.hibernate.annotations.FilterDef
+import org.hibernate.annotations.Filters
+import org.hibernate.annotations.ParamDef
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
-class UserDTO(
-    val id: Long,
-    val email: String,
-    val displayName: String,
-    val isAdmin: Boolean,
-    val isActive: Boolean,
-    val dateCreated: String,
-    val publishedRecipes: List<Long>,
-    val savedRecipes: List<Long>,
-    val publishedReviews: List<Long>,
-    val followers: List<Long>,
-    val following: List<Long>
-)
-
 @Entity
-@Table(name="users")
+@Table(name = "users")
+@FilterDef(name = ActiveUsersFilter.NAME, parameters = [ParamDef(name = ActiveUsersFilter.PARAM, type = String::class)])
+@Filters(Filter(name = ActiveUsersFilter.NAME, condition = ActiveUsersFilter.CONDITION))
 class User(
     @Id
     @GeneratedValue
@@ -35,12 +35,6 @@ class User(
     var password: String,
 
     var displayName: String = "",
-
-    @JsonProperty("isAdmin")
-    var isAdmin: Boolean = false,
-
-    @JsonProperty("isActive")
-    var isActive: Boolean = true,
 
     var dateCreated: String = LocalDateTime.now().toString(),
 
@@ -81,49 +75,66 @@ class User(
     @JsonBackReference
     @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf(),
+
+    var roles: MutableList<Role> = mutableListOf(USER),
+
+    var status: Status = ACTIVE,
 ) {
+
+    enum class Role {
+        ADMIN,
+        USER,
+    }
+
+    enum class Status {
+        ACTIVE,
+        INACTIVE,
+        SOFT_DELETED,
+    }
 
     init {
         this.password = BCryptPasswordEncoder().encode(password)
     }
 
-    fun toDTO(): UserDTO = UserMapper.toDto(this)
-
     fun validatePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)
     }
+
+    fun isAdmin(): Boolean = this.roles.contains(ADMIN)
+    fun isActive(): Boolean = this.status == ACTIVE
+    fun isSoftDeleted(): Boolean = this.status == SOFT_DELETED
 
     fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> =
         publishedRecipes.take(limit)
 
     fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> =
-         savedRecipes.take(limit)
+        savedRecipes.take(limit)
 
     fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
         publishedReviews.take(limit)
 
-    fun update(userDTO: UpdateUserDTO) {
-        userDTO.email?.let { this.email = it }
-        userDTO.password?.let { this.password = it }
-        userDTO.displayName?.let { this.displayName = it }
-        userDTO.isAdmin?.let { this.isAdmin = it }
-        userDTO.isActive?.let { this.isActive = it }
-    }
-
     fun follow(user: User) {
-        if(this == user) return
-        if(this.following.contains(user)) return
+        if (this == user) return
+        if (this.following.contains(user)) return
         this.following.add(user)
     }
 
     fun unfollow(user: User) {
-        if(this == user) return
-        if(!this.following.contains(user)) return
+        if (this == user) return
+        if (!this.following.contains(user)) return
         this.following.remove(user)
     }
 
     fun likeReview(review: Review) {
-        if(this.likedReviews.contains(review)) return
+        if (this.likedReviews.contains(review)) return
         this.likedReviews.add(review)
     }
+
+    fun update(userDTO: UpdateUserRequest) {
+        userDTO.email?.let { this.email = it }
+        userDTO.password?.let { this.password = it }
+        userDTO.displayName?.let { this.displayName = it }
+    }
+
+    fun toDTO(): UserDTO = UserMapper.toDto(this)
 }

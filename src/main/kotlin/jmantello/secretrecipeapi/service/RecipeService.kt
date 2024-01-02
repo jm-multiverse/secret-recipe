@@ -1,10 +1,10 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.dto.PublishRecipeDTO
-import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
@@ -33,7 +33,7 @@ class RecipeService(
         return Success(recipe.toDTO())
     }
 
-    fun create(request: PublishRecipeDTO): Result<RecipeDTO> {
+    fun create(request: PublishRecipeRequest): Result<RecipeDTO> {
         val publisherId = request.publisherId
         val user = userRepository.findByIdOrNull(publisherId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(publisherId))
@@ -49,7 +49,7 @@ class RecipeService(
         return Success(CREATED, response)
     }
 
-    fun update(id:Long, request: UpdateRecipeDTO): Result<RecipeDTO> {
+    fun update(id:Long, request: UpdateRecipeRequest): Result<RecipeDTO> {
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return Error(NOT_FOUND, recipeNotFoundMessage(id))
 

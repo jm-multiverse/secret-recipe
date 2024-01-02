@@ -1,10 +1,10 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer.request
 
 import jakarta.annotation.Nullable
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.*
 
-class UpdateUserDTO(
+class UpdateUserRequest(
     @NotNull
     val id: Long?,
 

@@ -1,9 +1,9 @@
-package jmantello.secretrecipeapi.dto
+package jmantello.secretrecipeapi.transfer.request
 
 import jmantello.secretrecipeapi.annotations.ValidPassword
 import javax.validation.constraints.Email
 
-class LoginUserDTO(
+class UserLoginRequest(
     @Email
     var email: String,
 
