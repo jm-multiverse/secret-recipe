@@ -91,17 +91,17 @@ class UserService(
     }
 
     fun authenticate(request: LoginUserDTO): Result<User> {
-        val loginError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
+        val unauthenticatedError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
 
         val user = findByEmail(request.email)
-            ?: return loginError
+            ?: return unauthenticatedError
 
         val authorized = user.validatePassword(request.password)
 
         return if (authorized)
             Success(user)
         else
-            loginError
+            unauthenticatedError
     }
 
     @Transactional

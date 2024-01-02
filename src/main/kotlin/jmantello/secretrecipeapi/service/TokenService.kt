@@ -12,12 +12,11 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class JwtService(
+class TokenService(
     private val userService: UserService,
     @Value("\${jwt.secret}") private val jwtSecret: String,
     @Value("\${jwt.expirationMs}") private val jwtExpirationMs: Long,
     @Value("\${jwt.refreshExpirationDateInMs}") private val refreshExpirationDateInMs: Long
-
 ) {
     fun generateAccessToken(user: User): Result<String> {
         return try {

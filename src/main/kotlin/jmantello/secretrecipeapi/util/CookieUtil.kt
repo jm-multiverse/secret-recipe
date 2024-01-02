@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.util
 
 import jakarta.servlet.http.Cookie
 
-object Cookie {
+object CookieUtil {
     fun create(name: String, value: String, maxAge: Int, httpOnly: Boolean = true, secure: Boolean = true): Cookie {
         val cookie = Cookie(name, value)
         cookie.maxAge = maxAge

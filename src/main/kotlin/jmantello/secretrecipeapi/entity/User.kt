@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi.entity
 import com.fasterxml.jackson.annotation.*
 import jakarta.persistence.*
 import jmantello.secretrecipeapi.dto.UpdateUserDTO
+import jmantello.secretrecipeapi.entity.Role.*
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
@@ -24,6 +25,7 @@ class UserDTO(
 enum class Role {
     ADMIN,
     USER,
+    SOFT_DELETED,
 }
 
 @Entity
@@ -92,6 +94,15 @@ class User(
 
     init {
         this.password = BCryptPasswordEncoder().encode(password)
+
+        // TODO: See if I could add roles to the User object elsewhere
+        if (this.isAdmin)
+            this.roles.add(ADMIN)
+
+        if (this.isActive)
+            this.roles.add(USER)
+        else
+            this.roles.add(SOFT_DELETED)
     }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)

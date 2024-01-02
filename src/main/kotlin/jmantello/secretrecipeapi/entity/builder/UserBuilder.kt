@@ -1,9 +1,9 @@
 package jmantello.secretrecipeapi.entity.builder
 
 import jmantello.secretrecipeapi.dto.RegisterUserDTO
-import jmantello.secretrecipeapi.dto.UpdateUserDTO
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.entity.Role
 import jmantello.secretrecipeapi.entity.User
 import java.time.LocalDateTime
 
@@ -19,6 +19,7 @@ class UserBuilder {
     private var publishedReviews: MutableList<Review>? = null
     private var followers: MutableList<User>? = null
     private var following: MutableList<User>? = null
+    private var roles: MutableList<Role>? = null
 
     fun email(email: String): UserBuilder {
         this.email = email
@@ -75,6 +76,11 @@ class UserBuilder {
         return this
     }
 
+    fun roles(roles: MutableList<Role>): UserBuilder {
+        this.roles = roles
+        return this
+    }
+
     fun buildFromRegisterRequest(request: RegisterUserDTO): User {
         return User(
             email = request.email,
@@ -94,7 +100,8 @@ class UserBuilder {
             savedRecipes = savedRecipes ?: mutableListOf(),
             publishedReviews = publishedReviews ?: mutableListOf(),
             followers = followers ?: mutableListOf(),
-            following = following ?: mutableListOf()
+            following = following ?: mutableListOf(),
+            roles = roles ?: mutableListOf()
         )
     }
 }
