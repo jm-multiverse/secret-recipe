@@ -16,8 +16,8 @@
 - [Architecture and Design](#architecture-and-design)
   - [Overview](#overview)
   - [Transfer Objects](#transfer-objects)
-  - [Services Utilizing `Result<T>`](#services-utilizing-resultt)
-  - [Controllers Utilizing `ApiResponse<T>`](#controllers-utilizing-apiresponset)
+  - [Service Utilization of `Result<T>`](#service-utilization-of-resultt)
+  - [Controller Utilization of `ApiResponse<T>`](#controller-utilization-of-apiresponset)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
@@ -117,7 +117,7 @@ Located in the `/transfer` directory, request and response data transfer objects
 
 Model DTOs can be found in the `/transfer/model` directory. These DTOs are used to represent the data model of the application, including user profiles, recipes, and reviews. They are used primarily from the service layer outward, and they are preffered because they allow control over the information being sent to the client.
 
-### Services Utilizing `Result<T>`
+### Service Utilization of `Result<T>`
 The service layer utilizes `Result<T>` to convey operation outcomes, encapsulating either successful data (`Success<T>`) or error messages (`Error`). This structure simplifies error handling and response generation.
 
 ```kotlin
@@ -142,7 +142,7 @@ sealed class Result<out T> {
 
 *Note the constructor overloading in the `Success` and `Error` classes. This allows for the omission of the `status` parameter when creating a new `Result` object, defaulting to `HttpStatus.OK` and `HttpStatus.BAD_REQUEST` respectively.*
 
-### Controllers Utilizing `ApiResponse<T>`
+### Controller Utilization of `ApiResponse<T>`
 Controllers leverage `ApiResponse<T>` for consistent API responses, containing either data or error details. The ResponseBuilder constructs these responses, ensuring uniformity across different API endpoints.
 
 ```kotlin
