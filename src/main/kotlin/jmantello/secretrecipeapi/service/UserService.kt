@@ -192,7 +192,7 @@ class UserService(
             ?: return Error(NOT_FOUND, userNotFoundMessage(targetUserId))
 
         user.unfollow(targetUser)
-        val response = user.followers.map { it.toDTO() }
+        val response = user.following.map { it.toDTO() }
         return Success(response)
     }
 

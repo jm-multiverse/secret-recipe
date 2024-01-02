@@ -403,7 +403,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         assertEquals(OK, followResponse.statusCode)
 
-        // Response is the list of users testUser2 is following
+        // Response is testUser2's following list
         val followApiResponse = followResponse.body ?: fail("Response body was null.")
         val following = followApiResponse.data ?: fail("Response body data was null.")
 
@@ -439,7 +439,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         assertEquals(OK, unfollowResponse.statusCode)
 
-        // Response is testUser2 following list
+        // Response is testUser2's following list
         val unfollowApiResponse = unfollowResponse.body ?: fail("Response body was null.")
         val followingList = unfollowApiResponse.data ?: fail("Response body data was null.")
         assertFalse(followingList.any { it.id == testUser.id }, "Follower with id ${testUser.id} found after unfollow.")
