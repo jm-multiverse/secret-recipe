@@ -15,7 +15,7 @@
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
   - [Overview](#overview)
-  - [DTOs](#dtos)
+  - [Transfer Objects](#transfer-objects)
   - [Services Utilizing `Result<T>`](#services-utilizing-resultt)
   - [Controllers Utilizing `ApiResponse<T>`](#controllers-utilizing-apiresponset)
 - [Future Enhancements](#future-enhancements)
