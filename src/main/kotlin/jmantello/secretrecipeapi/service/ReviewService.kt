@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.service
 import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.entity.Review
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository

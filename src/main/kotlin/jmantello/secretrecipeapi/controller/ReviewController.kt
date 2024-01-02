@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond

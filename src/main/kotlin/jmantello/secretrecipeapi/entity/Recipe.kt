@@ -4,21 +4,10 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
-import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.entity.mapper.RecipeMapper
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import java.time.LocalDateTime
-
-class RecipeDTO(
-    val id: Long,
-    val title: String,
-    val content: String,
-    val publisherId: Long,
-    val datePublished: String,
-    val reviews: List<Long>,
-    val tags: List<String>,
-    val rating: Double?,
-    var isPrivate: Boolean,
-)
 
 @Entity
 @Table(name = "recipes")

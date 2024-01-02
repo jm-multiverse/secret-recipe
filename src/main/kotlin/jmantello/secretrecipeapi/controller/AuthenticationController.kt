@@ -5,7 +5,7 @@ import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.transfer.request.RefreshTokenRequest
 import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse

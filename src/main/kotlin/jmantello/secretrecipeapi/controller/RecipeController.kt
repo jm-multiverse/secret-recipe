@@ -5,8 +5,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond

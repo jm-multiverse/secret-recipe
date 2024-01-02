@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.transfer.response
 
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 
 class UserLoginResponse(
     val user: UserDTO,

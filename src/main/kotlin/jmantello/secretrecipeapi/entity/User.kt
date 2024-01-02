@@ -10,6 +10,7 @@ import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
 import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
@@ -17,20 +18,6 @@ import org.hibernate.annotations.Filters
 import org.hibernate.annotations.ParamDef
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
-
-class UserDTO(
-    val id: Long,
-    val email: String,
-    val displayName: String,
-    val dateCreated: String,
-    val publishedRecipes: List<Long>,
-    val savedRecipes: List<Long>,
-    val publishedReviews: List<Long>,
-    val followers: List<Long>,
-    val following: List<Long>,
-    val roles: List<User.Role>,
-    val status: User.Status,
-)
 
 @Entity
 @Table(name = "users")

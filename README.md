@@ -112,8 +112,10 @@ The Secret Recipe API uses a layered architecture, promoting separation of conce
 - **Controller**: Controllers, marked with `@RestController`, handle incoming HTTP requests and generate responses. They validate request data, invoke appropriate service layer methods, and return responses encapsulated in `ApiResponse<T>` objects.
 
 
-### DTOs
-Located in the `/dto` directory, DTOs facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
+### Transfer Objects
+Located in the `/transfer` directory, request and response data transfer objects (DTOs) facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
+
+Model DTOs can be found in the `/transfer/model` directory. These DTOs are used to represent the data model of the application, including user profiles, recipes, and reviews. They are used primarily from the service layer outward, and they are preffered because they allow control over the information being sent to the client.
 
 ### Services Utilizing `Result<T>`
 The service layer utilizes `Result<T>` to convey operation outcomes, encapsulating either successful data (`Success<T>`) or error messages (`Error`). This structure simplifies error handling and response generation.

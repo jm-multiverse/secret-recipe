@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.entity.mapper
 
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 
 object UserMapper {
     fun toDto(user: User): UserDTO {

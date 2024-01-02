@@ -1,9 +1,9 @@
 package jmantello.secretrecipeapi.integration
 
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpStatus.*
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertContains

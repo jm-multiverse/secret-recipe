@@ -4,19 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
 import jmantello.secretrecipeapi.entity.mapper.ReviewMapper
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import java.time.LocalDateTime
-
-class ReviewDTO(
-    val id: Long,
-    val title: String,
-    val content: String?,
-    val publisherId: Long,
-    val recipeId: Long,
-    val datePublished: String,
-    val likes: List<Long>?,
-    val rating: Double?,
-    val isPrivate: Boolean
-)
 
 @Entity
 @Table(name = "reviews")

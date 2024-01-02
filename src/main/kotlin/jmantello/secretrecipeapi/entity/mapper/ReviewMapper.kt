@@ -1,7 +1,7 @@
 package jmantello.secretrecipeapi.entity.mapper
 
 import jmantello.secretrecipeapi.entity.Review
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
 import org.springframework.stereotype.Component
 

@@ -2,12 +2,12 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.entity.RecipeDTO
-import jmantello.secretrecipeapi.entity.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
-import jmantello.secretrecipeapi.entity.UserDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
 import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
