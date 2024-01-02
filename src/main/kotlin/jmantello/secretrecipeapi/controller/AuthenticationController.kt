@@ -1,13 +1,14 @@
 package jmantello.secretrecipeapi.controller
 
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.dto.RegisterUserDTO
 import jmantello.secretrecipeapi.dto.LoginUserDTO
+import jmantello.secretrecipeapi.dto.RegisterUserDTO
+import jmantello.secretrecipeapi.entity.Role
 import jmantello.secretrecipeapi.entity.UserDTO
 import jmantello.secretrecipeapi.service.JwtService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.util.ApiResponse
+import jmantello.secretrecipeapi.util.Cookie
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -41,20 +42,18 @@ class AuthenticationController(
             is Error -> return respond(Error(authenticationResult.message))
         }
 
-        // TODO: See if I could add roles to the User object, rather than using 'isAdmin' and 'isActive'
-        val roles = mutableListOf<String>()
-        if (user.isAdmin) roles.add("ROLE_ADMIN")
-        if (user.isActive) roles.add("ROLE_USER")
+        // TODO: See if I could add roles to the User object elsewhere
+        if (user.isAdmin) user.roles.add(Role.ADMIN)
+        if (user.isActive) user.roles.add(Role.USER)
 
-        val tokenResult = jwtService.issueWithRoles(user.id, roles)
+        val tokenResult = jwtService.generateAccessToken(user)
 
         val token = when (tokenResult) {
             is Success -> tokenResult.data
             is Error -> return respond(Error(tokenResult.message))
         }
 
-        val cookie = Cookie("token", token)
-        cookie.isHttpOnly = true
+        val cookie = Cookie.create("token", token, 3600, httpOnly = true, secure = true)
         response.addCookie(cookie)
 
         return respond(tokenResult)
@@ -64,5 +63,13 @@ class AuthenticationController(
     fun logout(response: HttpServletResponse): ResponseEntity<ApiResponse<String>> {
         // Remove authorization token here
         return respond(Success("Logout success"))
+    }
+
+    @PostMapping("refresh")
+    fun refresh(
+        response: HttpServletResponse
+    ): ResponseEntity<ApiResponse<String>> {
+        // Refresh authorization token here
+        return respond(Success("Refresh success"))
     }
 }

@@ -19,13 +19,14 @@ class JwtService(
     @Value("\${jwt.refreshExpirationDateInMs}") private val refreshExpirationDateInMs: Long
 
 ) {
-    fun issueWithRoles(userId: Long, roles: List<String>): Result<String> {
+    fun generateAccessToken(user: User): Result<String> {
         return try {
             val now = Date()
             val expiryDate = Date(now.time + jwtExpirationMs)
 
             val token = Jwts.builder()
-                .setSubject(userId.toString())
+                .setSubject(user.id.toString())
+                .claim("roles", user.roles.map { it.name })
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -33,13 +34,31 @@ class JwtService(
 
             Success(token)
         } catch (e: Exception) {
-            Error("Error generating JWT: ${e.message}")
+            Error("Error generating access token: ${e.message}")
         }
     }
 
-    fun validate(jwt: String): Result<User> {
+    fun generateRefreshToken(user: User): Result<String> {
         return try {
-            val claims = parseToken(jwt)
+            val now = Date()
+            val expiryDate = Date(now.time + refreshExpirationDateInMs)
+
+            val refreshToken = Jwts.builder()
+                .setSubject(user.id.toString())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact()
+
+            Success(refreshToken)
+        } catch (e: Exception) {
+            Error("Error generating refresh token: ${e.message}")
+        }
+    }
+
+    fun validate(token: String): Result<User> {
+        return try {
+            val claims = parseToken(token)
             val userId = claims.subject.toLong()
             userService.findByIdOrNull(userId)?.let { Success(it) }
                 ?: Error(UNAUTHORIZED, "User associated with the token could not be found")
@@ -48,11 +67,11 @@ class JwtService(
         }
     }
 
-    private fun parseToken(jwt: String): Claims {
+    private fun parseToken(token: String): Claims {
         try {
             return Jwts.parser()
                 .setSigningKey(jwtSecret)
-                .parseClaimsJws(jwt)
+                .parseClaimsJws(token)
                 .body
         } catch (e: ExpiredJwtException) {
             throw InvalidJwtException("Expired JWT token")
@@ -64,24 +83,6 @@ class JwtService(
             throw InvalidJwtException("Invalid JWT signature")
         } catch (e: IllegalArgumentException) {
             throw InvalidJwtException("Invalid JWT token")
-        }
-    }
-
-    fun generateRefreshToken(userId: Long): Result<String> {
-        return try {
-            val now = Date()
-            val expiryDate = Date(now.time + refreshExpirationDateInMs)
-
-            val refreshToken = Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact()
-
-            Success(refreshToken)
-        } catch (e: Exception) {
-            Error("Error generating refresh token: ${e.message}")
         }
     }
 }
