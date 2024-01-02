@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.Timer
 import jmantello.secretrecipeapi.dto.PublishRecipeDTO
 import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
+import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/recipes")
-class RecipeController(private val service: RecipeService, private val meterRegistry: MeterRegistry) {
+class RecipeController(
+    private val meterRegistry: MeterRegistry,
+    private val recipeService: RecipeService,
+) {
     // Define custom metrics
     val requestsCounter: Counter = Counter.builder("requests.count")
         .tag("controller", "recipe")
@@ -26,25 +30,28 @@ class RecipeController(private val service: RecipeService, private val meterRegi
 
     @GetMapping
     fun getRecipes(): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(service.findAll())
+        respond(recipeService.findAll())
 
     @GetMapping("/{id}")
     fun getRecipeById(@PathVariable id: Long): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(service.findById(id))
+        respond(recipeService.findById(id))
 
     @PostMapping
     fun createRecipe(@RequestBody request: PublishRecipeDTO): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(service.create(request))
+        respond(recipeService.create(request))
 
     @PutMapping("/{id}")
     fun updateRecipe(
         @PathVariable id: Long,
         @RequestBody updateRecipeDTO: UpdateRecipeDTO
     ): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(service.update(id, updateRecipeDTO))
+        respond(recipeService.update(id, updateRecipeDTO))
 
     @DeleteMapping("/{id}")
     fun deleteRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<Unit>> =
-        respond(service.deleteById(id))
+        respond(recipeService.deleteById(id))
 
+    @GetMapping("/{id}/reviews")
+    fun getReviewsForRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(recipeService.getReviewsForRecipe(id))
 }

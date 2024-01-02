@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.dto.PublishRecipeDTO
 import jmantello.secretrecipeapi.dto.UpdateRecipeDTO
 import jmantello.secretrecipeapi.entity.RecipeDTO
+import jmantello.secretrecipeapi.entity.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.UserRepository
@@ -59,4 +60,11 @@ class RecipeService(
 
     fun deleteById(id: Long): Result<Unit> =
         Success(NO_CONTENT, recipeRepository.deleteById(id))
+
+    fun getReviewsForRecipe(id: Long): Result<List<ReviewDTO>> {
+        val recipe = recipeRepository.findByIdOrNull(id)
+            ?: return Error(NOT_FOUND, recipeNotFoundMessage(id))
+
+        return Success(recipe.reviews.map { it.toDTO() })
+    }
 }

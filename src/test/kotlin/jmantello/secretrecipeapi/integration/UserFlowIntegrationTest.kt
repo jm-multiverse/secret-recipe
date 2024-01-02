@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-class UserFlowTest : IntegrationTestBase() {
+class UserFlowIntegrationTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var userService: UserService
@@ -395,7 +395,7 @@ class UserFlowTest : IntegrationTestBase() {
     fun testFollowAndFollowers() = runBlocking {
 
         // testUser2 follows testUser
-        val followUrl = endpoints.follow(testUser.id, testUser2.id)
+        val followUrl = endpoints.follow(testUser2.id, testUser.id)
         val followResponse = webClient.post()
             .uri(followUrl)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
@@ -403,7 +403,7 @@ class UserFlowTest : IntegrationTestBase() {
 
         assertEquals(OK, followResponse.statusCode)
 
-        // Response is the list of users testUser2 is following
+        // Response is testUser2's following list
         val followApiResponse = followResponse.body ?: fail("Response body was null.")
         val following = followApiResponse.data ?: fail("Response body data was null.")
 
@@ -431,7 +431,7 @@ class UserFlowTest : IntegrationTestBase() {
     @Order(12)
     fun testUnfollow() = runBlocking {
         // testUser2 unfollows testUser
-        val unfollowUrl = endpoints.unfollow(testUser.id, testUser2.id)
+        val unfollowUrl = endpoints.unfollow(testUser2.id, testUser.id)
         val unfollowResponse = webClient.post()
             .uri(unfollowUrl)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
@@ -439,7 +439,7 @@ class UserFlowTest : IntegrationTestBase() {
 
         assertEquals(OK, unfollowResponse.statusCode)
 
-        // Response is testUser2 following list
+        // Response is testUser2's following list
         val unfollowApiResponse = unfollowResponse.body ?: fail("Response body was null.")
         val followingList = unfollowApiResponse.data ?: fail("Response body data was null.")
         assertFalse(followingList.any { it.id == testUser.id }, "Follower with id ${testUser.id} found after unfollow.")

@@ -34,7 +34,7 @@ class User(
     @JsonIgnore
     var password: String,
 
-    var displayName: String? = "",
+    var displayName: String = "",
 
     @JsonProperty("isAdmin")
     var isAdmin: Boolean = false,
