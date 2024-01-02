@@ -60,8 +60,8 @@ git clone https://github.com/jm-multiverse/secret-recipe
 # Navigate to the project directory
 cd secret-recipe
 
-# Run the project using the Makefile
-make all
+# Run the project using Gradle
+./gradlew bootRun
 ```
 
 The project should now be running locally on port 8080. 
@@ -97,8 +97,8 @@ The Secret Recipe API offers a variety of endpoints for interacting with the API
 The Secret Recipe API is tested using the JUnit 5 testing framework. The tests are located in the `src/test/kotlin` directory. To run the tests, use the following command:
 
 ```sh
-# Run the tests using the Makefile
-make test
+# Run the tests using Gradle
+./gradlew test
 ```
 
 ## Architecture and Design
