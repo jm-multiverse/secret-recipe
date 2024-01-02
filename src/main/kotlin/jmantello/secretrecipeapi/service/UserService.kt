@@ -171,27 +171,27 @@ class UserService(
     }
 
     @Transactional
-    fun follow(userId: Long, followerId: Long): Result<List<UserDTO>> {
+    fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
 
-        val follower = findByIdOrNull(followerId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
+        val targetUser = findByIdOrNull(targetUserId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(targetUserId))
 
-        follower.follow(user)
-        val response = follower.following.map { it.toDTO() }
+        user.follow(targetUser)
+        val response = user.following.map { it.toDTO() }
         return Success(response)
     }
 
     @Transactional
-    fun unfollow(userId: Long, followerId: Long): Result<List<UserDTO>> {
+    fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
             ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
 
-        val follower = findByIdOrNull(followerId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(followerId))
+        val targetUser = findByIdOrNull(targetUserId)
+            ?: return Error(NOT_FOUND, userNotFoundMessage(targetUserId))
 
-        follower.unfollow(user)
+        user.unfollow(targetUser)
         val response = user.followers.map { it.toDTO() }
         return Success(response)
     }

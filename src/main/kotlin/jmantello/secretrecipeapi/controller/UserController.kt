@@ -68,19 +68,19 @@ class UserController(
     fun following(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
         respond(userService.getFollowing(id))
 
-    @PostMapping("{userId}/follow/{followerId}")
+    @PostMapping("{userId}/follow/{targetUserId}")
     fun follow(
         @PathVariable userId: Long,
-        @PathVariable followerId: Long
+        @PathVariable targetUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.follow(userId, followerId))
+        respond(userService.follow(userId, targetUserId))
 
-    @PostMapping("{userId}/unfollow/{followerId}")
+    @PostMapping("{userId}/unfollow/{targetUserId}")
     fun unfollow(
         @PathVariable userId: Long,
-        @PathVariable followerId: Long
+        @PathVariable targetUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.unfollow(userId, followerId))
+        respond(userService.unfollow(userId, targetUserId))
 
     @PostMapping("{userId}/like-review/{reviewId}")
         fun likeReview(
