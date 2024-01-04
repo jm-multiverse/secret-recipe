@@ -8,7 +8,7 @@ import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.transfer.request.*
-import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
+import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -146,7 +146,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserAuthenticatedResponse>>() }
             .awaitSingle()
 
         assertEquals(OK, response.statusCode)
@@ -498,7 +498,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val loginResponse = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserAuthenticatedResponse>>() }
             .awaitSingle()
 
         assertEquals(OK, loginResponse.statusCode)

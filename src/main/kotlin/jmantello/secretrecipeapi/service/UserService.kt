@@ -2,30 +2,32 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.transfer.model.RecipeDTO
-import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
-import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.entity.builder.UserBuilder
 import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.recipeNotFoundMessage
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userDeletedMessage
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userNotFoundMessage
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.recipeNotFoundError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.reviewNotFoundError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.unauthorizedError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userAlreadyRegisteredWithEmailError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
-import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
 import org.hibernate.Session
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus.*
+import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.stereotype.Service
 
 @Service
@@ -45,31 +47,27 @@ class UserService(
     fun findActive(): Result<List<UserDTO>> {
         session
             .enableFilter(ActiveUsersFilter.NAME)
-            .setParameter("userStatus", ACTIVE)
+            .setParameter(ActiveUsersFilter.PARAMETER_NAME, ACTIVE)
 
         val result = userRepository.findAll().map { it.toDTO() }
-
         session.disableFilter(ActiveUsersFilter.NAME)
-
         return Success(result)
     }
 
     fun findById(id: Long): Result<UserDTO> {
         val user = userRepository.findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+            ?: return userNotFoundError(id)
 
         return Success(user.toDTO())
     }
 
-    fun findByIdOrNull(id: Long): User? =
-        userRepository.findByIdOrNull(id)
+    fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
 
-    fun findByEmail(email: String): User? =
-        userRepository.findByEmail(email)
+    fun findByEmail(email: String): User? = userRepository.findByEmail(email)
 
     fun update(id: Long, userDTO: UpdateUserRequest): Result<UserDTO> {
         val foundUser = findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+            ?: return userNotFoundError(id)
 
         foundUser.update(userDTO)
         val result = userRepository.save(foundUser).toDTO()
@@ -77,16 +75,13 @@ class UserService(
         return Success(result)
     }
 
-    fun save(user: User): User =
-        userRepository.save(user)
-
     fun deleteById(id: Long): Result<Any> {
         val user = findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+            ?: return userNotFoundError(id)
 
         user.status = SOFT_DELETED
         userRepository.save(user)
-        return Success(NO_CONTENT, userDeletedMessage(id))
+        return Success(NO_CONTENT, "Successfully deleted User with ID $id.")
     }
 
     fun isEmailRegistered(email: String): Boolean =
@@ -94,10 +89,7 @@ class UserService(
 
     fun register(request: RegisterUserRequest): Result<UserDTO> {
         if (isEmailRegistered(request.email))
-            return Error(
-                BAD_REQUEST,
-                "Cannot register user because the email provided is already associated with an existing account."
-            )
+            return userAlreadyRegisteredWithEmailError
 
         val user = UserBuilder().buildFromRegisterRequest(request)
         userRepository.save(user)
@@ -105,26 +97,24 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun authenticate(request: UserLoginRequest): Result<User> {
-        val unauthenticatedError = Error(UNAUTHORIZED, "Login failed. User not found or incorrect password")
-
+    fun validateCredentials(request: UserLoginRequest): Result<User> {
         val user = findByEmail(request.email)
-            ?: return unauthenticatedError
+            ?: return unauthorizedError
 
         val authorized = user.validatePassword(request.password)
 
         return if (authorized)
             Success(user)
         else
-            unauthenticatedError
+            unauthorizedError
     }
 
     fun saveRecipeForUser(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
         val user = userRepository.findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val recipe = recipeRepository.findByIdOrNull(recipeId)
-            ?: return Error(NOT_FOUND, recipeNotFoundMessage(recipeId))
+            ?: return recipeNotFoundError(recipeId)
 
         if (!user.savedRecipes.contains(recipe)) {
             user.savedRecipes.add(recipe)
@@ -138,7 +128,7 @@ class UserService(
 
     fun getPublishedRecipes(userId: Long): Result<List<RecipeDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val recipes = user.getPublishedRecipes().map { it.toDTO() }
 
@@ -147,7 +137,7 @@ class UserService(
 
     fun getSavedRecipes(userId: Long): Result<List<RecipeDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val recipes = user.getSavedRecipes().map { it.toDTO() }
 
@@ -156,7 +146,7 @@ class UserService(
 
     fun getPublishedReviews(userId: Long): Result<List<ReviewDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val reviews = user.getPublishedReviews().map { it.toDTO() }
 
@@ -165,7 +155,7 @@ class UserService(
 
     fun getFollowers(id: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+            ?: return userNotFoundError(id)
 
         val followers = user.followers.map { it.toDTO() }
 
@@ -175,7 +165,7 @@ class UserService(
 
     fun getFollowing(id: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(id))
+            ?: return userNotFoundError(id)
 
         val following = user.following.map { it.toDTO() }
 
@@ -184,10 +174,10 @@ class UserService(
 
     fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val targetUser = findByIdOrNull(targetUserId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(targetUserId))
+            ?: return userNotFoundError(targetUserId)
 
         user.follow(targetUser)
         val response = user.following.map { it.toDTO() }
@@ -196,10 +186,10 @@ class UserService(
 
     fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val targetUser = findByIdOrNull(targetUserId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(targetUserId))
+            ?: return userNotFoundError(targetUserId)
 
         user.unfollow(targetUser)
         val response = user.following.map { it.toDTO() }
@@ -208,10 +198,10 @@ class UserService(
 
     fun likeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
         val user = findByIdOrNull(userId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(userId))
+            ?: return userNotFoundError(userId)
 
         val review = reviewRepository.findByIdOrNull(reviewId)
-            ?: return Error(NOT_FOUND, recipeNotFoundMessage(reviewId))
+            ?: return reviewNotFoundError(reviewId)
 
         user.likeReview(review)
         val response = user.likedReviews.map { it.toDTO() }

@@ -16,12 +16,14 @@ import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.Filters
 import org.hibernate.annotations.ParamDef
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
-@FilterDef(name = ActiveUsersFilter.NAME, parameters = [ParamDef(name = ActiveUsersFilter.PARAM, type = String::class)])
+@FilterDef(name = ActiveUsersFilter.NAME, parameters = [ParamDef(name = ActiveUsersFilter.PARAMETER_NAME, type = String::class)])
 @Filters(Filter(name = ActiveUsersFilter.NAME, condition = ActiveUsersFilter.CONDITION))
 class User(
     @Id
@@ -135,6 +137,8 @@ class User(
         userDTO.password?.let { this.password = it }
         userDTO.displayName?.let { this.displayName = it }
     }
+
+    fun getGrantedAuthorities(): List<GrantedAuthority> = this.roles.map { SimpleGrantedAuthority(it.name) }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)
 }

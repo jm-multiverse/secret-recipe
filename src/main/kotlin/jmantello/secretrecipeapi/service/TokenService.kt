@@ -7,7 +7,8 @@ import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -18,6 +19,11 @@ class TokenService(
     @Value("\${jwt.expirationMs}") private val jwtExpirationMs: Long,
     @Value("\${jwt.refreshExpirationDateInMs}") private val refreshExpirationDateInMs: Long
 ) {
+    enum class TokenType(val tokenName: String) {
+        ACCESS("accessToken"),
+        REFRESH("refreshToken")
+    }
+
     fun generateAccessToken(user: User): Result<String> {
         return try {
             val now = Date()
@@ -55,18 +61,26 @@ class TokenService(
         }
     }
 
-    fun validate(token: String): Result<User> {
-        return try {
-            val claims = parseToken(token)
-            val userId = claims.subject.toLong()
-            userService.findByIdOrNull(userId)?.let { Success(it) }
-                ?: Error(UNAUTHORIZED, "User associated with the token could not be found")
-        } catch (e: Exception) {
-            Error(UNAUTHORIZED, "Invalid JWT token: ${e.message}")
-        }
+    fun authenticate(token: String): Authentication {
+        // 1. Parse the token to a valid user id
+        // 2. Find the user by id
+        // 3. Create an authentication object with the user and the user's authorities
+
+        val claims = parseClaims(token)
+        val userId = claims.subject.toLong()
+        val user = userService.findByIdOrNull(userId)
+            ?: throw InvalidJwtException("User associated with the token could not be found")
+
+        val credentials = null // Credentials are null because we only store the user id in the token
+
+        return UsernamePasswordAuthenticationToken(
+            user,
+            credentials,
+            user.getGrantedAuthorities()
+        )
     }
 
-    private fun parseToken(token: String): Claims {
+    private fun parseClaims(token: String): Claims {
         try {
             return Jwts.parser()
                 .setSigningKey(jwtSecret)
