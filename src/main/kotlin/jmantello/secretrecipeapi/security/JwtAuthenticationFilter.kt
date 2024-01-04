@@ -85,6 +85,7 @@ class JwtAuthenticationFilter(
     private fun writeUnauthorizedError(response: HttpServletResponse) {
         SecurityContextHolder.clearContext()
         val apiResponse = respond(unauthorizedError)
+        response.status = unauthorizedError.status.value()
         response.writer.write(objectMapper.writeValueAsString(apiResponse))
     }
 }

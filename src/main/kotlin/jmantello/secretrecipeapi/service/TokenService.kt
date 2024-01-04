@@ -1,8 +1,8 @@
 package jmantello.secretrecipeapi.service
 
 import io.jsonwebtoken.*
-import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.exception.InvalidJwtException
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -21,17 +21,17 @@ class TokenService(
 ) {
     enum class TokenType(val tokenName: String) {
         ACCESS("accessToken"),
-        REFRESH("refreshToken")
+        REFRESH("refreshToken"),
     }
 
-    fun generateAccessToken(user: User): Result<String> {
+    fun generateAccessToken(userDTO: UserDTO): Result<String> {
         return try {
             val now = Date()
             val expiryDate = Date(now.time + jwtExpirationMs)
 
             val token = Jwts.builder()
-                .setSubject(user.id.toString())
-                .claim("roles", user.roles.map { it.name })
+                .setSubject(userDTO.id.toString())
+                .claim("roles", userDTO.roles.map { it.name })
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -43,13 +43,13 @@ class TokenService(
         }
     }
 
-    fun generateRefreshToken(user: User): Result<String> {
+    fun generateRefreshToken(userDTO: UserDTO): Result<String> {
         return try {
             val now = Date()
             val expiryDate = Date(now.time + refreshExpirationDateInMs)
 
             val refreshToken = Jwts.builder()
-                .setSubject(user.id.toString())
+                .setSubject(userDTO.id.toString())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -71,12 +71,14 @@ class TokenService(
         val user = userService.findByIdOrNull(userId)
             ?: throw InvalidJwtException("User associated with the token could not be found")
 
+        val principle = user.toDTO()
         val credentials = null // Credentials are null because we only store the user id in the token
+        val grantedAuthorities = user.getGrantedAuthorities()
 
         return UsernamePasswordAuthenticationToken(
-            user,
+            principle,
             credentials,
-            user.getGrantedAuthorities()
+            grantedAuthorities
         )
     }
 

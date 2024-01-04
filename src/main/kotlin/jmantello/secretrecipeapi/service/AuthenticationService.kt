@@ -1,6 +1,6 @@
 package jmantello.secretrecipeapi.service
 
-import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
 import jmantello.secretrecipeapi.util.ErrorFactory.Companion.unauthorizedError
@@ -15,7 +15,7 @@ class AuthenticationService(
     private val tokenService: TokenService,
     private val userService: UserService,
 ) {
-    fun validateAndIssue(request: UserLoginRequest): Result<UserAuthenticatedResponse> {
+    fun validateAndIssueTokens(request: UserLoginRequest): Result<UserAuthenticatedResponse> {
         val user = when (val authenticationResult = userService.validateCredentials(request)) {
             is Success -> authenticationResult.data
             is Error -> return authenticationResult
@@ -24,29 +24,29 @@ class AuthenticationService(
         return issueTokens(user)
     }
 
-    fun issueTokens(user: User): Result<UserAuthenticatedResponse> {
-        val accessToken = when (val tokenResult = tokenService.generateAccessToken(user)) {
+    fun issueTokens(userDTO: UserDTO): Result<UserAuthenticatedResponse> {
+        val accessToken = when (val tokenResult = tokenService.generateAccessToken(userDTO)) {
             is Success -> tokenResult.data
             is Error -> return tokenResult
         }
 
-        val refreshToken = when (val tokenResult = tokenService.generateRefreshToken(user)) {
+        val refreshToken = when (val tokenResult = tokenService.generateRefreshToken(userDTO)) {
             is Success -> tokenResult.data
             is Error -> return tokenResult
         }
 
-        val response = UserAuthenticatedResponse(user.toDTO(), accessToken, refreshToken)
+        val response = UserAuthenticatedResponse(userDTO, accessToken, refreshToken)
 
         return Success(response)
     }
 
-    fun getCurrentAuthenticatedUser(): Result<User> {
+    fun getCurrentAuthenticatedUser(): Result<UserDTO> {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication == null || !authentication.isAuthenticated) {
             return unauthorizedError
         }
-        val user = (authentication.principal as User)
 
-        return Success(user)
+        val userDTO = (authentication.principal as UserDTO)
+        return Success(userDTO)
     }
 }

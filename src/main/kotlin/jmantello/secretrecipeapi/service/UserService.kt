@@ -97,14 +97,13 @@ class UserService(
         return Success(CREATED, UserMapper.toDto(user))
     }
 
-    fun validateCredentials(request: UserLoginRequest): Result<User> {
+    fun validateCredentials(request: UserLoginRequest): Result<UserDTO> {
         val user = findByEmail(request.email)
             ?: return unauthorizedError
 
         val authorized = user.validatePassword(request.password)
-
         return if (authorized)
-            Success(user)
+            Success(user.toDTO())
         else
             unauthorizedError
     }

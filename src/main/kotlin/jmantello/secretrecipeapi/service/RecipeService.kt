@@ -9,6 +9,7 @@ import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.transfer.model.RecipeDTO
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
@@ -93,7 +94,10 @@ class RecipeService(
 
     }
 
-    fun saveRecipe(id: Long, user: User): Result<List<RecipeDTO>> {
+    fun saveRecipe(id: Long, userDTO: UserDTO): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(userDTO.id)
+            ?: return userNotFoundError(userDTO.id)
+
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return recipeNotFoundError(id)
 

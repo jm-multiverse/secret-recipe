@@ -35,7 +35,7 @@ class AuthenticationController(
         @RequestBody request: UserLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<UserDTO>> {
-        val authentication = when (val authenticationResult = authenticationService.validateAndIssue(request)) {
+        val authentication = when (val authenticationResult = authenticationService.validateAndIssueTokens(request)) {
             is Success -> authenticationResult.data
             is Error -> return respond(authenticationResult)
         }

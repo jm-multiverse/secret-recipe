@@ -138,7 +138,11 @@ class User(
         userDTO.displayName?.let { this.displayName = it }
     }
 
-    fun getGrantedAuthorities(): List<GrantedAuthority> = this.roles.map { SimpleGrantedAuthority(it.name) }
+    // Currently, ROLE is a custom way to keep track of a user's roles.
+    // Eventually, we'll want to use Spring Security to manage roles.
+    // The "ROLE_" prefix is Spring Security's convention, so we'll keep it.
+    fun getGrantedAuthorities(): List<GrantedAuthority> =
+        this.roles.map { SimpleGrantedAuthority("ROLE_${it.name}") }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)
 }

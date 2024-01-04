@@ -19,18 +19,18 @@ object Cookie {
     }
 
     fun createStandardAccessCookie(value: String): Cookie {
-        return create(ACCESS.tokenName, value, accessTokenExpiryDuration)
+        return create(ACCESS.tokenName, value, accessTokenExpiryDuration, secure = false)
     }
 
     fun createStandardRefreshCookie(value: String): Cookie {
-        return create(REFRESH.tokenName, value, refreshTokenExpiryDuration)
+        return create(REFRESH.tokenName, value, refreshTokenExpiryDuration, secure = false)
     }
 
     fun createClear(name: String): Cookie {
         val cookie = Cookie(name, "")
         cookie.maxAge = 0
         cookie.isHttpOnly = true
-        cookie.secure = true
+        cookie.secure = false
         cookie.path = "/"
         return cookie
     }
