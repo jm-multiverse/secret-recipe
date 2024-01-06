@@ -10,14 +10,14 @@ import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
 import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.Filters
 import org.hibernate.annotations.ParamDef
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
@@ -104,18 +104,21 @@ class User(
         return BCryptPasswordEncoder().matches(password, this.password)
     }
 
+    fun update(userDTO: UpdateUserRequest) {
+        userDTO.email?.let { this.email = it }
+        userDTO.password?.let { this.password = it }
+        userDTO.displayName?.let { this.displayName = it }
+    }
+
     fun isAdmin(): Boolean = this.roles.contains(ADMIN)
     fun isActive(): Boolean = this.status == ACTIVE
     fun isSoftDeleted(): Boolean = this.status == SOFT_DELETED
 
-    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> =
-        publishedRecipes.take(limit)
+    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<RecipeDTO> =
+        publishedRecipes.take(limit).map { it.toDTO() }
 
-    fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> =
-        savedRecipes.take(limit)
-
-    fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
-        publishedReviews.take(limit)
+    fun getSavedRecipes(limit: Int = savedRecipes.size): List<RecipeDTO> =
+        savedRecipes.take(limit).map { it.toDTO() }
 
     fun saveRecipe(recipe: Recipe) {
         if (this.savedRecipes.contains(recipe)) return
@@ -125,6 +128,22 @@ class User(
     fun unsaveRecipe(recipe: Recipe) {
         if (!this.savedRecipes.contains(recipe)) return
         this.savedRecipes.remove(recipe)
+    }
+
+    fun getPublishedReviews(limit: Int = publishedReviews.size): List<ReviewDTO> =
+        publishedReviews.take(limit).map { it.toDTO() }
+
+    fun getLikedReviews(limit: Int = likedReviews.size): List<ReviewDTO> =
+        likedReviews.take(limit).map { it.toDTO() }
+
+    fun likeReview(review: Review) {
+        if (this.likedReviews.contains(review)) return
+        this.likedReviews.add(review)
+    }
+
+    fun unlikeReview(review: Review) {
+        if (!this.likedReviews.contains(review)) return
+        this.likedReviews.remove(review)
     }
 
     fun follow(user: User) {
@@ -139,15 +158,12 @@ class User(
         this.following.remove(user)
     }
 
-    fun likeReview(review: Review) {
-        if (this.likedReviews.contains(review)) return
-        this.likedReviews.add(review)
+    fun getFollowers(): List<UserDTO> {
+        return this.followers.map { it.toDTO() }
     }
 
-    fun update(userDTO: UpdateUserRequest) {
-        userDTO.email?.let { this.email = it }
-        userDTO.password?.let { this.password = it }
-        userDTO.displayName?.let { this.displayName = it }
+    fun getFollowing(): List<UserDTO> {
+        return this.following.map { it.toDTO() }
     }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)

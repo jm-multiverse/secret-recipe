@@ -70,7 +70,6 @@ class UserService(
 
         foundUser.update(userDTO)
         val result = userRepository.save(foundUser).toDTO()
-
         return Success(result)
     }
 
@@ -107,20 +106,27 @@ class UserService(
             unauthorizedError
     }
 
-    fun saveRecipeForUser(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
+    fun saveRecipe(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
         val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        if (!user.savedRecipes.contains(recipe)) {
-            user.savedRecipes.add(recipe)
-            userRepository.save(user)
-        }
+        user.saveRecipe(recipe)
+        val response = user.getSavedRecipes()
+        return Success(response)
+    }
 
-        val response = user.savedRecipes.map { it.toDTO() }
+    fun unsaveRecipe(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return userNotFoundError(userId)
 
+        val recipe = recipeRepository.findByIdOrNull(recipeId)
+            ?: return recipeNotFoundError(recipeId)
+
+        user.unsaveRecipe(recipe)
+        val response = user.getSavedRecipes()
         return Success(response)
     }
 
@@ -128,8 +134,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
-        val recipes = user.getPublishedRecipes().map { it.toDTO() }
-
+        val recipes = user.getPublishedRecipes()
         return Success(recipes)
     }
 
@@ -137,8 +142,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
-        val recipes = user.getSavedRecipes().map { it.toDTO() }
-
+        val recipes = user.getSavedRecipes()
         return Success(recipes)
     }
 
@@ -146,8 +150,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
-        val reviews = user.getPublishedReviews().map { it.toDTO() }
-
+        val reviews = user.getPublishedReviews()
         return Success(reviews)
     }
 
@@ -155,8 +158,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val followers = user.followers.map { it.toDTO() }
-
+        val followers = user.getFollowers()
         return Success(followers)
     }
 
@@ -165,8 +167,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val following = user.following.map { it.toDTO() }
-
+        val following = user.getFollowing()
         return Success(following)
     }
 
@@ -178,7 +179,7 @@ class UserService(
             ?: return userNotFoundError(targetUserId)
 
         user.follow(targetUser)
-        val response = user.following.map { it.toDTO() }
+        val response = user.getFollowing()
         return Success(response)
     }
 
@@ -190,7 +191,7 @@ class UserService(
             ?: return userNotFoundError(targetUserId)
 
         user.unfollow(targetUser)
-        val response = user.following.map { it.toDTO() }
+        val response = user.getFollowing()
         return Success(response)
     }
 
@@ -202,7 +203,27 @@ class UserService(
             ?: return reviewNotFoundError(reviewId)
 
         user.likeReview(review)
-        val response = user.likedReviews.map { it.toDTO() }
+        val response = user.getLikedReviews()
+        return Success(response)
+    }
+
+    fun getLikedReviews(userId: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return userNotFoundError(userId)
+
+        val reviews = user.getLikedReviews()
+        return Success(reviews)
+    }
+
+    fun unlikeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return userNotFoundError(userId)
+
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: return reviewNotFoundError(reviewId)
+
+        user.unlikeReview(review)
+        val response = user.getLikedReviews()
         return Success(response)
     }
 }

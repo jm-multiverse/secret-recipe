@@ -8,15 +8,16 @@ import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.transfer.model.RecipeDTO
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
-import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
+import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.stereotype.Service
@@ -38,7 +39,20 @@ class RecipeService(
         return Success(recipe.toDTO())
     }
 
-    fun create(request: PublishRecipeRequest): Result<RecipeDTO> {
+    fun search(
+        title: String?,
+        author: String?,
+        ingredients: List<String>?,
+        tags: List<String>?,
+        sortBy: String?,
+        sortDirection: String?,
+        page: Int?,
+        pageSize: Int?
+    ): Result<List<RecipeDTO>> {
+        return Error(HttpStatus.NOT_IMPLEMENTED, "Search not implemented yet")
+    }
+
+    fun publish(request: PublishRecipeRequest): Result<RecipeDTO> {
         val publisherId = request.publisherId
         val user = userRepository.findByIdOrNull(publisherId)
             ?: return userNotFoundError(publisherId)
@@ -66,14 +80,14 @@ class RecipeService(
     fun deleteById(id: Long): Result<Unit> =
         Success(NO_CONTENT, recipeRepository.deleteById(id))
 
-    fun getReviewsForRecipe(id: Long): Result<List<ReviewDTO>> {
+    fun getRecipeReviews(id: Long): Result<List<ReviewDTO>> {
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return recipeNotFoundError(id)
 
         return Success(recipe.reviews.map { it.toDTO() })
     }
 
-    fun createReviewForRecipe(id: Long, request: PublishReviewRequest): Result<ReviewDTO> {
+    fun publishRecipeReview(id: Long, request: PublishReviewRequest): Result<ReviewDTO> {
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return recipeNotFoundError(id)
 
@@ -91,31 +105,5 @@ class RecipeService(
         val response = reviewRepository.save(review).toDTO()
         return Success(CREATED, response)
 
-    }
-
-    fun saveRecipe(id: Long, userDTO: UserDTO): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userDTO.id)
-            ?: return userNotFoundError(userDTO.id)
-
-        val recipe = recipeRepository.findByIdOrNull(id)
-            ?: return recipeNotFoundError(id)
-
-        user.saveRecipe(recipe)
-        userRepository.save(user)
-        val response = user.savedRecipes.map { it.toDTO() }
-        return Success(response)
-    }
-
-    fun unsaveRecipe(id: Long, userDTO: UserDTO): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userDTO.id)
-            ?: return userNotFoundError(userDTO.id)
-
-        val recipe = recipeRepository.findByIdOrNull(id)
-            ?: return recipeNotFoundError(id)
-
-        user.unsaveRecipe(recipe)
-        userRepository.save(user)
-        val response = user.savedRecipes.map { it.toDTO() }
-        return Success(response)
     }
 }

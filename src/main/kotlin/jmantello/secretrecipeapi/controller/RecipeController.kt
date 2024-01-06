@@ -6,7 +6,7 @@ import io.micrometer.core.instrument.Timer
 import jakarta.servlet.http.HttpServletRequest
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.service.RecipeService
-import jmantello.secretrecipeapi.service.TokenService
+import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.transfer.model.RecipeDTO
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/recipes")
 class RecipeController(
     private val meterRegistry: MeterRegistry,
+    private val userService: UserService,
     private val recipeService: RecipeService,
     private val authenticationService: AuthenticationService,
 ) {
@@ -44,8 +45,8 @@ class RecipeController(
         respond(recipeService.findById(id))
 
     @PostMapping
-    fun createRecipe(@RequestBody request: PublishRecipeRequest): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(recipeService.create(request))
+    fun publishRecipe(@RequestBody request: PublishRecipeRequest): ResponseEntity<ApiResponse<RecipeDTO>> =
+        respond(recipeService.publish(request))
 
     @PutMapping("/{id}")
     fun updateRecipe(
@@ -58,16 +59,29 @@ class RecipeController(
     fun deleteRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<Unit>> =
         respond(recipeService.deleteById(id))
 
+    @GetMapping("/search")
+    fun searchRecipes(
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) author: String?,
+        @RequestParam(required = false) ingredients: List<String>?,
+        @RequestParam(required = false) tags: List<String>?,
+        @RequestParam(required = false) sortBy: String?,
+        @RequestParam(required = false) sortDirection: String?,
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false) pageSize: Int?,
+    ): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
+        respond(recipeService.search(title, author, ingredients, tags, sortBy, sortDirection, page, pageSize))
+
     @GetMapping("/{id}/reviews")
-    fun getReviewsForRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-        respond(recipeService.getReviewsForRecipe(id))
+    fun getRecipeReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(recipeService.getRecipeReviews(id))
 
     @PostMapping("/{id}/reviews")
-    fun createReviewForRecipe(
+    fun publishRecipeReview(
         @PathVariable id: Long,
         @RequestBody request: PublishReviewRequest
     ): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(recipeService.createReviewForRecipe(id, request))
+        respond(recipeService.publishRecipeReview(id, request))
 
     @PostMapping("/{id}/save")
     fun saveRecipe(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
@@ -76,16 +90,19 @@ class RecipeController(
             is Error -> return respond(Error(result.message))
         }
 
-        return respond(recipeService.saveRecipe(id, user))
+        return respond(userService.saveRecipe(user.id, id))
     }
 
     @PostMapping("/{id}/unsave")
-    fun unsaveRecipe(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
+    fun unsaveRecipe(
+        @PathVariable id: Long,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
         val user = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
             is Success -> result.data
             is Error -> return respond(Error(result.message))
         }
 
-        return respond(recipeService.unsaveRecipe(id, user))
+        return respond(userService.unsaveRecipe(user.id, id))
     }
 }
