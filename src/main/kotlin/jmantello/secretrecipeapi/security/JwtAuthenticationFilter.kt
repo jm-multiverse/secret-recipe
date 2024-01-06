@@ -69,7 +69,7 @@ class JwtAuthenticationFilter(
     private fun extractToken(request: HttpServletRequest): Result<String> {
         // Find access token first, then refresh, since both may be present, this might cause an issue.
         val cookie = request.cookies?.find { it.name == ACCESS.tokenName }
-            ?: request.cookies?.find { it.name == REFRESH.tokenName }
+            // ?: request.cookies?.find { it.name == REFRESH.tokenName }
             ?: return Error("No token found in cookies")
 
         val token = cookie.value
@@ -84,8 +84,8 @@ class JwtAuthenticationFilter(
 
     private fun writeUnauthorizedError(response: HttpServletResponse) {
         SecurityContextHolder.clearContext()
-        val apiResponse = respond(unauthorizedError)
         response.status = unauthorizedError.status.value()
+        val apiResponse = respond(unauthorizedError)
         response.writer.write(objectMapper.writeValueAsString(apiResponse))
     }
 }

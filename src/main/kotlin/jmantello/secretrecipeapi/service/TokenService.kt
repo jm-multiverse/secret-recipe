@@ -9,6 +9,7 @@ import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -68,12 +69,20 @@ class TokenService(
 
         val claims = parseClaims(token)
         val userId = claims.subject.toLong()
-        val user = userService.findByIdOrNull(userId)
-            ?: throw InvalidJwtException("User associated with the token could not be found")
+        val userDTO = when (val result = userService.findById(userId)) {
+            is Success -> result.data
+            is Error -> throw InvalidJwtException("User associated with the token could not be found")
+        }
 
-        val principle = user.toDTO()
-        val credentials = null // Credentials are null because we only store the user id in the token
-        val grantedAuthorities = user.getGrantedAuthorities()
+        val principle = userDTO
+
+        // Credentials are null because we only store the users id in the token
+        val credentials = null
+
+        // Currently, ROLE is a custom way to keep track of a user's roles.
+        // Eventually, we'll want to use Spring Security to manage roles.
+        // The "ROLE_" prefix is Spring Security's convention, so we'll keep it.
+        val grantedAuthorities = userDTO.roles.map { SimpleGrantedAuthority("ROLE_${it.name}") }
 
         return UsernamePasswordAuthenticationToken(
             principle,

@@ -24,7 +24,7 @@ class SecurityConfig(
             authorizeRequests {
                 authorize(HttpMethod.POST, "/api/auth/register", permitAll)
                 authorize(HttpMethod.POST, "/api/auth/login", permitAll)
-                authorize(anyRequest, authenticated) // authenticated
+                authorize(anyRequest, authenticated)
             }
             httpBasic { disable() } // If using JWT, may not need basic auth.
             csrf { disable() } // If building a stateless REST API, CSRF protection can be disabled.

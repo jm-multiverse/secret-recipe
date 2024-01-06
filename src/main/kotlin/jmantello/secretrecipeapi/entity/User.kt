@@ -78,6 +78,8 @@ class User(
     @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf(),
 
+    // Currently, ROLE is a custom way to keep track of a user's roles.
+    // Eventually, we'll want to use Spring Security to manage roles.
     var roles: MutableList<Role> = mutableListOf(USER),
 
     var status: Status = ACTIVE,
@@ -137,12 +139,6 @@ class User(
         userDTO.password?.let { this.password = it }
         userDTO.displayName?.let { this.displayName = it }
     }
-
-    // Currently, ROLE is a custom way to keep track of a user's roles.
-    // Eventually, we'll want to use Spring Security to manage roles.
-    // The "ROLE_" prefix is Spring Security's convention, so we'll keep it.
-    fun getGrantedAuthorities(): List<GrantedAuthority> =
-        this.roles.map { SimpleGrantedAuthority("ROLE_${it.name}") }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)
 }
