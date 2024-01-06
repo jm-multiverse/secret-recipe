@@ -10,6 +10,7 @@ import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Cookie
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -37,7 +38,7 @@ class AuthenticationController(
     ): ResponseEntity<ApiResponse<UserDTO>> {
         val authentication = when (val authenticationResult = authenticationService.validateAndIssueTokens(request)) {
             is Success -> authenticationResult.data
-            is Error -> return respond(authenticationResult)
+            is Error -> return respond(unauthorizedError)
         }
 
         response.addCookie(Cookie.createStandardAccessCookie(authentication.accessToken))
@@ -63,12 +64,12 @@ class AuthenticationController(
     ): ResponseEntity<ApiResponse<UserDTO>> {
         val authenticatedUser = when (val authenticationResult = authenticationService.getCurrentAuthenticatedUser()) {
             is Success -> authenticationResult.data
-            is Error -> return respond(authenticationResult)
+            is Error -> return respond(unauthorizedError)
         }
 
         val authentication = when (val authenticationResult = authenticationService.issueTokens(authenticatedUser)) {
             is Success -> authenticationResult.data
-            is Error -> return respond(authenticationResult)
+            is Error -> return respond(unauthorizedError)
         }
 
         response.addCookie(Cookie.createStandardAccessCookie(authentication.accessToken))

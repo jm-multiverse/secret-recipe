@@ -1,7 +1,6 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
@@ -13,8 +12,8 @@ import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.recipeNotFoundError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
@@ -101,11 +100,22 @@ class RecipeService(
         val recipe = recipeRepository.findByIdOrNull(id)
             ?: return recipeNotFoundError(id)
 
-        user.savedRecipes.add(recipe)
+        user.saveRecipe(recipe)
         userRepository.save(user)
-
         val response = user.savedRecipes.map { it.toDTO() }
+        return Success(response)
+    }
 
+    fun unsaveRecipe(id: Long, userDTO: UserDTO): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(userDTO.id)
+            ?: return userNotFoundError(userDTO.id)
+
+        val recipe = recipeRepository.findByIdOrNull(id)
+            ?: return recipeNotFoundError(id)
+
+        user.unsaveRecipe(recipe)
+        userRepository.save(user)
+        val response = user.savedRecipes.map { it.toDTO() }
         return Success(response)
     }
 }

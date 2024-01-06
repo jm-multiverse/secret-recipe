@@ -117,6 +117,16 @@ class User(
     fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
         publishedReviews.take(limit)
 
+    fun saveRecipe(recipe: Recipe) {
+        if (this.savedRecipes.contains(recipe)) return
+        this.savedRecipes.add(recipe)
+    }
+
+    fun unsaveRecipe(recipe: Recipe) {
+        if (!this.savedRecipes.contains(recipe)) return
+        this.savedRecipes.remove(recipe)
+    }
+
     fun follow(user: User) {
         if (this == user) return
         if (this.following.contains(user)) return

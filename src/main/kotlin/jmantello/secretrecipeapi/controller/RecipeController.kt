@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*
 class RecipeController(
     private val meterRegistry: MeterRegistry,
     private val recipeService: RecipeService,
-    private val tokenService: TokenService,
     private val authenticationService: AuthenticationService,
 ) {
     // Define custom metrics
@@ -78,5 +77,15 @@ class RecipeController(
         }
 
         return respond(recipeService.saveRecipe(id, user))
+    }
+
+    @PostMapping("/{id}/unsave")
+    fun unsaveRecipe(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
+        val user = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
+            is Success -> result.data
+            is Error -> return respond(Error(result.message))
+        }
+
+        return respond(recipeService.unsaveRecipe(id, user))
     }
 }

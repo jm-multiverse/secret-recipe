@@ -3,7 +3,7 @@ package jmantello.secretrecipeapi.service
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.unauthorizedError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success

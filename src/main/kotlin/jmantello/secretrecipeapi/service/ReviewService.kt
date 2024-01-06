@@ -8,9 +8,9 @@ import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.recipeNotFoundError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.reviewNotFoundError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.reviewNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
