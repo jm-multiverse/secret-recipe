@@ -6,7 +6,7 @@ import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
-import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
+import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Result
 import kotlinx.coroutines.reactive.awaitSingle
@@ -88,7 +88,7 @@ class AuthControllerIntegrationTest : IntegrationTestBase() {
         val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<UserLoginResponse>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserAuthenticatedResponse>>() }
             .awaitSingle()
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)

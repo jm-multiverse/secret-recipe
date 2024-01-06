@@ -16,12 +16,14 @@ import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.Filters
 import org.hibernate.annotations.ParamDef
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
-@FilterDef(name = ActiveUsersFilter.NAME, parameters = [ParamDef(name = ActiveUsersFilter.PARAM, type = String::class)])
+@FilterDef(name = ActiveUsersFilter.NAME, parameters = [ParamDef(name = ActiveUsersFilter.PARAMETER_NAME, type = String::class)])
 @Filters(Filter(name = ActiveUsersFilter.NAME, condition = ActiveUsersFilter.CONDITION))
 class User(
     @Id
@@ -76,6 +78,8 @@ class User(
     @ManyToMany(mappedBy = "following")
     var followers: MutableList<User> = mutableListOf(),
 
+    // Currently, ROLE is a custom way to keep track of a user's roles.
+    // Eventually, we'll want to use Spring Security to manage roles.
     var roles: MutableList<Role> = mutableListOf(USER),
 
     var status: Status = ACTIVE,

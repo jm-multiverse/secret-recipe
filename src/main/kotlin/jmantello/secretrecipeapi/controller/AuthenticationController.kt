@@ -1,13 +1,13 @@
 package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
-import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
-import jmantello.secretrecipeapi.transfer.request.RefreshTokenRequest
-import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
-import jmantello.secretrecipeapi.transfer.response.UserLoginResponse
-import jmantello.secretrecipeapi.transfer.model.UserDTO
-import jmantello.secretrecipeapi.service.TokenService
+import jmantello.secretrecipeapi.service.AuthenticationService
+import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
+import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.model.UserDTO
+import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
+import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.Cookie
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api/auth")
 class AuthenticationController(
     private val userService: UserService,
-    private val tokenService: TokenService
+    private val authenticationService: AuthenticationService
 ) {
 
     @PostMapping("register")
@@ -34,36 +34,22 @@ class AuthenticationController(
     fun login(
         @RequestBody request: UserLoginRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ApiResponse<UserLoginResponse>> {
-        val user = when (val authenticationResult = userService.authenticate(request)) {
+    ): ResponseEntity<ApiResponse<UserDTO>> {
+        val authentication = when (val authenticationResult = authenticationService.validateAndIssueTokens(request)) {
             is Success -> authenticationResult.data
-            is Error -> return respond(Error(authenticationResult.message))
+            is Error -> return respond(authenticationResult)
         }
 
-        val accessToken = when (val tokenResult = tokenService.generateAccessToken(user)) {
-            is Success -> tokenResult.data
-            is Error -> return respond(Error(tokenResult.message))
-        }
+        response.addCookie(Cookie.createStandardAccessCookie(authentication.accessToken))
+        response.addCookie(Cookie.createStandardRefreshCookie(authentication.refreshToken))
 
-        val refreshToken = when (val tokenResult = tokenService.generateRefreshToken(user)) {
-            is Success -> tokenResult.data
-            is Error -> return respond(Error(tokenResult.message))
-        }
-
-        val accessTokenExpiryDuration = 3600 // seconds, 1 hour
-        val refreshTokenExpiryDuration = 604800 // seconds, 1 week
-
-        response.addCookie(Cookie.create("accessToken", accessToken, accessTokenExpiryDuration))
-        response.addCookie(Cookie.create("refreshToken", refreshToken, refreshTokenExpiryDuration))
-
-        val userLoginResponse = UserLoginResponse(user.toDTO(), accessToken, refreshToken)
-        return respond(Success(userLoginResponse))
+        return respond(Success(authentication.user))
     }
 
     @PostMapping("logout")
     fun logout(response: HttpServletResponse): ResponseEntity<ApiResponse<String>> {
-        val accessCookie = Cookie.createClear("accessToken")
-        val refreshCookie = Cookie.createClear("refreshToken")
+        val accessCookie = Cookie.createClear(ACCESS.tokenName)
+        val refreshCookie = Cookie.createClear(REFRESH.tokenName)
 
         response.addCookie(accessCookie)
         response.addCookie(refreshCookie)
@@ -73,23 +59,21 @@ class AuthenticationController(
 
     @PostMapping("refresh")
     fun refresh(
-        request: RefreshTokenRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ApiResponse<String>> {
-        val refreshToken = request.refreshToken
-        val user = when (val validationResult = tokenService.validate(refreshToken)) {
-            is Success -> validationResult.data
-            is Error -> return respond(Error(validationResult.message))
+    ): ResponseEntity<ApiResponse<UserDTO>> {
+        val authenticatedUser = when (val authenticationResult = authenticationService.getCurrentAuthenticatedUser()) {
+            is Success -> authenticationResult.data
+            is Error -> return respond(authenticationResult)
         }
 
-        val token = when (val tokenResult = tokenService.generateAccessToken(user)) {
-            is Success -> tokenResult.data
-            is Error -> return respond(Error(tokenResult.message))
+        val authentication = when (val authenticationResult = authenticationService.issueTokens(authenticatedUser)) {
+            is Success -> authenticationResult.data
+            is Error -> return respond(authenticationResult)
         }
 
-        val cookie = Cookie.create("token", token, 3600, httpOnly = true, secure = true)
-        response.addCookie(cookie)
+        response.addCookie(Cookie.createStandardAccessCookie(authentication.accessToken))
+        response.addCookie(Cookie.createStandardRefreshCookie(authentication.refreshToken))
 
-        return respond(Success("Refresh success"))
+        return respond(Success(authentication.user))
     }
 }

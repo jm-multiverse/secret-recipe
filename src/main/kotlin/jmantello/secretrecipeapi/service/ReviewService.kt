@@ -1,20 +1,20 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.entity.Review
-import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.recipeNotFoundMessage
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.reviewNotFoundMessage
-import jmantello.secretrecipeapi.util.ErrorMessageBuilder.userNotFoundMessage
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.recipeNotFoundError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.reviewNotFoundError
+import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
-import jmantello.secretrecipeapi.util.Result.*
+import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus.*
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.stereotype.Service
 
 @Service
@@ -29,7 +29,7 @@ class ReviewService(
     @Transactional
     fun findById(id: Long): Result<ReviewDTO> {
         val review = reviewRepository.findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, reviewNotFoundMessage(id))
+            ?: return reviewNotFoundError(id)
 
         return Success(review.toDTO())
     }
@@ -43,11 +43,10 @@ class ReviewService(
     fun save(review: Review): Review =
         reviewRepository.save(review)
 
-    fun update(review: ReviewDTO): Result<ReviewDTO> {
-        val id = review.id
-
+    fun update(request: ReviewDTO): Result<ReviewDTO> {
+        val id = request.id
         val review = reviewRepository.findByIdOrNull(id)
-            ?: return Error(NOT_FOUND, reviewNotFoundMessage(id))
+            ?: return reviewNotFoundError(id)
 
         val response = reviewRepository.save(review).toDTO()
 
@@ -56,10 +55,10 @@ class ReviewService(
 
     fun create(request: PublishReviewRequest): Result<ReviewDTO> {
         val user = userRepository.findByIdOrNull(request.publisherId)
-            ?: return Error(NOT_FOUND, userNotFoundMessage(request.publisherId))
+            ?: return userNotFoundError(request.publisherId)
 
         val recipe = recipeRepository.findByIdOrNull(request.recipeId)
-            ?: return Error(NOT_FOUND, recipeNotFoundMessage(request.recipeId))
+            ?: return recipeNotFoundError(request.recipeId)
 
         val review = ReviewBuilder()
             .publisher(user)

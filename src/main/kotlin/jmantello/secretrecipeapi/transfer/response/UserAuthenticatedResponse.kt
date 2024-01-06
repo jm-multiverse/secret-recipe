@@ -2,7 +2,7 @@ package jmantello.secretrecipeapi.transfer.response
 
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 
-class UserLoginResponse(
+class UserAuthenticatedResponse(
     val user: UserDTO,
     val accessToken: String,
     val refreshToken: String
