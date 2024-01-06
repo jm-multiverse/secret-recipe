@@ -158,11 +158,11 @@ class User(
         this.following.remove(user)
     }
 
-    fun getFollowers(): List<UserDTO> {
+    fun getUserFollowers(): List<UserDTO> {
         return this.followers.map { it.toDTO() }
     }
 
-    fun getFollowing(): List<UserDTO> {
+    fun getUserFollowing(): List<UserDTO> {
         return this.following.map { it.toDTO() }
     }
 

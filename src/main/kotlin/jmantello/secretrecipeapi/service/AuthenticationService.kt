@@ -1,9 +1,11 @@
 package jmantello.secretrecipeapi.service
 
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -40,7 +42,30 @@ class AuthenticationService(
         return Success(response)
     }
 
-    fun getCurrentAuthenticatedUser(): Result<UserDTO> {
+    fun getCurrentUserId(): Result<Long> {
+        val principal = when (val principalResult = getPrincipal()) {
+            is Success -> principalResult.data
+            is Error -> return principalResult
+        }
+
+        return Success(principal.id)
+    }
+
+    fun getCurrentUserDTO(): Result<UserDTO> = getPrincipal()
+
+    fun getCurrentUserEntity(): Result<User> {
+        val userDTO = when (val principalResult = getPrincipal()) {
+            is Success -> principalResult.data
+            is Error -> return principalResult
+        }
+
+        val user = userService.findByIdOrNull(userDTO.id)
+            ?: return userNotFoundError(userDTO.id)
+
+        return Success(user)
+    }
+
+    fun getPrincipal(): Result<UserDTO> {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication == null || !authentication.isAuthenticated) {
             return unauthorizedError

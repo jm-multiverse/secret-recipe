@@ -28,6 +28,7 @@ class RecipeService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
+    private val authenticationService: AuthenticationService,
 ) {
     fun findAll(): Result<List<RecipeDTO>> =
         Success(recipeRepository.findAll().map { it.toDTO() })
@@ -87,19 +88,21 @@ class RecipeService(
         return Success(recipe.reviews.map { it.toDTO() })
     }
 
-    fun publishRecipeReview(id: Long, request: PublishReviewRequest): Result<ReviewDTO> {
-        val recipe = recipeRepository.findByIdOrNull(id)
-            ?: return recipeNotFoundError(id)
+    fun publishRecipeReview(recipeId: Long, request: PublishReviewRequest): Result<ReviewDTO> {
+        val recipe = recipeRepository.findByIdOrNull(recipeId)
+            ?: return recipeNotFoundError(recipeId)
 
-        val publisherId = request.publisherId
-        val user = userRepository.findByIdOrNull(publisherId)
-            ?: return userNotFoundError(publisherId)
+        val user = when (val authenticationResult = authenticationService.getCurrentUserEntity()) {
+            is Success -> authenticationResult.data
+            is Error -> return authenticationResult
+        }
 
         val review = ReviewBuilder()
             .publisher(user)
             .recipe(recipe)
             .title(request.title)
             .content(request.content)
+            .rating(request.rating)
             .build()
 
         val response = reviewRepository.save(review).toDTO()

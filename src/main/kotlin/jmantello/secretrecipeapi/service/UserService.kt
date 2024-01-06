@@ -28,7 +28,6 @@ import jmantello.secretrecipeapi.util.Result.Success
 import org.hibernate.Session
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.stereotype.Service
 
 @Service
@@ -61,6 +60,8 @@ class UserService(
 
         return Success(user.toDTO())
     }
+
+    fun findByIdOrNull(id: Long): User? = userRepository.findByIdOrNull(id)
 
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
 
@@ -158,7 +159,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val followers = user.getFollowers()
+        val followers = user.getUserFollowers()
         return Success(followers)
     }
 
@@ -167,7 +168,7 @@ class UserService(
         val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val following = user.getFollowing()
+        val following = user.getUserFollowing()
         return Success(following)
     }
 
@@ -179,7 +180,7 @@ class UserService(
             ?: return userNotFoundError(targetUserId)
 
         user.follow(targetUser)
-        val response = user.getFollowing()
+        val response = user.getUserFollowing()
         return Success(response)
     }
 
@@ -191,7 +192,7 @@ class UserService(
             ?: return userNotFoundError(targetUserId)
 
         user.unfollow(targetUser)
-        val response = user.getFollowing()
+        val response = user.getUserFollowing()
         return Success(response)
     }
 

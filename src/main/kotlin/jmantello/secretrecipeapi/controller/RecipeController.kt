@@ -76,16 +76,14 @@ class RecipeController(
     fun getRecipeReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
         respond(recipeService.getRecipeReviews(id))
 
-    @PostMapping("/{id}/reviews")
-    fun publishRecipeReview(
-        @PathVariable id: Long,
-        @RequestBody request: PublishReviewRequest
-    ): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(recipeService.publishRecipeReview(id, request))
+    @PostMapping("/{recipeId}/reviews")
+    fun publishRecipeReview(@PathVariable recipeId: Long, @RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> {
+        return respond(recipeService.publishRecipeReview(recipeId, request))
+    }
 
     @PostMapping("/{id}/save")
     fun saveRecipe(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
-        val user = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
+        val user = when (val result = authenticationService.getCurrentUserDTO()) {
             is Success -> result.data
             is Error -> return respond(Error(result.message))
         }
@@ -98,7 +96,7 @@ class RecipeController(
         @PathVariable id: Long,
         request: HttpServletRequest
     ): ResponseEntity<ApiResponse<List<RecipeDTO>>> {
-        val user = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
+        val user = when (val result = authenticationService.getCurrentUserDTO()) {
             is Success -> result.data
             is Error -> return respond(Error(result.message))
         }

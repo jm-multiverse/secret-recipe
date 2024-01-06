@@ -8,9 +8,9 @@ import jmantello.secretrecipeapi.repository.ReviewRepository
 import jmantello.secretrecipeapi.repository.UserRepository
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
+import jmantello.secretrecipeapi.transfer.request.UpdateReviewRequest
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.reviewNotFoundError
-import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.data.repository.findByIdOrNull
@@ -22,6 +22,7 @@ class ReviewService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
+    private val authenticationService: AuthenticationService,
 ) {
     fun findAll(): Result<List<ReviewDTO>> =
         Success(reviewRepository.findAll().map { it.toDTO() })
@@ -43,22 +44,23 @@ class ReviewService(
     fun save(review: Review): Review =
         reviewRepository.save(review)
 
-    fun update(request: ReviewDTO): Result<ReviewDTO> {
-        val id = request.id
-        val review = reviewRepository.findByIdOrNull(id)
-            ?: return reviewNotFoundError(id)
+    fun update(reviewId: Long, request: UpdateReviewRequest): Result<ReviewDTO> {
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: return reviewNotFoundError(reviewId)
 
+        review.update(request)
         val response = reviewRepository.save(review).toDTO()
-
         return Success(response)
     }
 
-    fun create(request: PublishReviewRequest): Result<ReviewDTO> {
-        val user = userRepository.findByIdOrNull(request.publisherId)
-            ?: return userNotFoundError(request.publisherId)
+    fun publish(recipeId: Long, request: PublishReviewRequest): Result<ReviewDTO> {
+        val user = when (val authenticationResult = authenticationService.getCurrentUserEntity()) {
+            is Success -> authenticationResult.data
+            is Result.Error -> return authenticationResult
+        }
 
-        val recipe = recipeRepository.findByIdOrNull(request.recipeId)
-            ?: return recipeNotFoundError(request.recipeId)
+        val recipe = recipeRepository.findByIdOrNull(recipeId)
+            ?: return recipeNotFoundError(recipeId)
 
         val review = ReviewBuilder()
             .publisher(user)

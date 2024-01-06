@@ -5,6 +5,7 @@ import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.request.UpdateReviewRequest
 import jmantello.secretrecipeapi.util.ApiResponse
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
@@ -36,35 +37,32 @@ class ReviewController(
 
     @PostMapping
     fun publishReview(@RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(reviewService.create(request))
+        respond(Error("New reviews must be published through the recipe endpoint: 'api/recipes/{id}/publish'."))
 
-    // TODO: Create updateReviewRequest
-    @PutMapping
-    fun updateReview(@RequestBody review: ReviewDTO): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(reviewService.update(review))
+    @PutMapping("/{id}")
+    fun updateReview(@PathVariable id: Long, @RequestBody request: UpdateReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
+        respond(reviewService.update(id, request))
 
     @DeleteMapping("/{id}")
     fun deleteReview(@PathVariable id: Long): ResponseEntity<Any> =
         ResponseEntity.ok(reviewService.deleteById(id))
 
-    @PostMapping("/{id}/like")
-    fun likeReview(@PathVariable recipeId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
-        val currentUser = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
-            is Success -> result.data
+    @PostMapping("/{reviewId}/like")
+    fun likeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
+        val userId = when (val authenticationResult = authenticationService.getCurrentUserId()) {
+            is Success -> authenticationResult.data
             is Error -> return respond(unauthorizedError)
         }
-        val result = userService.likeReview(currentUser.id, recipeId)
-        return respond(result)
+        return respond(userService.likeReview(userId, reviewId))
     }
 
-    @PostMapping("/{id}/unlike")
-    fun unlikeReview(@PathVariable recipeId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
-        val currentUser = when (val result = authenticationService.getCurrentAuthenticatedUser()) {
-            is Success -> result.data
+    @PostMapping("/{reviewId}/unlike")
+    fun unlikeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
+        val userId = when (val authenticationResult = authenticationService.getCurrentUserId()) {
+            is Success -> authenticationResult.data
             is Error -> return respond(unauthorizedError)
         }
-        val result = userService.unlikeReview(currentUser.id, recipeId)
-        return respond(result)
+        return respond(userService.unlikeReview(userId, reviewId))
     }
 
 }

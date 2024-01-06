@@ -62,7 +62,7 @@ class AuthenticationController(
     fun refresh(
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<UserDTO>> {
-        val authenticatedUser = when (val authenticationResult = authenticationService.getCurrentAuthenticatedUser()) {
+        val authenticatedUser = when (val authenticationResult = authenticationService.getCurrentUserDTO()) {
             is Success -> authenticationResult.data
             is Error -> return respond(unauthorizedError)
         }
