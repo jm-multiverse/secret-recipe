@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service
 class RecipeService(
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
-    private val userContext: UserContext,
 ) {
     fun findAll(): Result<List<RecipeDTO>> =
         Success(recipeRepository.findAll().map { it.toDTO() })
@@ -54,8 +53,7 @@ class RecipeService(
         return Error(HttpStatus.NOT_IMPLEMENTED, "Search not implemented yet")
     }
 
-    fun publish(request: PublishRecipeRequest): Result<RecipeDTO> {
-        val user = userContext.getCurrentUserEntity()
+    fun publish(request: PublishRecipeRequest, user: User): Result<RecipeDTO> {
         val recipe = RecipeBuilder()
             .publisher(user)
             .title(request.title)
@@ -86,11 +84,10 @@ class RecipeService(
         return Success(recipe.reviews.map { it.toDTO() })
     }
 
-    fun publishRecipeReview(recipeId: Long, request: PublishReviewRequest): Result<ReviewDTO> {
+    fun publishRecipeReview(recipeId: Long, request: PublishReviewRequest, user: User): Result<ReviewDTO> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        val user = userContext.getCurrentUserEntity()
         val review = ReviewBuilder()
             .publisher(user)
             .recipe(recipe)

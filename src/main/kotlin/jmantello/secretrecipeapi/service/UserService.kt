@@ -37,7 +37,6 @@ class UserService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
-    private val userContext: UserContext,
     private val entityManager: EntityManager,
 ) {
     private val session: Session
@@ -109,40 +108,44 @@ class UserService(
             unauthorizedError
     }
 
-    fun saveRecipe(recipeId: Long): Result<List<RecipeDTO>> {
+    fun saveRecipe(recipeId: Long, user: User): Result<List<RecipeDTO>> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        val user = userContext.getCurrentUserEntity()
         user.saveRecipe(recipe)
         val response = user.getSavedRecipes()
         return Success(response)
     }
 
-    fun unsaveRecipe(recipeId: Long): Result<List<RecipeDTO>> {
+    fun unsaveRecipe(recipeId: Long, user: User): Result<List<RecipeDTO>> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        val user = userContext.getCurrentUserEntity()
         user.unsaveRecipe(recipe)
         val response = user.getSavedRecipes()
         return Success(response)
     }
 
-    fun getPublishedRecipes(): Result<List<RecipeDTO>> {
-        val user = userContext.getCurrentUserEntity()
+    fun getPublishedRecipes(id: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
         val recipes = user.getPublishedRecipes()
         return Success(recipes)
     }
 
-    fun getSavedRecipes(): Result<List<RecipeDTO>> {
-        val user = userContext.getCurrentUserEntity()
+    fun getSavedRecipes(id: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
         val recipes = user.getSavedRecipes()
         return Success(recipes)
     }
 
-    fun getPublishedReviews(): Result<List<ReviewDTO>> {
-        val user = userContext.getCurrentUserEntity()
+    fun getPublishedReviews(id: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
         val reviews = user.getPublishedReviews()
         return Success(reviews)
     }
@@ -164,50 +167,54 @@ class UserService(
         return Success(following)
     }
 
-    fun follow(targetUserId: Long): Result<List<UserDTO>> {
+    fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return userNotFoundError(userId)
+
         val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
-        val user = userContext.getCurrentUserEntity()
         user.follow(targetUser)
         val response = user.getUserFollowing()
         return Success(response)
     }
 
-    fun unfollow(targetUserId: Long): Result<List<UserDTO>> {
+    fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: return userNotFoundError(userId)
+
         val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
-        val user = userContext.getCurrentUserEntity()
         user.unfollow(targetUser)
         val response = user.getUserFollowing()
         return Success(response)
     }
 
-    fun likeReview(reviewId: Long): Result<List<ReviewDTO>> {
+    fun likeReview(reviewId: Long, user: User): Result<List<ReviewDTO>> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
 
-        val user = userContext.getCurrentUserEntity()
         user.likeReview(review)
         val response = user.getLikedReviews()
         return Success(response)
     }
 
-    fun getLikedReviews(): Result<List<ReviewDTO>> {
-        val user = userContext.getCurrentUserEntity()
-        val reviews = user.getLikedReviews()
-        return Success(reviews)
-    }
-
-    fun unlikeReview(reviewId: Long): Result<List<ReviewDTO>> {
+    fun unlikeReview(reviewId: Long, user: User): Result<List<ReviewDTO>> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
 
-        val user = userContext.getCurrentUserEntity()
         user.unlikeReview(review)
         val response = user.getLikedReviews()
         return Success(response)
+    }
+
+    fun getLikedReviews(id: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
+        val reviews = user.getLikedReviews()
+        return Success(reviews)
     }
 }
 

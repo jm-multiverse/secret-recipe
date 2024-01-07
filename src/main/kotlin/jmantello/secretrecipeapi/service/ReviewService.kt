@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.entity.Review
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
 import jmantello.secretrecipeapi.repository.ReviewRepository
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service
 class ReviewService(
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
-    private val userContext: UserContext,
 ) {
     fun findAll(): Result<List<ReviewDTO>> =
         Success(reviewRepository.findAll().map { it.toDTO() })
@@ -52,8 +52,7 @@ class ReviewService(
         return Success(response)
     }
 
-    fun publish(recipeId: Long, request: PublishReviewRequest): Result<ReviewDTO> {
-        val user= userContext.getCurrentUserEntity()
+    fun publish(recipeId: Long, request: PublishReviewRequest, user: User): Result<ReviewDTO> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 

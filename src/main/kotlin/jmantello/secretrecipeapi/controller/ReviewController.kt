@@ -1,5 +1,7 @@
 package jmantello.secretrecipeapi.controller
 
+import jmantello.secretrecipeapi.annotations.CurrentUserEntity
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
@@ -36,7 +38,7 @@ class ReviewController(
 
     @PostMapping
     fun publishReview(@RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(Error("New reviews must be published through the recipe endpoint: 'api/recipes/{id}/publish'."))
+        respond(Error("New reviews must be published through the recipe endpoint: POST: 'api/recipes/{id}/reviews'."))
 
     @PutMapping("/{id}")
     fun updateReview(@PathVariable id: Long, @RequestBody request: UpdateReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
@@ -47,11 +49,11 @@ class ReviewController(
         ResponseEntity.ok(reviewService.deleteById(id))
 
     @PostMapping("/{reviewId}/like")
-    fun likeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-        respond(userService.likeReview(reviewId))
+    fun likeReview(@PathVariable reviewId: Long, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(userService.likeReview(reviewId, user))
 
 
     @PostMapping("/{reviewId}/unlike")
-    fun unlikeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-        respond(userService.unlikeReview(reviewId))
+    fun unlikeReview(@PathVariable reviewId: Long, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(userService.unlikeReview(reviewId, user))
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("api/auth")
@@ -35,7 +36,7 @@ class AuthenticationController(
 
     @PostMapping("login")
     fun login(
-        @RequestBody request: UserLoginRequest,
+        @Valid @RequestBody request: UserLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<UserDTO>> {
         val authentication = when (val authenticationResult = authenticationService.validateAndIssueTokens(request)) {

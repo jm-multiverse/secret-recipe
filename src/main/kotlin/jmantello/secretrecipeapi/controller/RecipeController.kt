@@ -4,7 +4,9 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import jakarta.servlet.http.HttpServletRequest
+import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.annotations.CurrentUserId
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.UserService
@@ -46,8 +48,8 @@ class RecipeController(
         respond(recipeService.findById(id))
 
     @PostMapping
-    fun publishRecipe(@RequestBody request: PublishRecipeRequest): ResponseEntity<ApiResponse<RecipeDTO>> =
-        respond(recipeService.publish(request))
+    fun publishRecipe(@RequestBody request: PublishRecipeRequest, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<RecipeDTO>> =
+        respond(recipeService.publish(request, user))
 
     @PutMapping("/{id}")
     fun updateRecipe(@PathVariable id: Long, @RequestBody request: UpdateRecipeRequest): ResponseEntity<ApiResponse<RecipeDTO>> =
@@ -75,14 +77,14 @@ class RecipeController(
         respond(recipeService.getRecipeReviews(id))
 
     @PostMapping("/{id}/reviews")
-    fun publishRecipeReview(@PathVariable id: Long, @RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> =
-        respond(recipeService.publishRecipeReview(id, request))
+    fun publishRecipeReview(@PathVariable id: Long, @RequestBody request: PublishReviewRequest, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<ReviewDTO>> =
+        respond(recipeService.publishRecipeReview(id, request, user))
 
     @PostMapping("/{id}/save")
-    fun saveRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(userService.saveRecipe(id))
+    fun saveRecipe(@PathVariable id: Long, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
+        respond(userService.saveRecipe(id, user))
 
     @PostMapping("/{id}/unsave")
-    fun unsaveRecipe(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(userService.unsaveRecipe(id))
+    fun unsaveRecipe(@PathVariable id: Long, @CurrentUserEntity user: User): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
+        respond(userService.unsaveRecipe(id, user))
 }

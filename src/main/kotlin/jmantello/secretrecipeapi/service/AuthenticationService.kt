@@ -53,6 +53,8 @@ class AuthenticationService(
         return Success(userDTO)
     }
 
+    fun getCurrentUserDTO(): Result<UserDTO> = getPrincipal()
+
     fun getCurrentUserId(): Result<Long> {
         val principal = when (val principalResult = getPrincipal()) {
             is Success -> principalResult.data
@@ -61,8 +63,6 @@ class AuthenticationService(
 
         return Success(principal.id)
     }
-
-    fun getCurrentUserDTO(): Result<UserDTO> = getPrincipal()
 
     @Transactional
     fun getCurrentUserEntity(): Result<User> {
