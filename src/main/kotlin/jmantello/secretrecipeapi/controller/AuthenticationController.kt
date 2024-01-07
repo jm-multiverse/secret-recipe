@@ -2,7 +2,6 @@ package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
 import jmantello.secretrecipeapi.annotations.CurrentUserDTO
-import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
 import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH

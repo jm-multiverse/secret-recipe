@@ -2,7 +2,6 @@ package jmantello.secretrecipeapi.integration
 
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
-import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
 import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH
 import jmantello.secretrecipeapi.service.UserService

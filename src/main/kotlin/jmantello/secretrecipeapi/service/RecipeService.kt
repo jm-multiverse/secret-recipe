@@ -1,7 +1,6 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
@@ -14,10 +13,9 @@ import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
-import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
-import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
+import jmantello.secretrecipeapi.util.Result.Error
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CREATED
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Service
 @Service
 @Transactional
 class RecipeService(
+    private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
 ) {

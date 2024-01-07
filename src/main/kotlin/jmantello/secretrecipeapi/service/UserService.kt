@@ -2,7 +2,6 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED

@@ -3,11 +3,8 @@ package jmantello.secretrecipeapi.controller
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import jakarta.servlet.http.HttpServletRequest
 import jmantello.secretrecipeapi.annotations.CurrentUserEntity
-import jmantello.secretrecipeapi.annotations.CurrentUserId
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.transfer.model.RecipeDTO
@@ -16,10 +13,7 @@ import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.util.ApiResponse
-import jmantello.secretrecipeapi.util.ErrorResponses
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
-import jmantello.secretrecipeapi.util.Result.Error
-import jmantello.secretrecipeapi.util.Result.Success
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
