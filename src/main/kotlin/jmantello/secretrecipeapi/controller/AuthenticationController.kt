@@ -1,6 +1,8 @@
 package jmantello.secretrecipeapi.controller
 
 import jakarta.servlet.http.HttpServletResponse
+import jmantello.secretrecipeapi.annotations.CurrentUserDTO
+import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
 import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH
@@ -60,13 +62,9 @@ class AuthenticationController(
 
     @PostMapping("refresh")
     fun refresh(
+        @CurrentUserDTO authenticatedUser: UserDTO,
         response: HttpServletResponse
     ): ResponseEntity<ApiResponse<UserDTO>> {
-        val authenticatedUser = when (val authenticationResult = authenticationService.getCurrentUserDTO()) {
-            is Success -> authenticationResult.data
-            is Error -> return respond(unauthorizedError)
-        }
-
         val authentication = when (val authenticationResult = authenticationService.issueTokens(authenticatedUser)) {
             is Success -> authenticationResult.data
             is Error -> return respond(unauthorizedError)

@@ -13,6 +13,7 @@ import jmantello.secretrecipeapi.transfer.request.PublishRecipeRequest
 import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateRecipeRequest
 import jmantello.secretrecipeapi.util.ApiResponse
+import jmantello.secretrecipeapi.util.ErrorResponses
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success
@@ -78,6 +79,11 @@ class RecipeController(
 
     @PostMapping("/{recipeId}/reviews")
     fun publishRecipeReview(@PathVariable recipeId: Long, @RequestBody request: PublishReviewRequest): ResponseEntity<ApiResponse<ReviewDTO>> {
+        val currentUserId = when (val authenticationResult = authenticationService.getCurrentUserId()) {
+            is Success -> authenticationResult.data
+            is Error -> return respond(ErrorResponses.unauthorizedError)
+        }
+
         return respond(recipeService.publishRecipeReview(recipeId, request))
     }
 

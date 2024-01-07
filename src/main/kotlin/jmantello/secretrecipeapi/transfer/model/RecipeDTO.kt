@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi.transfer.model
 
+// TODO: Consider renaming these DTOs to ModelSummary instead of ModelDTO
 class RecipeDTO(
     val id: Long,
     val title: String,

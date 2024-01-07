@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi.service
 
+import jakarta.transaction.Transactional
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
@@ -53,6 +54,7 @@ class AuthenticationService(
 
     fun getCurrentUserDTO(): Result<UserDTO> = getPrincipal()
 
+    @Transactional
     fun getCurrentUserEntity(): Result<User> {
         val userDTO = when (val principalResult = getPrincipal()) {
             is Success -> principalResult.data
