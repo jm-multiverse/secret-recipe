@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController
 class ReviewController(
     private val reviewService: ReviewService,
     private val userService: UserService,
-    private val authenticationService: AuthenticationService,
 ) {
     @GetMapping
     fun getReviews(): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
@@ -48,21 +47,11 @@ class ReviewController(
         ResponseEntity.ok(reviewService.deleteById(id))
 
     @PostMapping("/{reviewId}/like")
-    fun likeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
-        val userId = when (val authenticationResult = authenticationService.getCurrentUserId()) {
-            is Success -> authenticationResult.data
-            is Error -> return respond(unauthorizedError)
-        }
-        return respond(userService.likeReview(userId, reviewId))
-    }
+    fun likeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(userService.likeReview(reviewId))
+
 
     @PostMapping("/{reviewId}/unlike")
-    fun unlikeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> {
-        val userId = when (val authenticationResult = authenticationService.getCurrentUserId()) {
-            is Success -> authenticationResult.data
-            is Error -> return respond(unauthorizedError)
-        }
-        return respond(userService.unlikeReview(userId, reviewId))
-    }
-
+    fun unlikeReview(@PathVariable reviewId: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(userService.unlikeReview(reviewId))
 }

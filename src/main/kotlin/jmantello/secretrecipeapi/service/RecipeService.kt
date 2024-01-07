@@ -1,6 +1,8 @@
 package jmantello.secretrecipeapi.service
 
 import jakarta.transaction.Transactional
+import jmantello.secretrecipeapi.annotations.CurrentUserEntity
+import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.builder.RecipeBuilder
 import jmantello.secretrecipeapi.entity.builder.ReviewBuilder
 import jmantello.secretrecipeapi.repository.RecipeRepository
@@ -25,10 +27,9 @@ import org.springframework.stereotype.Service
 @Service
 @Transactional
 class RecipeService(
-    private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
-    private val authenticationService: AuthenticationService,
+    private val userContext: UserContext,
 ) {
     fun findAll(): Result<List<RecipeDTO>> =
         Success(recipeRepository.findAll().map { it.toDTO() })
@@ -54,10 +55,7 @@ class RecipeService(
     }
 
     fun publish(request: PublishRecipeRequest): Result<RecipeDTO> {
-        val publisherId = request.publisherId
-        val user = userRepository.findByIdOrNull(publisherId)
-            ?: return userNotFoundError(publisherId)
-
+        val user = userContext.getCurrentUserEntity()
         val recipe = RecipeBuilder()
             .publisher(user)
             .title(request.title)
@@ -92,11 +90,7 @@ class RecipeService(
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        val user = when (val authenticationResult = authenticationService.getCurrentUserEntity()) {
-            is Success -> authenticationResult.data
-            is Error -> return authenticationResult
-        }
-
+        val user = userContext.getCurrentUserEntity()
         val review = ReviewBuilder()
             .publisher(user)
             .recipe(recipe)

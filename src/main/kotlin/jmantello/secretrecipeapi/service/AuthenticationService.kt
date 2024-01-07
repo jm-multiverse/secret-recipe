@@ -43,6 +43,16 @@ class AuthenticationService(
         return Success(response)
     }
 
+    fun getPrincipal(): Result<UserDTO> {
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || !authentication.isAuthenticated) {
+            return unauthorizedError
+        }
+
+        val userDTO = (authentication.principal as UserDTO)
+        return Success(userDTO)
+    }
+
     fun getCurrentUserId(): Result<Long> {
         val principal = when (val principalResult = getPrincipal()) {
             is Success -> principalResult.data
@@ -65,15 +75,5 @@ class AuthenticationService(
             ?: return userNotFoundError(userDTO.id)
 
         return Success(user)
-    }
-
-    fun getPrincipal(): Result<UserDTO> {
-        val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication == null || !authentication.isAuthenticated) {
-            return unauthorizedError
-        }
-
-        val userDTO = (authentication.principal as UserDTO)
-        return Success(userDTO)
     }
 }

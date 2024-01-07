@@ -2,6 +2,7 @@ package jmantello.secretrecipeapi.service
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
@@ -36,6 +37,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
+    private val userContext: UserContext,
     private val entityManager: EntityManager,
 ) {
     private val session: Session
@@ -107,50 +109,40 @@ class UserService(
             unauthorizedError
     }
 
-    fun saveRecipe(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun saveRecipe(recipeId: Long): Result<List<RecipeDTO>> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
+        val user = userContext.getCurrentUserEntity()
         user.saveRecipe(recipe)
         val response = user.getSavedRecipes()
         return Success(response)
     }
 
-    fun unsaveRecipe(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun unsaveRecipe(recipeId: Long): Result<List<RecipeDTO>> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
+        val user = userContext.getCurrentUserEntity()
         user.unsaveRecipe(recipe)
         val response = user.getSavedRecipes()
         return Success(response)
     }
 
-    fun getPublishedRecipes(userId: Long): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun getPublishedRecipes(): Result<List<RecipeDTO>> {
+        val user = userContext.getCurrentUserEntity()
         val recipes = user.getPublishedRecipes()
         return Success(recipes)
     }
 
-    fun getSavedRecipes(userId: Long): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun getSavedRecipes(): Result<List<RecipeDTO>> {
+        val user = userContext.getCurrentUserEntity()
         val recipes = user.getSavedRecipes()
         return Success(recipes)
     }
 
-    fun getPublishedReviews(userId: Long): Result<List<ReviewDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun getPublishedReviews(): Result<List<ReviewDTO>> {
+        val user = userContext.getCurrentUserEntity()
         val reviews = user.getPublishedReviews()
         return Success(reviews)
     }
@@ -172,57 +164,47 @@ class UserService(
         return Success(following)
     }
 
-    fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun follow(targetUserId: Long): Result<List<UserDTO>> {
         val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
+        val user = userContext.getCurrentUserEntity()
         user.follow(targetUser)
         val response = user.getUserFollowing()
         return Success(response)
     }
 
-    fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun unfollow(targetUserId: Long): Result<List<UserDTO>> {
         val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
+        val user = userContext.getCurrentUserEntity()
         user.unfollow(targetUser)
         val response = user.getUserFollowing()
         return Success(response)
     }
 
-    fun likeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun likeReview(reviewId: Long): Result<List<ReviewDTO>> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
 
+        val user = userContext.getCurrentUserEntity()
         user.likeReview(review)
         val response = user.getLikedReviews()
         return Success(response)
     }
 
-    fun getLikedReviews(userId: Long): Result<List<ReviewDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun getLikedReviews(): Result<List<ReviewDTO>> {
+        val user = userContext.getCurrentUserEntity()
         val reviews = user.getLikedReviews()
         return Success(reviews)
     }
 
-    fun unlikeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun unlikeReview(reviewId: Long): Result<List<ReviewDTO>> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
 
+        val user = userContext.getCurrentUserEntity()
         user.unlikeReview(review)
         val response = user.getLikedReviews()
         return Success(response)

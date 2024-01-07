@@ -43,19 +43,19 @@ class UserController(
 
     @GetMapping("{id}/published-recipes")
     fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(userService.getPublishedRecipes(id))
+        respond(userService.getPublishedRecipes())
 
     @GetMapping("{id}/saved-recipes")
     fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(userService.getSavedRecipes(id))
+        respond(userService.getSavedRecipes())
 
     @GetMapping("{id}/published-reviews")
     fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-        respond(userService.getPublishedReviews(id))
+        respond(userService.getPublishedReviews())
 
     @GetMapping("{id}/liked-reviews")
     fun getLikedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-        respond(userService.getLikedReviews(id))
+        respond(userService.getLikedReviews())
 
     @GetMapping("{id}/following")
     fun following(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
@@ -70,12 +70,12 @@ class UserController(
         @PathVariable userId: Long,
         @PathVariable targetUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.follow(userId, targetUserId))
+        respond(userService.follow(targetUserId))
 
     @PostMapping("{userId}/unfollow/{targetUserId}")
     fun unfollow(
         @PathVariable userId: Long,
         @PathVariable targetUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.unfollow(userId, targetUserId))
+        respond(userService.unfollow(targetUserId))
 }

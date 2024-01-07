@@ -19,10 +19,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class ReviewService(
-    private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
-    private val authenticationService: AuthenticationService,
+    private val userContext: UserContext,
 ) {
     fun findAll(): Result<List<ReviewDTO>> =
         Success(reviewRepository.findAll().map { it.toDTO() })
@@ -54,11 +53,7 @@ class ReviewService(
     }
 
     fun publish(recipeId: Long, request: PublishReviewRequest): Result<ReviewDTO> {
-        val user = when (val authenticationResult = authenticationService.getCurrentUserEntity()) {
-            is Success -> authenticationResult.data
-            is Result.Error -> return authenticationResult
-        }
-
+        val user= userContext.getCurrentUserEntity()
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
