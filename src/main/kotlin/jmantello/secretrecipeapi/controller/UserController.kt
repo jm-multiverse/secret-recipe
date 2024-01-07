@@ -45,13 +45,6 @@ class UserController(
     fun getPublishedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
         respond(userService.getPublishedRecipes(id))
 
-    @PostMapping("/{userId}/save-recipe/{recipeId}")
-    fun saveRecipe(
-        @PathVariable userId: Long,
-        @PathVariable recipeId: Long
-    ): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
-        respond(userService.saveRecipeForUser(userId, recipeId))
-
     @GetMapping("{id}/saved-recipes")
     fun getSavedRecipes(@PathVariable id: Long): ResponseEntity<ApiResponse<List<RecipeDTO>>> =
         respond(userService.getSavedRecipes(id))
@@ -60,13 +53,17 @@ class UserController(
     fun getPublishedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
         respond(userService.getPublishedReviews(id))
 
-    @GetMapping("{id}/followers")
-    fun followers(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.getFollowers(id))
+    @GetMapping("{id}/liked-reviews")
+    fun getLikedReviews(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
+        respond(userService.getLikedReviews(id))
 
     @GetMapping("{id}/following")
     fun following(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
         respond(userService.getFollowing(id))
+
+    @GetMapping("{id}/followers")
+    fun followers(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
+        respond(userService.getFollowers(id))
 
     @PostMapping("{userId}/follow/{targetUserId}")
     fun follow(
@@ -81,12 +78,4 @@ class UserController(
         @PathVariable targetUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
         respond(userService.unfollow(userId, targetUserId))
-
-    @PostMapping("{userId}/like-review/{reviewId}")
-        fun likeReview(
-            @PathVariable userId: Long,
-            @PathVariable reviewId: Long
-        ): ResponseEntity<ApiResponse<List<ReviewDTO>>> =
-            respond(userService.likeReview(userId, reviewId))
-
 }

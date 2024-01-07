@@ -4,9 +4,6 @@ import javax.validation.constraints.Size
 
 class PublishReviewRequest(
 
-    val publisherId: Long,
-    val recipeId: Long,
-
     @Size(max = 100)
     val title: String,
 

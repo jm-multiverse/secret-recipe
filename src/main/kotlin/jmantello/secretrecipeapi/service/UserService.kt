@@ -17,17 +17,17 @@ import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.RegisterUserRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.recipeNotFoundError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.reviewNotFoundError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.unauthorizedError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userAlreadyRegisteredWithEmailError
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.userNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.recipeNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.reviewNotFoundError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.successfullyDeletedEntity
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userAlreadyRegisteredWithEmailError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.userNotFoundError
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Success
 import org.hibernate.Session
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.stereotype.Service
 
 @Service
@@ -66,22 +66,21 @@ class UserService(
     fun findByEmail(email: String): User? = userRepository.findByEmail(email)
 
     fun update(id: Long, userDTO: UpdateUserRequest): Result<UserDTO> {
-        val foundUser = findByIdOrNull(id)
+        val foundUser = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
         foundUser.update(userDTO)
         val result = userRepository.save(foundUser).toDTO()
-
         return Success(result)
     }
 
     fun deleteById(id: Long): Result<Any> {
-        val user = findByIdOrNull(id)
+        val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
         user.status = SOFT_DELETED
         userRepository.save(user)
-        return Success(NO_CONTENT, "Successfully deleted User with ID $id.")
+        return successfullyDeletedEntity(User::class, id)
     }
 
     fun isEmailRegistered(email: String): Boolean =
@@ -108,103 +107,113 @@ class UserService(
             unauthorizedError
     }
 
-    fun saveRecipeForUser(userId: Long, recipeId: Long): Result<List<RecipeDTO>> {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun saveRecipe(recipeId: Long, user: User): Result<List<RecipeDTO>> {
         val recipe = recipeRepository.findByIdOrNull(recipeId)
             ?: return recipeNotFoundError(recipeId)
 
-        if (!user.savedRecipes.contains(recipe)) {
-            user.savedRecipes.add(recipe)
-            userRepository.save(user)
-        }
-
-        val response = user.savedRecipes.map { it.toDTO() }
-
+        user.saveRecipe(recipe)
+        val response = user.getSavedRecipes()
         return Success(response)
     }
 
-    fun getPublishedRecipes(userId: Long): Result<List<RecipeDTO>> {
-        val user = findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
+    fun unsaveRecipe(recipeId: Long, user: User): Result<List<RecipeDTO>> {
+        val recipe = recipeRepository.findByIdOrNull(recipeId)
+            ?: return recipeNotFoundError(recipeId)
 
-        val recipes = user.getPublishedRecipes().map { it.toDTO() }
+        user.unsaveRecipe(recipe)
+        val response = user.getSavedRecipes()
+        return Success(response)
+    }
 
+    fun getPublishedRecipes(id: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
+        val recipes = user.getPublishedRecipes()
         return Success(recipes)
     }
 
-    fun getSavedRecipes(userId: Long): Result<List<RecipeDTO>> {
-        val user = findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
+    fun getSavedRecipes(id: Long): Result<List<RecipeDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
 
-        val recipes = user.getSavedRecipes().map { it.toDTO() }
-
+        val recipes = user.getSavedRecipes()
         return Success(recipes)
     }
 
-    fun getPublishedReviews(userId: Long): Result<List<ReviewDTO>> {
-        val user = findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
+    fun getPublishedReviews(id: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
 
-        val reviews = user.getPublishedReviews().map { it.toDTO() }
-
+        val reviews = user.getPublishedReviews()
         return Success(reviews)
     }
 
     fun getFollowers(id: Long): Result<List<UserDTO>> {
-        val user = findByIdOrNull(id)
+        val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val followers = user.followers.map { it.toDTO() }
-
+        val followers = user.getUserFollowers()
         return Success(followers)
     }
 
 
     fun getFollowing(id: Long): Result<List<UserDTO>> {
-        val user = findByIdOrNull(id)
+        val user = userRepository.findByIdOrNull(id)
             ?: return userNotFoundError(id)
 
-        val following = user.following.map { it.toDTO() }
-
+        val following = user.getUserFollowing()
         return Success(following)
     }
 
     fun follow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
-        val user = findByIdOrNull(userId)
+        val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
-        val targetUser = findByIdOrNull(targetUserId)
+        val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
         user.follow(targetUser)
-        val response = user.following.map { it.toDTO() }
+        val response = user.getUserFollowing()
         return Success(response)
     }
 
     fun unfollow(userId: Long, targetUserId: Long): Result<List<UserDTO>> {
-        val user = findByIdOrNull(userId)
+        val user = userRepository.findByIdOrNull(userId)
             ?: return userNotFoundError(userId)
 
-        val targetUser = findByIdOrNull(targetUserId)
+        val targetUser = userRepository.findByIdOrNull(targetUserId)
             ?: return userNotFoundError(targetUserId)
 
         user.unfollow(targetUser)
-        val response = user.following.map { it.toDTO() }
+        val response = user.getUserFollowing()
         return Success(response)
     }
 
-    fun likeReview(userId: Long, reviewId: Long): Result<List<ReviewDTO>> {
-        val user = findByIdOrNull(userId)
-            ?: return userNotFoundError(userId)
-
+    fun likeReview(reviewId: Long, user: User): Result<List<ReviewDTO>> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
 
         user.likeReview(review)
-        val response = user.likedReviews.map { it.toDTO() }
+        val response = user.getLikedReviews()
         return Success(response)
+    }
+
+    fun unlikeReview(reviewId: Long, user: User): Result<List<ReviewDTO>> {
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: return reviewNotFoundError(reviewId)
+
+        user.unlikeReview(review)
+        val response = user.getLikedReviews()
+        return Success(response)
+    }
+
+    fun getLikedReviews(id: Long): Result<List<ReviewDTO>> {
+        val user = userRepository.findByIdOrNull(id)
+            ?: return userNotFoundError(id)
+
+        val reviews = user.getLikedReviews()
+        return Success(reviews)
     }
 }
 

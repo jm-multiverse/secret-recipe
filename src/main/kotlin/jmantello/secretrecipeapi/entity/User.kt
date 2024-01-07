@@ -10,6 +10,8 @@ import jmantello.secretrecipeapi.entity.User.Status.ACTIVE
 import jmantello.secretrecipeapi.entity.User.Status.SOFT_DELETED
 import jmantello.secretrecipeapi.entity.filters.ActiveUsersFilter
 import jmantello.secretrecipeapi.entity.mapper.UserMapper
+import jmantello.secretrecipeapi.transfer.model.RecipeDTO
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import org.hibernate.annotations.Filter
@@ -104,18 +106,47 @@ class User(
         return BCryptPasswordEncoder().matches(password, this.password)
     }
 
+    fun update(userDTO: UpdateUserRequest) {
+        userDTO.email?.let { this.email = it }
+        userDTO.password?.let { this.password = it }
+        userDTO.displayName?.let { this.displayName = it }
+    }
+
     fun isAdmin(): Boolean = this.roles.contains(ADMIN)
     fun isActive(): Boolean = this.status == ACTIVE
     fun isSoftDeleted(): Boolean = this.status == SOFT_DELETED
 
-    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<Recipe> =
-        publishedRecipes.take(limit)
+    fun getPublishedRecipes(limit: Int = publishedRecipes.size): List<RecipeDTO> =
+        publishedRecipes.take(limit).map { it.toDTO() }
 
-    fun getSavedRecipes(limit: Int = savedRecipes.size): List<Recipe> =
-        savedRecipes.take(limit)
+    fun getSavedRecipes(limit: Int = savedRecipes.size): List<RecipeDTO> =
+        savedRecipes.take(limit).map { it.toDTO() }
 
-    fun getPublishedReviews(limit: Int = publishedReviews.size): List<Review> =
-        publishedReviews.take(limit)
+    fun saveRecipe(recipe: Recipe) {
+        if (this.savedRecipes.contains(recipe)) return
+        this.savedRecipes.add(recipe)
+    }
+
+    fun unsaveRecipe(recipe: Recipe) {
+        if (!this.savedRecipes.contains(recipe)) return
+        this.savedRecipes.remove(recipe)
+    }
+
+    fun getPublishedReviews(limit: Int = publishedReviews.size): List<ReviewDTO> =
+        publishedReviews.take(limit).map { it.toDTO() }
+
+    fun getLikedReviews(limit: Int = likedReviews.size): List<ReviewDTO> =
+        likedReviews.take(limit).map { it.toDTO() }
+
+    fun likeReview(review: Review) {
+        if (this.likedReviews.contains(review)) return
+        this.likedReviews.add(review)
+    }
+
+    fun unlikeReview(review: Review) {
+        if (!this.likedReviews.contains(review)) return
+        this.likedReviews.remove(review)
+    }
 
     fun follow(user: User) {
         if (this == user) return
@@ -129,15 +160,12 @@ class User(
         this.following.remove(user)
     }
 
-    fun likeReview(review: Review) {
-        if (this.likedReviews.contains(review)) return
-        this.likedReviews.add(review)
+    fun getUserFollowers(): List<UserDTO> {
+        return this.followers.map { it.toDTO() }
     }
 
-    fun update(userDTO: UpdateUserRequest) {
-        userDTO.email?.let { this.email = it }
-        userDTO.password?.let { this.password = it }
-        userDTO.displayName?.let { this.displayName = it }
+    fun getUserFollowing(): List<UserDTO> {
+        return this.following.map { it.toDTO() }
     }
 
     fun toDTO(): UserDTO = UserMapper.toDto(this)

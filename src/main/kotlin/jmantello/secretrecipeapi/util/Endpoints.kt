@@ -7,6 +7,7 @@ class Endpoints(val host: String, val port: Int) {
     val auth = "$baseUrl/auth"
     val register = "$auth/register"
     val login = "$auth/login"
+    val refresh = "$auth/refresh"
     val logout = "$auth/logout"
 
     // Users
@@ -14,19 +15,26 @@ class Endpoints(val host: String, val port: Int) {
     fun getUser(id: Long) = "$users/$id"
     fun updateUser(id: Long) = "$users/$id"
     fun getPublishedRecipes(id: Long) = "$users/$id/published-recipes"
-    fun saveRecipe(userId: Long, recipeId: Long) = "$users/$userId/save-recipe/$recipeId"
     fun getSavedRecipes(id: Long) = "$users/$id/saved-recipes"
     fun getPublishedReviews(id: Long) = "$users/$id/published-reviews"
     fun following(id: Long) = "$users/$id/following"
     fun followers(id: Long) = "$users/$id/followers"
     fun follow(userId: Long, targetUserId: Long) = "$users/$userId/follow/$targetUserId"
     fun unfollow(userId: Long, targetUserId: Long) = "$users/$userId/unfollow/$targetUserId"
-    fun likeReview(userId: Long, reviewId: Long) = "$users/$userId/like-review/$reviewId"
     fun deleteUser(id: Long) = "$users/$id"
 
     // Recipes
     val recipes = "$baseUrl/recipes"
+    fun getRecipe(id: Long) = "$recipes/$id"
+    fun saveRecipe(recipeId: Long) = "$recipes/$recipeId/save"
+    fun unsaveRecipe(recipeId: Long) = "$recipes/$recipeId/unsave"
+    fun getRecipeReviews(recipeId: Long) = "$recipes/$recipeId/reviews"
+    fun publishReview(recipeId: Long) = "$recipes/$recipeId/reviews"
 
     // Reviews
     val reviews = "$baseUrl/reviews"
+    fun getReview(id: Long) = "$reviews/$id"
+    fun likeReview(reviewId: Long) = "$reviews/$reviewId/like"
+    fun unlikeReview(reviewId: Long) = "$reviews/$reviewId/unlike"
+
 }

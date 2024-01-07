@@ -3,6 +3,7 @@ package jmantello.secretrecipeapi.entity.builder
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.User
+import jmantello.secretrecipeapi.transfer.request.UpdateReviewRequest
 import java.time.LocalDateTime
 
 class ReviewBuilder {
@@ -53,11 +54,11 @@ class ReviewBuilder {
     fun build(): Review {
         return Review(
             datePublished = this.datePublished?: LocalDateTime.now().toString(),
-            publisher = this.publisher?: throw Exception("Publisher cannot be null"),
-            title = this.title?: throw Exception("Title cannot be null"),
-            rating = this.rating?: throw Exception("Rating cannot be null"),
+            publisher = this.publisher?: throw Exception("ReviewBuilder: Publisher cannot be null when building a review"),
+            title = this.title?: throw Exception("ReviewBuilder: Title cannot be null when building a review"),
+            rating = this.rating?: throw Exception("ReviewBuilder: Rating cannot be null when building a review"),
             content = this.content?: "",
-            recipe = this.recipe?: throw Exception("Recipe cannot be null"),
+            recipe = this.recipe?: throw Exception("ReviewBuilder: Recipe cannot be null when building a review"),
             likes = this.likes?: mutableListOf(),
             isPrivate = this.isPrivate?: false
         )

@@ -3,8 +3,6 @@ package jmantello.secretrecipeapi.transfer.request
 import javax.validation.constraints.Size
 
 class PublishRecipeRequest(
-    val publisherId: Long,
-
     @Size(max = 100)
     val title: String,
 

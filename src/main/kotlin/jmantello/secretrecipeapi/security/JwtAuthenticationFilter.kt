@@ -6,8 +6,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
-import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH
-import jmantello.secretrecipeapi.util.ErrorFactory.Companion.unauthorizedError
+import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
 import jmantello.secretrecipeapi.util.Result
 import jmantello.secretrecipeapi.util.Result.Error
@@ -69,7 +68,7 @@ class JwtAuthenticationFilter(
     private fun extractToken(request: HttpServletRequest): Result<String> {
         // Find access token first, then refresh, since both may be present, this might cause an issue.
         val cookie = request.cookies?.find { it.name == ACCESS.tokenName }
-            // ?: request.cookies?.find { it.name == REFRESH.tokenName }
+        // ?: request.cookies?.find { it.name == REFRESH.tokenName }
             ?: return Error("No token found in cookies")
 
         val token = cookie.value

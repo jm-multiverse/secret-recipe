@@ -3,11 +3,11 @@ package jmantello.secretrecipeapi.util
 import jmantello.secretrecipeapi.entity.Recipe
 import jmantello.secretrecipeapi.entity.Review
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.util.Result.Error
+import jmantello.secretrecipeapi.util.Result.*
 import org.springframework.http.HttpStatus.*
 import kotlin.reflect.KClass
 
-class ErrorFactory {
+class ErrorResponses {
 
     companion object {
         const val unauthorizedMessage: String = "Access denied. Please verify your credentials."
@@ -18,6 +18,9 @@ class ErrorFactory {
             CONFLICT,
             userAlreadyRegisteredWithEmailMessage
         )
+
+        fun successfullyDeletedEntity(entity: KClass<out Any>, id: Long): Success<String> =
+            Success(NO_CONTENT, "Successfully deleted ${entity.simpleName} with ID: $id.")
 
         fun <T : Any> entityNotFoundError(entityClass: KClass<T>, id: Long): Error {
             val entityName = entityClass.simpleName ?: "Entity"

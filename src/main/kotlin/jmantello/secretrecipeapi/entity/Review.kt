@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
 import jmantello.secretrecipeapi.entity.mapper.ReviewMapper
 import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.transfer.request.UpdateReviewRequest
 import java.time.LocalDateTime
 
 @Entity
@@ -44,6 +45,12 @@ class Review(
 
     var isPrivate: Boolean = false,
 ) {
-
     fun toDTO(): ReviewDTO = ReviewMapper.toDto(this)
+
+    fun update(request: UpdateReviewRequest) {
+        request.title?.let { this.title = it }
+        request.rating?.let { this.rating = it }
+        request.content?.let { this.content = it }
+        request.isPrivate?.let { this.isPrivate = it }
+    }
 }
