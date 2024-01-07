@@ -6,6 +6,9 @@ import jmantello.secretrecipeapi.entity.User
 import jmantello.secretrecipeapi.transfer.model.UserDTO
 import jmantello.secretrecipeapi.service.RecipeService
 import jmantello.secretrecipeapi.service.ReviewService
+import jmantello.secretrecipeapi.service.TokenService
+import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
+import jmantello.secretrecipeapi.service.TokenService.TokenType.REFRESH
 import jmantello.secretrecipeapi.service.UserService
 import jmantello.secretrecipeapi.transfer.request.*
 import jmantello.secretrecipeapi.transfer.response.UserAuthenticatedResponse
@@ -21,7 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpStatus.*
+import org.springframework.http.ResponseCookie
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.client.toEntity
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
@@ -42,6 +47,9 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var reviewService: ReviewService
+
+    private lateinit var accessToken: String
+    private lateinit var refreshToken: String
 
     // Test User
     private lateinit var testUser: UserDTO
@@ -142,17 +150,33 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
             testUserEmail,
             testUserPassword
         )
+        var cookies: MultiValueMap<String, ResponseCookie>? = null
 
         val response = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<UserAuthenticatedResponse>>() }
+            .exchangeToMono {
+                cookies = it.cookies()
+                it.toEntity<ApiResponse<UserDTO>>()
+            }
             .awaitSingle()
 
         assertEquals(OK, response.statusCode)
 
-        val apiResponse = response.body ?: fail("Response body was null.")
+        val apiResponse = response.body ?: Assertions.fail("Response body was null.")
         assertNull(apiResponse.error)
+
+        val userDTO = apiResponse.data ?: Assertions.fail("Response body data was null.")
+        assertEquals(testUser.id, userDTO.id)
+
+        val accessTokenCookie = cookies!!.getFirst(ACCESS.tokenName) ?: Assertions.fail("Access token cookie was null.")
+        assertNotNull(accessTokenCookie.value)
+        accessToken = accessTokenCookie.value
+
+        val refreshTokenCookie =
+            cookies!!.getFirst(REFRESH.tokenName) ?: Assertions.fail("Refresh token cookie was null.")
+        assertNotNull(refreshTokenCookie.value)
+        refreshToken = refreshTokenCookie.value
     }
 
     @Test
@@ -162,6 +186,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val getUserUrl = endpoints.getUser(testUser.id)
         val response = webClient.get()
             .uri(getUserUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
             .awaitSingle()
 
@@ -193,6 +219,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         // Put Request
         val response = webClient.put()
             .uri(updateUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .bodyValue(request)
             .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
             .awaitSingle()
@@ -220,7 +248,6 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         // Create Recipe Requests
         val publisherId = testUser.id
         val request = PublishRecipeRequest(
-            publisherId,
             recipeTitle,
             recipeContent,
             recipeTags,
@@ -230,6 +257,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         // Post Request
         val response = webClient.post()
             .uri(publishUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .bodyValue(request)
             .exchangeToMono { it.toEntity<ApiResponse<RecipeDTO>>() }
             .awaitSingle()
@@ -261,6 +290,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         val response = webClient.get()
             .uri(publishedRecipesUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
             .awaitSingle()
 
@@ -275,12 +306,13 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     @Test
     @Order(7)
     fun testSaveRecipes() = runBlocking {
-        val userId = testUser.id
         val recipeId = testRecipe.id
-        val saveRecipeUrl = endpoints.saveRecipe(userId, recipeId)
+        val saveRecipeUrl = endpoints.saveRecipe(recipeId)
 
         val request = webClient.post()
             .uri(saveRecipeUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
             .awaitSingle()
 
@@ -298,6 +330,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         val response = webClient.get()
             .uri(savedRecipesUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
             .awaitSingle()
 
@@ -315,6 +349,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         val request = webClient.get()
             .uri(getRecipesUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<RecipeDTO>>>() }
             .awaitSingle()
 
@@ -327,13 +363,10 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
     @Test
     @Order(10)
     fun testPublishReviews() = runBlocking {
-        val publisherId = testUser.id
-        val publishedReviewUrl = endpoints.reviews
+        val publishedReviewUrl = endpoints.publishReview(testRecipe.id)
 
         // Create Review Requests
         val request = PublishReviewRequest(
-            publisherId,
-            testRecipe.id,
             reviewTitle,
             reviewContent,
             reviewRating
@@ -342,6 +375,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         // Post Request
         val response = webClient.post()
             .uri(publishedReviewUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .bodyValue(request)
             .exchangeToMono { it.toEntity<ApiResponse<ReviewDTO>>() }
             .awaitSingle()
@@ -353,7 +388,6 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         assertNull(apiResponse.error)
 
         val createdReview = apiResponse.data ?: fail("Response body data was null.")
-        assertEquals(publisherId, createdReview.publisherId)
         assertEquals(testRecipe.id, createdReview.recipeId)
         assertEquals(reviewTitle, createdReview.title)
         assertEquals(reviewContent, createdReview.content)
@@ -375,6 +409,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         val response = webClient.get()
             .uri(publishedReviewsUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
             .awaitSingle()
 
@@ -397,6 +433,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val followUrl = endpoints.follow(testUser2.id, testUser.id)
         val followResponse = webClient.post()
             .uri(followUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
             .awaitSingle()
 
@@ -414,6 +452,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val getFollowersUrl = endpoints.followers(testUser.id)
         val followersResponse = webClient.get()
             .uri(getFollowersUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
             .awaitSingle()
 
@@ -433,6 +473,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val unfollowUrl = endpoints.unfollow(testUser2.id, testUser.id)
         val unfollowResponse = webClient.post()
             .uri(unfollowUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
             .awaitSingle()
 
@@ -447,6 +489,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val getFollowersUrl = endpoints.followers(testUser.id)
         val followersResponse = webClient.get()
             .uri(getFollowersUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<UserDTO>>>() }
             .awaitSingle()
 
@@ -454,15 +498,20 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
 
         val followersApiResponse = followersResponse.body ?: fail("Response body was null.")
         val followersList = followersApiResponse.data ?: fail("Response body data was null.")
-        assertFalse(followersList.any { it.id == testUser2.id }, "Follower with id ${testUser2.id} found after unfollow.")
+        assertFalse(
+            followersList.any { it.id == testUser2.id },
+            "Follower with id ${testUser2.id} found after unfollow."
+        )
     }
 
     @Test
     @Order(13)
     fun testLikeReview() = runBlocking {
-        val likeUrl = endpoints.likeReview(testUser2.id, testReview.id)
+        val likeUrl = endpoints.likeReview(testReview.id)
         val likeResponse = webClient.post()
             .uri(likeUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<List<ReviewDTO>>>() }
             .awaitSingle()
 
@@ -483,6 +532,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val logoutUrl = endpoints.logout
         val logoutResponse = webClient.post()
             .uri(logoutUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<String>>() }
             .awaitSingle()
 
@@ -498,7 +549,7 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val loginResponse = webClient.post()
             .uri(loginUrl)
             .bodyValue(loginRequestBody)
-            .exchangeToMono { it.toEntity<ApiResponse<UserAuthenticatedResponse>>() }
+            .exchangeToMono { it.toEntity<ApiResponse<UserDTO>>() }
             .awaitSingle()
 
         assertEquals(OK, loginResponse.statusCode)
@@ -511,6 +562,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val deleteUrl = endpoints.deleteUser(testUser.id)
         val deleteResponse = webClient.delete()
             .uri(deleteUrl)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
             .awaitSingle()
 
@@ -520,6 +573,8 @@ class UserFlowIntegrationTest : IntegrationTestBase() {
         val deleteUrl2 = endpoints.deleteUser(testUser2.id)
         val deleteResponse2 = webClient.delete()
             .uri(deleteUrl2)
+            .cookie(ACCESS.tokenName, accessToken)
+            .cookie(REFRESH.tokenName, refreshToken)
             .exchangeToMono { it.toEntity<ApiResponse<Any>>() }
             .awaitSingle()
 
