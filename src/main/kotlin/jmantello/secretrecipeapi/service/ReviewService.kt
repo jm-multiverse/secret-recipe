@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class ReviewService(
-    private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
 ) {
     fun findAll(): Result<List<ReviewDTO>> =
@@ -33,15 +32,6 @@ class ReviewService(
         return Success(review.toDTO())
     }
 
-    fun findByIdOrNull(id: Long): Review? =
-        reviewRepository.findByIdOrNull(id)
-
-    fun findAllPublishedByUserId(publisherId: Long?): MutableList<Review> =
-        reviewRepository.findAllByPublisherId(publisherId)
-
-    fun save(review: Review): Review =
-        reviewRepository.save(review)
-
     fun update(reviewId: Long, request: UpdateReviewRequest): Result<ReviewDTO> {
         val review = reviewRepository.findByIdOrNull(reviewId)
             ?: return reviewNotFoundError(reviewId)
@@ -49,23 +39,6 @@ class ReviewService(
         review.update(request)
         val response = reviewRepository.save(review).toDTO()
         return Success(response)
-    }
-
-    fun publish(recipeId: Long, request: PublishReviewRequest, user: User): Result<ReviewDTO> {
-        val recipe = recipeRepository.findByIdOrNull(recipeId)
-            ?: return recipeNotFoundError(recipeId)
-
-        val review = ReviewBuilder()
-            .publisher(user)
-            .recipe(recipe)
-            .title(request.title)
-            .rating(request.rating)
-            .content(request.content)
-            .isPrivate(request.isPrivate)
-            .build()
-
-        val response = reviewRepository.save(review).toDTO()
-        return Success(CREATED, response)
     }
 
     fun deleteById(id: Long): Unit =
