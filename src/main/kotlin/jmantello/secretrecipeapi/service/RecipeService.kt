@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service
 @Service
 @Transactional
 class RecipeService(
-    private val userRepository: UserRepository,
     private val recipeRepository: RecipeRepository,
     private val reviewRepository: ReviewRepository,
 ) {
