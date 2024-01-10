@@ -1,8 +1,5 @@
-package jmantello.secretrecipeapi.config
+package jmantello.secretrecipeapi.annotations
 
-import jmantello.secretrecipeapi.annotations.CurrentUserDTO
-import jmantello.secretrecipeapi.annotations.CurrentUserEntity
-import jmantello.secretrecipeapi.annotations.CurrentUserId
 import jmantello.secretrecipeapi.service.AuthenticationService
 import jmantello.secretrecipeapi.util.Result.Error
 import jmantello.secretrecipeapi.util.Result.Success

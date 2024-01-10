@@ -1,9 +1,10 @@
-package jmantello.secretrecipeapi.security
+package jmantello.secretrecipeapi.config.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jmantello.secretrecipeapi.config.security.PublicEndpoints.isPublic
 import jmantello.secretrecipeapi.service.TokenService
 import jmantello.secretrecipeapi.service.TokenService.TokenType.ACCESS
 import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
@@ -16,24 +17,19 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-
 @Component
 class JwtAuthenticationFilter(
     private val tokenService: TokenService,
     private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
-    private fun shouldSkipFilter(request: HttpServletRequest): Boolean {
-        val skipPaths = setOf("/api/auth/register", "/api/auth/login")
-        val requestPath = request.servletPath
-        return skipPaths.contains(requestPath)
-    }
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        if (shouldSkipFilter(request)) {
+
+        // Skip authentication for public endpoints.
+        if (isPublic(request.servletPath, request.method)) {
             filterChain.doFilter(request, response)
             return
         }
