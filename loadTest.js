@@ -2,20 +2,30 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-  vus: 10, // Number of virtual users
-  duration: '30m', // Duration of the test
+  vus: 1, // Number of virtual users
+  duration: '1m', // Duration of the test
 };
 
-let userIds = [1, 2, 3]
-let recipeIds = [1]
-let reviewIds = [1]
+// In the API when we create users, recipes, and reviews, the id automatically increments from 1.
+// We store the total amount of 'ids' by incrementing the counters upon creation.
+// This allows us to randomly get an id, knowing that it has been created, without storing the ids themselves.
+let userIdCounter = 1
+let recipeIdCounter = 1
+let reviewIdCounter = 1
+
+function randomId(ids) {
+  return Math.floor(Math.random() * ids) + 1;
+}
+
+function prettyLog(name, object) {
+  console.log(`${name}`, JSON.stringify(object, null, 2));
+}
 
 export default function () {
   userFlow()
 }
 
 function userFlow() {
-
   // Register
   let uniqueId = Math.random()
   let email = `testuser${uniqueId}@example.com`
@@ -31,8 +41,8 @@ function userFlow() {
   });
 
   let user = registerResponse.json('data')
-  userIds.push(user["id"])
-
+  userIdCounter++
+  prettyLog("User", user)
   sleep(1);
 
   // Login
@@ -45,7 +55,17 @@ function userFlow() {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  let authToken = loginResponse.json('accessToken');
+  let cookies = loginResponse.cookies;
+  let accessToken;
+
+  if (cookies && cookies.accessToken && cookies.accessToken.length > 0) {
+    accessToken = cookies.accessToken[0].value;
+  } else {
+    console.log("Access token not found in cookies");
+  }
+
+  prettyLog("accessToken", accessToken)
+  sleep(1)
 
   // Create Recipe
   let recipePayload = JSON.stringify({
@@ -57,32 +77,53 @@ function userFlow() {
   let createRecipeResponse = http.post('http://localhost:8100/api/recipes', recipePayload, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      'Cookie': `accessToken=${accessToken}`
     },
   });
 
   let recipe = createRecipeResponse.json('data')
-  recipeIds.push(recipe['id'])
+  recipeIdCounter++
+  prettyLog("Recipe", recipe)
   sleep(1);
 
   // Create Review
   let reviewPayload = JSON.stringify({
     title: 'Review title',
     content: 'Random review content',
-    rating: 4
+    rating: Math.floor(Math.random() * 5) + 1 // Random number between 1 - 5
   });
 
-  let randomRecipeId = recipeIds[0]
-
-  let createReviewResponse = http.post(`http://localhost:8100/api/recipes/${randomRecipeId}`, reviewPayload, {
+  let createReviewResponse = http.post(`http://localhost:8100/api/recipes/${randomId(recipeIdCounter)}/reviews`, reviewPayload, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      'Cookie': `accessToken=${accessToken}`
     },
   });
 
-  let review = createRecipeResponse.json('data')
-  reviewIds.push(review['id'])
+  let review = createReviewResponse.json('data')
+  reviewIdCounter++
+  prettyLog("Review", review)
   sleep(1)
 
+  // Save Random Recipe
+  let saveRecipeResponse = http.post(`http://localhost:8100/api/recipes/${randomId(recipeIdCounter)}/save`, null, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': `accessToken=${accessToken}`
+    },
+  });
+  let savedRecipe = saveRecipeResponse.json('data')
+  prettyLog("Saved Recipe: ", savedRecipe)
+  sleep(1)
+
+  // Like Random Review
+  let likeReviewResponse = http.post(`http://localhost:8100/api/reviews/${randomId(reviewIdCounter)}/like`, null, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': `accessToken=${accessToken}`
+    },
+  });
+  let likedReview = likeReviewResponse.json('data')
+  prettyLog("Liked Review: ", likedReview)
+  sleep(1)
 }
