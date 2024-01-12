@@ -66,6 +66,25 @@ cd secret-recipe
 
 The project should now be running locally on port 8080. 
 
+### Docker
+The Secret Recipe API can also be run using Docker. To do so, follow these steps:
+
+1. Start Docker Desktop.
+2. Navigate to the project directory.
+3. Run the following commands:
+
+```sh
+# Build the .jar file using Gradle
+.\gradlew bootJar --no-daemon
+
+# Run the application using Docker Compose
+docker-compose up
+```
+
+The project should now be running locally on port 8080. Along with the API, the Docker Compose file also starts a Prometheus server for metrics collection and a Grafana server for metrics visualization. These services can be accessed at the following URLs:
+* Prometheus: [http://localhost:9090](http://localhost:9090)
+* Grafana: [http://localhost:3000](http://localhost:3000)
+
 ### Usage
 The Secret Recipe API is best explored using the Postman API client. Follow these steps to get started:
 

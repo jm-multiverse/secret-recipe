@@ -1,16 +1,14 @@
-FROM ubuntu:latest AS build
-
-RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
-COPY . .
-
-RUN chmod +x ./gradlew
-RUN ./gradlew bootJar --no-daemon
-
+# Use the official OpenJDK image to run the JAR file.
 FROM openjdk:17-jdk-slim
 
+# Expose the port the application will run on
 EXPOSE 8100
 
-COPY --from=build /build/libs/secret-recipe-api-latest.jar app.jar
+# Set the working directory in the container
+WORKDIR /app
 
+# Copy the pre-built JAR file into the container
+COPY build/libs/secret-recipe-api-latest.jar app.jar
+
+# Define the command to run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
