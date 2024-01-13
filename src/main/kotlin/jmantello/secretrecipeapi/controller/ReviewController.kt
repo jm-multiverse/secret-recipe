@@ -2,25 +2,16 @@ package jmantello.secretrecipeapi.controller
 
 import jmantello.secretrecipeapi.annotations.CurrentUserEntity
 import jmantello.secretrecipeapi.entity.User
-import jmantello.secretrecipeapi.service.AuthenticationService
-import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
-import jmantello.secretrecipeapi.transfer.model.ReviewDTO
 import jmantello.secretrecipeapi.service.ReviewService
 import jmantello.secretrecipeapi.service.UserService
+import jmantello.secretrecipeapi.transfer.model.ReviewDTO
+import jmantello.secretrecipeapi.transfer.request.PublishReviewRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateReviewRequest
 import jmantello.secretrecipeapi.util.ApiResponse
-import jmantello.secretrecipeapi.util.ErrorResponses.Companion.unauthorizedError
 import jmantello.secretrecipeapi.util.ResponseBuilder.respond
-import jmantello.secretrecipeapi.util.Result.*
+import jmantello.secretrecipeapi.util.Result.Error
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/reviews")

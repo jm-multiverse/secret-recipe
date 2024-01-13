@@ -27,8 +27,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./datasources.yml:/etc/grafana/provisioning/datasources.yml
-      - ./dashboards.yml:/var/lib/grafana/dashboards/dashboards.yml
-      - ./secret-recipe-api-dashboard.json:/var/lib/grafana/dashboards/secret-recipe-api-dashboard.json
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
       - prometheus
