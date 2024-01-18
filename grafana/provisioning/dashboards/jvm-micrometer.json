@@ -2970,5 +2970,6 @@
   },
   "timezone": "browser",
   "title": "JVM (Micrometer)",
+  "uid": "jvm-micrometer-dashboard",
   "version": 33
 }
