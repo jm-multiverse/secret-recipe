@@ -1,5 +1,6 @@
 package jmantello.secretrecipeapi.controller
 
+import jmantello.secretrecipeapi.annotations.CurrentUserId
 import jmantello.secretrecipeapi.transfer.request.UserLoginRequest
 import jmantello.secretrecipeapi.transfer.request.UpdateUserRequest
 import jmantello.secretrecipeapi.transfer.model.RecipeDTO
@@ -65,17 +66,17 @@ class UserController(
     fun followers(@PathVariable id: Long): ResponseEntity<ApiResponse<List<UserDTO>>> =
         respond(userService.getFollowers(id))
 
-    @PostMapping("{userId}/follow/{targetUserId}")
+    @PostMapping("{targetUserId}/follow")
     fun follow(
-        @PathVariable userId: Long,
-        @PathVariable targetUserId: Long
+        @PathVariable targetUserId: Long,
+        @CurrentUserId currentUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.follow(userId, targetUserId))
+        respond(userService.follow(currentUserId, targetUserId))
 
-    @PostMapping("{userId}/unfollow/{targetUserId}")
+    @PostMapping("{targetUserId}/unfollow")
     fun unfollow(
-        @PathVariable userId: Long,
-        @PathVariable targetUserId: Long
+        @PathVariable targetUserId: Long,
+        @CurrentUserId currentUserId: Long
     ): ResponseEntity<ApiResponse<List<UserDTO>>> =
-        respond(userService.unfollow(userId, targetUserId))
+        respond(userService.unfollow(currentUserId, targetUserId))
 }
