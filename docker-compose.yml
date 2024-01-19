@@ -1,7 +1,8 @@
 version: '3.7'
-
+name: secret-recipe-api
 services:
   secret-recipe-api:
+    container_name: application
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,6 +10,7 @@ services:
       - "8100:8100"
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:latest
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -18,12 +20,15 @@ services:
       - secret-recipe-api
 
   grafana:
+    container_name: grafana
     image: grafana/grafana:latest
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=error
     ports:
       - "3000:3000"
     volumes:

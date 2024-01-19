@@ -3,7 +3,7 @@ import { check, sleep } from 'k6';
 
 export let options = {
   vus: 1, // Number of virtual users
-  duration: '1m', // Duration of the test
+  duration: '30m', // Duration of the test
 };
 
 // In the API when we create users, recipes, and reviews, the id automatically increments from 1.
@@ -126,4 +126,40 @@ function userFlow() {
   let likedReview = likeReviewResponse.json('data')
   prettyLog("Liked Review: ", likedReview)
   sleep(1)
+
+  // Follow Random User
+  let followUserResponse = http.post(`http://localhost:8100/api/users/${randomId(userIdCounter)}/follow`, null, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': `accessToken=${accessToken}`
+    },
+  });
+  let followingList = followUserResponse.json('data')
+  prettyLog("Followed User. User's Following List: ", followingList)
+  sleep(1)
+
+  // Unfollow Random User
+  let unfollowUserResponse = http.post(`http://localhost:8100/api/users/${randomId(userIdCounter)}/unfollow`, null, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': `accessToken=${accessToken}`
+    },
+  });
+  let followingList2 = unfollowUserResponse.json('data')
+  prettyLog("Unfollowed User (Try). User's Following List: ", followingList2)
+  sleep(1)
+
+  // Logout
+  let logoutResponse = http.post(`http://localhost:8100/api/auth/logout`, null, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': `accessToken=${accessToken}`
+    },
+  });
+  let logoutMessage = logoutResponse.json('data')
+  prettyLog("Logout Message: ", logoutMessage)
+  sleep(1)
+
+  // Call Unauthorized Route
+  // Call Not Found Route
 }
