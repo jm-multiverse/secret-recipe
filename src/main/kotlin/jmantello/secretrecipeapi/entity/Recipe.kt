@@ -48,9 +48,11 @@ class Recipe(
 
     fun calculateOverallRating(): Double? {
         if (reviews.isEmpty()) return null
-
         val totalRating = reviews.sumOf { it.rating }
-        return totalRating / reviews.size
+        val totalReviews = reviews.size.toDouble()
+        val overallRating = totalRating / totalReviews
+        val roundedRating = "%.2f".format(overallRating).toDouble()
+        return roundedRating
     }
 
     fun getSaves(limit: Int = this.saves.size): List<User> {
