@@ -3,25 +3,36 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Features](#features)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
 - [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
 - [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
 - [License](#license)
 - [Contact Information](#contact-information)
 - [Acknowledgements](#acknowledgements)
 
 ## Introduction
-
 Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it features JWT for secure authentication and integrates Grafana/Prometheus for monitoring. It's designed for scalability and flexibility, supporting a broad range of social interactions among users.
+
+### Purpose
+This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
 
 ## Features
 - **User Authentication**: Secure login and role-based access using JWT.
-- **Profile Management**: Customize profiles with images, bios, and more.
-- **Recipe Handling**: Create, edit, delete, and manage recipe visibility.
-- **Community Interaction**: Browse, save, like, and review recipes, and follow other users.
+- **Profile Management**: Customize profiles with display names, bios, and more.
+- **Recipe Management**: Publish, edit, delete, and manage visibility for recipes.
+- **Community Interaction**: Save and review recipes, like reviews, and follow other users.
+- **Metrics Collection**: Collect and visualize application metrics using Prometheus and Grafana.
+- **API Documentation**: Explore the API using Postman.
+- **Testing**: Integration and load tests using JUnit 5 and K6.
+- **Security**: Secure application configuration using Spring Security.
+- **Containerization**: Run the application in a containerized environment using Docker Compose.
+- **Database**: Data persistence using H2 in-memory database.
+- **Observability**: Monitor application health, metrics, and more using Spring Boot Actuator.
+- **Error Handling**: Consistent error handling using `ApiResponse<T>`.
 
 ## Documentation
 A full list of available endpoints, including request and response formats is available in the [Postman API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
@@ -33,6 +44,28 @@ The following is a brief overview of the available endpoints.
 - **Users**: For managing users profiles, following other users, and account settings.
 - **Recipes**: To create, edit, delete, and view recipes.
 - **Reviews**: To create, edit, delete, and view reviews.
+
+## Contributing
+Contributions to the Secret Recipe API are welcome and valued. Whether it's bug fixes, feature enhancements, or documentation improvements, your input helps in building a better project. Here’s how to contribute:
+
+### Reporting Issues
+Found a bug or have an idea for improvement? First, please check the [Issues tab](https://github.com/jm-multiverse/secret-recipe/issues) to see if it has already been reported. If not, feel free to open a new issue. Please provide as much information as possible to help us understand and address the issue quickly.
+
+### Submitting Changes
+If you'd like to contribute code or documentation, you can follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your changes. (`git checkout -b my-new-feature`)
+3. Make your changes in the new branch.
+4. Commit your changes with a clear and descriptive commit message.
+5. Push the changes to your fork and submit a pull request to the main repository.
+
+For all submissions:
+- Please ensure your code adheres to the existing coding standards and conventions.
+- Verify that all existing tests pass and add tests for any new or changed functionality.
+- Update the documentation to reflect any changes.
+
+Once submitted, your pull request will be reviewed by a maintainer to ensure it meets the project's standards of code quality, documentation, and test coverage. If any further changes are requested, please address them and push to your branch for review again. Once approved, your pull request will be merged into the main repository.
 
 ## Getting Started
 Run the API locally for development/testing using Java JDK 11+, Docker, and Docker Compose.
@@ -167,7 +200,8 @@ val successResponse: ResponseEntity<ApiResponse<String>> = respond(successResult
 val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
 ```
 
-## Future Enhancements 
+## Future Enhancements
+
 There are several enhancements that can be planned to enrich user experience, application functionality, and scalability. Some of these include:
 - **OAuth2 Integration**: Introduce OAuth2 for robust and flexible user authentication, allowing sign-in via popular social media platforms.
 - **Recipe Model Enrichment**: Expand recipe details to include comprehensive information like ingredients, nutrition facts, and cooking steps, bolstering recipe management, discovery, and advanced search capabilities.
@@ -182,28 +216,6 @@ There are several enhancements that can be planned to enrich user experience, ap
 - **Rich Seed Data**: Populate extensive seed data to enrich the initial application setup, providing a comprehensive environment for development and testing.
 - **Language Support**: Enhance accessibility by introducing multilingual support, catering to a global audience.
 - **UI/UX Enhancements**: Introduce a modern, responsive UI/UX design to enrich user experience and engagement.
-
-## Contributing
-Contributions to the Secret Recipe API are welcome and valued. Whether it's bug fixes, feature enhancements, or documentation improvements, your input helps in building a better project. Here’s how to contribute:
-
-### Reporting Issues
-Found a bug or have an idea for improvement? First, please check the [Issues tab](https://github.com/jm-multiverse/secret-recipe/issues) to see if it has already been reported. If not, feel free to open a new issue. Please provide as much information as possible to help us understand and address the issue quickly.
-
-### Submitting Changes
-If you'd like to contribute code or documentation, you can follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your changes. (`git checkout -b my-new-feature`)
-3. Make your changes in the new branch.
-4. Commit your changes with a clear and descriptive commit message.
-5. Push the changes to your fork and submit a pull request to the main repository.
-
-For all submissions:
-- Please ensure your code adheres to the existing coding standards and conventions.
-- Verify that all existing tests pass and add tests for any new or changed functionality.
-- Update the documentation to reflect any changes.
-
-Once submitted, your pull request will be reviewed by a maintainer to ensure it meets the project's standards of code quality, documentation, and test coverage. If any further changes are requested, please address them and push to your branch for review again. Once approved, your pull request will be merged into the main repository.
 
 ## License
 The Secret Recipe API is licensed under the [GNU General Public License v3.0](LICENSE) - see the [LICENSE](LICENSE) file for details.
