@@ -27,6 +27,7 @@ repositories {
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

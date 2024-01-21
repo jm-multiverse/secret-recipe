@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'secret-recipe-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['secret-recipe-api:8100']

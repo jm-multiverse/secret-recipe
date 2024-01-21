@@ -3,190 +3,47 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
-  - [Project Overview](#project-overview)
-  - [Purpose and Functionality](#purpose-and-functionality)
-  - [Key Features](#key-features)
+- [Features](#features)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
-- [API Documentation](#api-documentation)
-  - [Endpoints](#endpoints)
 - [Testing](#testing)
 - [Architecture and Design](#architecture-and-design)
-  - [Overview](#overview)
-  - [Transfer Objects](#transfer-objects)
-  - [Service Utilization of `Result<T>`](#service-utilization-of-resultt)
-  - [Controller Utilization of `ApiResponse<T>`](#controller-utilization-of-apiresponset)
 - [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-  - [Reporting Issues](#reporting-issues)
-  - [Submitting Changes](#submitting-changes)
-  - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 - [Contact Information](#contact-information)
 - [Acknowledgements](#acknowledgements)
 
 ## Introduction
+Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it features JWT for secure authentication and integrates Grafana/Prometheus for monitoring. It's designed for scalability and flexibility, supporting a broad range of social interactions among users.
 
-### Project Overview
-Welcome to the GitHub repository for the Secret Recipe API, a RESTful CRUD API designed to simulate an online community of foodies. This API uses Kotlin and Spring Boot, and was built over the period of about 6 months for the Back-End and Elective modules of my learning journey with the Multiverse/Expedia Group Software Engineering Apprenticeship.
+### Purpose
+This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
 
-### Purpose and Functionality
-At its core, the Secret Recipe API is designed as a social platform for food enthusiasts to publish their recipes, browse others' recipes, save, like, and review recipes, and follow and be followed by other users. It also allows users to manage the privacy of their recipes, allowing them to choose which recipes are available to the public and which recipes can remain secret. 
+## Features
+- **User Authentication**: Secure login and role-based access using JWT.
+- **Profile Management**: Customize profiles with display names, bios, and more.
+- **Recipe Management**: Publish, edit, delete, and manage visibility for recipes.
+- **Community Interaction**: Save and review recipes, like reviews, and follow other users.
+- **Metrics Collection**: Collect and visualize application metrics using Prometheus and Grafana.
+- **API Documentation**: Explore the API using Postman.
+- **Testing**: Integration and load tests using JUnit 5 and K6.
+- **Security**: Secure application configuration using Spring Security.
+- **Containerization**: Run the application in a containerized environment using Docker Compose.
+- **Database**: Data persistence using H2 in-memory database.
+- **Observability**: Monitor application health, metrics, and more using Spring Boot Actuator.
+- **Error Handling**: Consistent error handling using `ApiResponse<T>`.
 
-### Key Features
-- **User Authentication and Authorization**: Utilizing JSON Web Tokens (JWTs) for secure user authentication. Features include account creation, login/logout, and role-based access control to ensure only authorized users can modify their own recipes.
-- **User Profile Management**: Users can customize their online presence. Features includes uploading profile pictures, adding bios, and managing usernames and passwords.
-- **Recipe Creation, Editing, and Deletion**: Provides users with comprehensive tools for managing their recipes. Users can upload images, add descriptions and tags, and list ingredients and instructions.
-- **Recipe Privacy Management**: Enables users to manage the visibility of their recipes. options include sharing publicly, or restricting access to their followers or only themselves.
-- **Recipe Browsing, Saving, Liking, and Reviewing**: Users can discover new recipes, save their favorites, express their appreciation through likes, and provide insight through reviews.
-- **User Following and Followers**: Users can follow and be followed by other users as well as manage their following list, enabling social connections and enriching the community experience.
-
-## Getting Started
-To get started with the Secret Recipe API, follow these instructions to copy the project and run it locally.
-
-### Prerequisites
-- **Java JDK 11 or Higher**: The application is built using Kotlin, which runs on the Java Virtual Machine (JVM). JDK 11 or higher is required to compile and run the Kotlin code.
-- **Docker**: Docker is used for containerizing the application, making it easy to build, deploy, and run the API consistently across any environment. Docker Compose is utilized to manage multi-container Docker applications, streamlining the setup process.
-
-### Installation
-A step-by-step guide to getting the project running locally.
-
-```sh
-# Clone the repository
-git clone https://github.com/jm-multiverse/secret-recipe
-
-# Navigate to the project directory
-cd secret-recipe
-
-# Run the project using Gradle
-./gradlew bootRun
-```
-
-The project should now be running locally on port 8080. 
-
-### Usage
-The Secret Recipe API is best explored using the Postman API client. Follow these steps to get started:
-
-1. Install Postman from [Postman's official website](https://www.postman.com/downloads/).
-2. Import the provided Postman collection and environment files located in the project's `postman` directory. This collection contains pre-configured requests to various endpoints of the API.
-3. Ensure the API is running locally (should be on port 8080), then send requests using Postman to interact with the API.
-
-For those preferring direct API interaction via command line, here's an example using `curl`:
-
-```sh
-# Example: Request to get all public recipes
-curl -X GET http://localhost:8080/api/recipes/public
-```
-
-## API Documentation
-The Secret Recipe API is documented using Postman. The full documentation can be found here: [API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
+## Documentation
+A full list of available endpoints, including request and response formats is available in the [Postman API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
 
 ### Endpoints
-The Secret Recipe API offers a variety of endpoints for interacting with the API. The following is a brief overview of the available endpoints.
+The following is a brief overview of the available endpoints.
 
 - **Authentication**: For user registration, authentication, and authorization.
 - **Users**: For managing users profiles, following other users, and account settings.
 - **Recipes**: To create, edit, delete, and view recipes.
 - **Reviews**: To create, edit, delete, and view reviews.
-
-*Note: For a full list of available endpoints, including request and response formats, refer to the [API Documentation]().*
-
-## Testing
-The Secret Recipe API is tested using the JUnit 5 testing framework. The tests are located in the `src/test/kotlin` directory. To run the tests, use the following command:
-
-```sh
-# Run the tests using Gradle
-./gradlew test
-```
-
-## Architecture and Design
-
-### Overview
-The Secret Recipe API uses a layered architecture, promoting separation of concerns and scalability. The following is a brief overview of the project's architecture and design.
-
-- **Entity**: Entities represent the application's data model, mapped to the database using Spring JPA. These data classes not only facilitate CRUD operations but also support conversion to and from Data Transfer Objects (DTOs). Builders and mappers associated with these entities are also included in this layer for streamlined data handling.
-- **Repository**: The repository layer consists of interfaces defining data access and manipulation methods. These interfaces are extended by Spring Data JPA to automatically generate SQL queries. Repository classes, marked with `@Repository` and `@Transactional`, interact with the database and provide a level of abstraction over data persistence operations.
-- **Service**: The service layer encapsulates the business logic of the application. Annotated with `@Service`, these classes handle data validation, business rule enforcement, and perform operations by interfacing with the repository layer. They play a crucial role in transforming entities into DTOs for further processing or API responses.
-- **Controller**: Controllers, marked with `@RestController`, handle incoming HTTP requests and generate responses. They validate request data, invoke appropriate service layer methods, and return responses encapsulated in `ApiResponse<T>` objects.
-
-
-### Transfer Objects
-Located in the `/transfer` directory, request and response data transfer objects (DTOs) facilitate data exchange between the client and server. They are used in the controller and service layers to receive client data and send back responses. DTOs typically include user information, recipe details, and other user interactions, distinctly separating these data aspects from the entity layer.
-
-Model DTOs can be found in the `/transfer/model` directory. These DTOs are used to represent the data model of the application, including user profiles, recipes, and reviews. They are used primarily from the service layer outward, and they are preffered because they allow control over the information being sent to the client.
-
-### Service Utilization of `Result<T>`
-The service layer utilizes `Result<T>` to convey operation outcomes, encapsulating either successful data (`Success<T>`) or error messages (`Error`). This structure simplifies error handling and response generation.
-
-```kotlin
-sealed class Result<out T> {
-  abstract val status: HttpStatus
-
-  data class Success<T>(
-    override val status: HttpStatus,
-    val data: T
-  ) : Result<T>() {
-    constructor(data: T) : this(HttpStatus.OK, data)
-  }
-
-  data class Error(
-    override val status: HttpStatus,
-    val message: String
-  ) : Result<Nothing>() {
-    constructor(message: String) : this(HttpStatus.BAD_REQUEST, message)
-  }
-}
-```
-
-*Note the constructor overloading in the `Success` and `Error` classes. This allows for the omission of the `status` parameter when creating a new `Result` object, defaulting to `HttpStatus.OK` and `HttpStatus.BAD_REQUEST` respectively.*
-
-### Controller Utilization of `ApiResponse<T>`
-Controllers leverage `ApiResponse<T>` for consistent API responses, containing either data or error details. The ResponseBuilder constructs these responses, ensuring uniformity across different API endpoints.
-
-```kotlin
-data class ApiResponse<out T : Any>(
-    val data: T? = null,
-    val error: String? = null
-)
-
-object ResponseBuilder {
-  fun <T : Any> respond(result: Result<T>): ResponseEntity<ApiResponse<T>> {
-
-    val apiResponse = when (result) {
-      is Result.Success -> ApiResponse(data = result.data)
-      is Result.Error -> ApiResponse(error = result.message)
-    }
-
-    return ResponseEntity.status(result.status).body(apiResponse)
-  }
-}
-```
-
-The use of both `Result<T>` and `ApiResponse<T>` allows for a clear separation of concerns between the service and controller layers and simplifies error handling and response generation. The following is an example of how you can call respond with different types of `Result`:
-
-```kotlin
-val successResult: Result<String> = Result.Success("Hello")
-val errorResult: Result<Nothing> = Result.Error("Something went wrong")
-
-val successResponse: ResponseEntity<ApiResponse<String>> = respond(successResult)
-val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
-```
-
-The `T` in `ApiResponse<T>` gets replaced with the actual type of the data in the Result. The respond function is flexible and can work with different types, thanks to the use of generics.
-
-## Future Enhancements
-There are many opportunities for growth and new features with this project. The following is a list of enhancements to further enrich the user experience and expand the functionality of the application:
-- **Enhanced User Data and Authentication Roles**: Enhance the User model to include more personal details like bios and profile pictures, creating a richer and more personalized user experience. Additionally, introducing Admin roles for effective monitoring and moderation of online communities, ensuring a consistent and fair user experience. 
-- **Enhanced Recipe Data**: Updating the Recipe model to ecompass more information about the recipe, such as ingredients and nutrition facts, to allow for more comprehensive searching and filtering. 
-- **Advanced Search and Filtering**: Develop sophisticated search capabilities, including filters for dietary preferences, nutritional information, and user ratings, allowing users to discover recipes that are more tailored to their preferences.
-- **Database Integration**: Migrating to a more robust database system like MySql would enable persistant data storage across application instances, ensuring the data is accurate and consistant.
-- **Logging and Metrics Collection**: Implementing logging and metrics collection would pave the way for utilization of services such as Splunk and Datadog. This would significantly improve the monitoring of application traffic, health, and performance.
-- **Seed Data**: Creating a comprehensive set of seed data would greatly enhance the initial user experience and provide a richer context for development and testing.
-- **K6 Load Testing**: Incorporating load testing to simulate real-world traffic and usage scenarios would help to ensure the application is functioning optimally. This enhancement, along with the aforementioned metrics collection, would provide a holistic view of the application's status and the impact of any changes.
-- **Multilingual Support**: Expanding the app's accessibility by supporting multiple languages, making it more inclusive for a global user base.
-- **SwaggerUI Integration**: Finalizing and publishing comprehensive API documentation using a tool like SwaggerUI for better developer engagement and ease of use would simplify the process and understanding of using the API.
 
 ## Contributing
 Contributions to the Secret Recipe API are welcome and valued. Whether it's bug fixes, feature enhancements, or documentation improvements, your input helps in building a better project. Here’s how to contribute:
@@ -210,19 +67,164 @@ For all submissions:
 
 Once submitted, your pull request will be reviewed by a maintainer to ensure it meets the project's standards of code quality, documentation, and test coverage. If any further changes are requested, please address them and push to your branch for review again. Once approved, your pull request will be merged into the main repository.
 
-### Code of Conduct
-We value all contributions and want to ensure a positive experience for all contributors and users. Please review and abide by the [Code of Conduct](CODE_OF_CONDUCT.md) when contributing to this project.
+## Getting Started
+Run the API locally for development/testing using Java JDK 11+, Docker, and Docker Compose.
+
+### Quick Start
+**Local Setup**: This is a simplest method for running the API locally, allowing for quick and easy setup, breakpoint debugging, and testing. Clone the repository and navigate to the directory.
+
+```sh
+# Run the application using Gradle
+./gradlew bootRun
+```
+
+The project should now be running locally on port 8080: [http://localhost:8080](http://localhost:8080)
+
+### Docker Setup
+The API can also be run using Docker Compose. This method runs the application in a containerized environment. It also allows for the use of Prometheus and Grafana for metrics collection and visualization.
+
+1. Start Docker Desktop.
+2. Run the following command:
+
+```sh
+# Build the .jar file using Gradle
+.\gradlew bootJar --no-daemon
+
+# Run the application using Docker Compose
+docker-compose up
+```
+
+The services can be accessed at the following URLs:
+* Secret Recipe API: [http://localhost:8080](http://localhost:8080)
+* Prometheus: [http://localhost:9090](http://localhost:9090)
+* Grafana: [http://localhost:3000](http://localhost:3000)
+
+### Observability
+
+**Spring Boot Actuator** provides operational information about the application. Visit the following to view the health, info, and metrics: [http://localhost:8080/actuator](http://localhost:8080/actuator) 
+
+**Prometheus and Grafana** are used for metrics collection and visualization.
+There are two dashboards configured to be available  on start up:
+* JVM (Micrometer)
+* Spring Boot 2.1 System Monitor 
+
+To view the dashboards, visit the Grafana URL and select them from `Dashboards` > `Services`. JSON models of them can be found in `grafana/provisioning/dashbards`. These are dashboards provided by Grafana, and more can be found on their website: [Grafana Dashboards](https://grafana.com/grafana/dashboards/)
+
+Run the load tests with K6 to generate traffic and metrics and view the results in Grafana - See [testing](#testing) for instructions.
+
+### Usage
+The Secret Recipe API is best explored using the Postman API client.
+
+1. Install Postman from [Postman's official website](https://www.postman.com/downloads/).
+2. Import the provided Postman collection and environment files located in the project's `postman` directory. This collection contains pre-configured requests to various endpoints of the API.
+3. Ensure the API is running locally (should be on port 8080), then send requests using Postman to interact with the API.
+
+#### With Curl
+For those preferring direct API interaction via command line, here's an example using `curl`:
+
+```sh
+# Example: Request to get all public recipes
+curl -X GET http://localhost:8080/api/recipes
+```
+
+## Testing
+
+### Integration Tests
+Integration tests are conducted using the JUnit 5 testing framework and are located in the `src/test/kotlin` directory. 
+
+To run all the test files:
+```sh
+# Run the tests using Gradle
+./gradlew test
+```
+
+Alternatively, you can run the individual tests classes located in the `src/test/kotlin` directory. The integration tests will need to be run as a class, not individually, as they are set to simulate user interaction and rely on data from previous tests.
+
+### Load Tests
+Load tests are conducted using K6 and are located in the `k6` directory. These tests simulate real-world traffic and usage scenarios, allowing for the evaluation of the application's performance and scalability.
+
+To run the load tests, run the following command:
+```sh
+# Run the load test using K6
+k6 run k6/load-test.js
+```
+
+## Architecture and Design
+
+### Overview
+The Secret Recipe API is designed with a layered architecture to ensure clean separation of concerns and ease of maintenance. It is structured as follows:
+
+- **Entity Layer**: Data model representation with Spring JPA. The `entity` directory includes entity classes, builders, and mappers. It also includes custom filters for querying, such as the `ActiveUsersFilter`.
+- **Repository Layer**: Data access layer using Spring Data JPA. It abstracts data persistence and interactions.
+- **Service Layer**: Business logic, DTO transformations, data validation and operations. 
+- **Controller Layer**:  Handle HTTP requests and generate `ApiResponse<T>`. It invokes service layer methods, and returns responses, serving as the entry point for API interactions.
+
+
+### Data Transfer Objects (DTOs)
+DTOs, located in the /transfer directory, are used for data exchange between the client and server, ensuring a clean separation from the entity layer. They include user, recipe, and review details, and are extensively used in the controller and service layers.
+
+### Handling Responses
+The service layer uses Result<T> to indicate operation outcomes, encapsulating success data or error messages. Controllers utilize ApiResponse<T> to provide consistent API responses, ensuring uniformity and simplifying error handling across various endpoints.
+
+#### Service Layer Outcome Encapsulation
+```kotlin
+sealed class Result<out T> {
+    abstract val status: HttpStatus
+    
+    data class Success<T>(val data: T) : Result<T>()
+    data class Error(val message: String) : Result<Nothing>()
+}
+```
+*Note: This is a simplified representation of the result class. The actual class initializes status with HttpStatus.OK or HttpStatus.BAD_REQUEST and provides a constructor override for setting the status.*
+
+#### Controller Layer Response Generation
+```kotlin
+data class ApiResponse<out T : Any>(
+    val data: T? = null,
+    val error: String? = null
+)
+
+object ResponseBuilder {
+    fun <T : Any> respond(result: Result<T>): ResponseEntity<ApiResponse<T>> { ... }
+        // Sets the response data or error message based on the result
+        // Returns a ResponseEntity with the appropriate status code
+}
+```
+
+This architecture and design approach promotes a robust, scalable, and maintainable codebase, enabling efficient and effective feature development and enhancements. The following is an example of how `Result<T>` and `ApiResponse<T>` are used to generate responses:
+```kotlin
+val successResult: Result<String> = Result.Success("Hello")
+val errorResult: Result<Nothing> = Result.Error("Something went wrong")
+
+val successResponse: ResponseEntity<ApiResponse<String>> = respond(successResult)
+val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
+```
+
+## Future Enhancements
+
+There are several enhancements that can be planned to enrich user experience, application functionality, and scalability. Some of these include:
+- **OAuth2 Integration**: Introduce OAuth2 for robust and flexible user authentication, allowing sign-in via popular social media platforms.
+- **Recipe Model Enrichment**: Expand recipe details to include comprehensive information like ingredients, nutrition facts, and cooking steps, bolstering recipe management, discovery, and advanced search capabilities.
+- **Enhanced Authentication Roles**: Introducing block/allow lists for access to resources and define admin roles for effective monitoring and moderation of online communities.
+- **User Activity Features**: Introduce features like activity feeds and recipe sharing among specific user groups to enrich the social aspect of the platform. 
+- **Advanced Search Filters**: Develop sophisticated search filters based on dietary preferences, nutritional content, and user ratings, enhancing recipe discovery.
+- **Database Enhancements**: Migrate to robust systems like MySQL for reliable, persistent data storage, essential for production deployment and scaling to support extensive user bases.
+- **Database and Performance Improvements**: Transition to robust database systems like MySQL for reliable data storage. This is also critical for deploying the application to production environments and scaling it to support a large user base.
+- **Container Management with Kubernetes**: Employ Kubernetes for efficient container orchestration, ensuring optimal resource utilization and scalability.
+- **CI/CD Automation**: Implement CI/CD pipelines using tools like GitHub Actions for streamlined, automated build and deployment processes.
+- **Proactive Monitoring and Alerts**: Utilize Prometheus and Grafana for advanced monitoring and alerting.
+- **Rich Seed Data**: Populate extensive seed data to enrich the initial application setup, providing a comprehensive environment for development and testing.
+- **Language Support**: Enhance accessibility by introducing multilingual support, catering to a global audience.
+- **UI/UX Enhancements**: Introduce a modern, responsive UI/UX design to enrich user experience and engagement.
 
 ## License
 The Secret Recipe API is licensed under the [GNU General Public License v3.0](LICENSE) - see the [LICENSE](LICENSE) file for details.
 
 ## Contact Information
-For any questions, support requests, or to discuss potential collaboration opportunities, feel free to reach out:
-- LinkedIn: [https://www.linkedin.com/in/jonathan-mantello/](https://www.linkedin.com/in/jonathan-mantello/)
+For any questions/comments about the project or if you want to connect further, feel free to connect on [LinkedIn](https://www.linkedin.com/in/jonathan-mantello/).
 
 ## Acknowledgements
-A special thanks to:
-- **Multiverse/Expedia Group** for the apprenticeship program and providing me with the opportunity to learn and grow as a software engineer.
-- My colleagues and fellow apprentices for their support and encouragement throughout the program.
-- The developers of the tools and libraries used in this project, including Kotlin, Spring Boot, Docker, and many others.
-
+Thank you to:
+- **Multiverse/Expedia Group** for the apprenticeship program and providing me with an opportunity to learn and grow as a software development engineer.
+- My colleagues and fellow apprentices for their encouragement throughout the program.
+- The developers of the tools and libraries used in this project, including Kotlin, Spring Boot, Docker, and many more.
