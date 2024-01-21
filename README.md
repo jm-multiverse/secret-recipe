@@ -15,27 +15,27 @@
 - [Acknowledgements](#acknowledgements)
 
 ## Introduction
-Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it features JWT for secure authentication and integrates Grafana/Prometheus for monitoring. It's designed for scalability and flexibility, supporting a broad range of social interactions among users.
+Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it allows users to publish, edit, and delete recipes, and interact with other users by following them, saving recipes, and leaving reviews. It features authentication and authorization using JWT, integration and load testing, metrics collection and visualization, and container orchestration using Docker Compose. It also includes a Postman API collection and environment for easy exploration of the API. It's designed for scalability and flexibility, while supporting a broad range of social interactions among users.
 
 ### Purpose
 This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
 
 ## Features
-- **User Authentication**: Secure login and role-based access using JWT.
-- **Profile Management**: Customize profiles with display names, bios, and more.
+- **Authentication and Authorization**: Secure login and role-based access using JWT.
+- **User Profiles**: Customize profiles with display names, bios, and more.
 - **Recipe Management**: Publish, edit, delete, and manage visibility for recipes.
-- **Community Interaction**: Save and review recipes, like reviews, and follow other users.
+- **Social Interaction**: Interact with other users by following them, saving recipes, and leaving reviews and liking reviews.
+- **Integration and Load Testing**: Integration and load tests using JUnit 5 and K6.
 - **Metrics Collection**: Collect and visualize application metrics using Prometheus and Grafana.
+- **Container Orchestration**: Run the application in a containerized environment using Docker Compose.
 - **API Documentation**: Explore the API using Postman.
-- **Testing**: Integration and load tests using JUnit 5 and K6.
 - **Security**: Secure application configuration using Spring Security.
-- **Containerization**: Run the application in a containerized environment using Docker Compose.
 - **Database**: Data persistence using H2 in-memory database.
 - **Observability**: Monitor application health, metrics, and more using Spring Boot Actuator.
 - **Error Handling**: Consistent error handling using `ApiResponse<T>`.
 
 ## Documentation
-A full list of available endpoints, including request and response formats is available in the [Postman API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
+A full list of available endpoints, including request and response formats, is available in the [Postman API Documentation](https://documenter.getpostman.com/view/15910732/2s93sc4Chu).
 
 ### Endpoints
 The following is a brief overview of the available endpoints.
