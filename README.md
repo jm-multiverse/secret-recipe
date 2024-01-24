@@ -101,16 +101,18 @@ The services can be accessed at the following URLs:
 
 ### Observability
 
+While the app is running, there are a couple of ways to observe it. 
+
 **Spring Boot Actuator** provides operational information about the application. Visit the following to view the health, info, and metrics: [http://localhost:8080/actuator](http://localhost:8080/actuator) 
 
 **Prometheus and Grafana** are used for metrics collection and visualization.
-There are two dashboards configured to be available  on start up:
+There are two dashboards configured to be available on start up:
 * JVM (Micrometer)
 * Spring Boot 2.1 System Monitor 
 
-To view the dashboards, visit the Grafana URL and select them from `Dashboards` > `Services`. JSON models of them can be found in `grafana/provisioning/dashbards`. These are dashboards provided by Grafana, and more can be found on their website: [Grafana Dashboards](https://grafana.com/grafana/dashboards/)
+To view the dashboards, visit the Grafana UI via localhost:3000 and select the dashboard from the `Dashboards` > `Services` folder. The dashboards are provisioned with Docker Compose Volumes, and JSON models of them can be found in the project files: `grafana/provisioning/dashbards`. These dashboards were provided by Grafana through their website: [Grafana Dashboards](https://grafana.com/grafana/dashboards/)
 
-Run the load tests with K6 to generate traffic and metrics and view the results in Grafana - See [testing](#testing) for instructions.
+You can run the included load test with K6 to generate traffic and metrics and visualize the live behavior of the application in Grafana - See [testing](#testing) for instructions.
 
 ### Usage
 The Secret Recipe API is best explored using the Postman API client.
