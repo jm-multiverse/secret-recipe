@@ -15,7 +15,7 @@
 - [Acknowledgements](#acknowledgements)
 
 ## Introduction
-Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it allows users to publish, edit, and delete recipes, and interact with other users by following them, saving recipes, and leaving reviews. It features authentication and authorization using JWT, integration and load testing, metrics collection and visualization, and container orchestration using Docker Compose. It also includes a Postman API collection and environment for easy exploration of the API. It's designed for scalability and flexibility, while supporting a broad range of social interactions among users.
+Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it allows users to publish, edit, and delete recipes, and interact with other users by following them, saving recipes, and leaving reviews. It's designed for scalability and flexibility, while supporting a broad range of social interactions among users.
 
 ### Purpose
 This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
