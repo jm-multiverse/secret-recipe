@@ -21,6 +21,7 @@ Secret Recipe API is a RESTful social platform for food enthusiasts to share and
 This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
 
 ## Features
+- **API Documentation**: Postman collection and documentation for easy exploration of the API.
 - **Authentication and Authorization**: Secure login and role-based access using JWT.
 - **User Profiles**: Customize profiles with display names, bios, and more.
 - **Recipe Management**: Publish, edit, delete, and manage visibility for recipes.
@@ -28,7 +29,6 @@ This API is a project developed as part of the Multiverse/Expedia Group Software
 - **Integration and Load Testing**: Integration and load tests using JUnit 5 and K6.
 - **Metrics Collection**: Collect and visualize application metrics using Prometheus and Grafana.
 - **Container Orchestration**: Run the application in a containerized environment using Docker Compose.
-- **API Documentation**: Explore the API using Postman.
 - **Security**: Secure application configuration using Spring Security.
 - **Database**: Data persistence using H2 in-memory database.
 - **Observability**: Monitor application health, metrics, and more using Spring Boot Actuator.
