@@ -18,7 +18,7 @@
 Secret Recipe API is a RESTful social platform for food enthusiasts to share and discover recipes. Built with Kotlin and Spring Boot, it allows users to publish, edit, and delete recipes, and interact with other users by following them, saving recipes, and leaving reviews. It's designed for scalability and flexibility, while supporting a broad range of social interactions among users.
 
 ### Purpose
-This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design.
+This API is a project developed as part of the Multiverse/Expedia Group Software Development Engineer Apprenticeship program. It is intended to showcase the skills and knowledge gained throughout the program, including software development, testing, and design. It exercises aspects of backend development and software engineering, such as clean API architecture and design, following best practices, implementing design patterns, creating clear and comprehensive documentation, metrics collection and monitoring, and integration and performance tests, all of which contribute to production readiness and maintainability of an application.
 
 ## Features
 - **API Documentation**: Postman collection and documentation for easy exploration of the API.
