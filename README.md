@@ -110,7 +110,7 @@ There are two dashboards configured to be available on start up:
 * JVM (Micrometer)
 * Spring Boot 2.1 System Monitor 
 
-To view the dashboards, visit the Grafana UI via localhost:3000 and select the dashboard from the `Dashboards` > `Services` folder. The dashboards are provisioned with Docker Compose Volumes, and JSON models of them can be found in the project files: `grafana/provisioning/dashbards`. These dashboards were provided by Grafana through their website: [Grafana Dashboards](https://grafana.com/grafana/dashboards/)
+To view the dashboards, visit the Grafana UI via `localhost:3000` and select the dashboard from the `Dashboards` > `Services` folder. The dashboards are provisioned with Docker Compose Volumes, and JSON models of them can be found in the project files: `grafana/provisioning/dashbards`. These dashboards were provided by Grafana through their website: [Grafana Dashboards](https://grafana.com/grafana/dashboards/)
 
 You can run the included load test with K6 to generate traffic and metrics and visualize the live behavior of the application in Grafana - See [testing](#testing) for instructions.
 
@@ -143,12 +143,12 @@ To run all the test files:
 Alternatively, you can run the individual tests classes located in the `src/test/kotlin` directory. The integration tests will need to be run as a class, not individually, as they are set to simulate user interaction and rely on data from previous tests.
 
 ### Load Tests
-Load tests are conducted using K6 and are located in the `k6` directory. These tests simulate real-world traffic and usage scenarios, allowing for the evaluation of the application's performance and scalability.
+Load tests are conducted using K6 and are located in the project directory. These tests simulate real-world traffic and usage scenarios, allowing for the evaluation of the application's performance and scalability.
 
 To run the load tests, run the following command:
 ```sh
 # Run the load test using K6
-k6 run k6/load-test.js
+k6 run ./load-test.js
 ```
 
 ## Architecture and Design
@@ -156,17 +156,17 @@ k6 run k6/load-test.js
 ### Overview
 The Secret Recipe API is designed with a layered architecture to ensure clean separation of concerns and ease of maintenance. It is structured as follows:
 
-- **Entity Layer**: Data model representation with Spring JPA. The `entity` directory includes entity classes, builders, and mappers. It also includes custom filters for querying, such as the `ActiveUsersFilter`.
+- **Entity Layer**: Data model representation with Spring JPA. The `/entity` directory includes entity classes, builders, and mappers. It also includes custom filters for querying, such as the `ActiveUsersFilter`.
 - **Repository Layer**: Data access layer using Spring Data JPA. It abstracts data persistence and interactions.
 - **Service Layer**: Business logic, DTO transformations, data validation and operations. 
 - **Controller Layer**:  Handle HTTP requests and generate `ApiResponse<T>`. It invokes service layer methods, and returns responses, serving as the entry point for API interactions.
 
 
 ### Data Transfer Objects (DTOs)
-DTOs, located in the /transfer directory, are used for data exchange between the client and server, ensuring a clean separation from the entity layer. They include user, recipe, and review details, and are extensively used in the controller and service layers.
+DTOs, located in the `/transfer` directory, are used for data exchange between the client and server, ensuring a clean separation from the entity layer. They include user, recipe, and review details, and are extensively used in the controller and service layers.
 
 ### Handling Responses
-The service layer uses Result<T> to indicate operation outcomes, encapsulating success data or error messages. Controllers utilize ApiResponse<T> to provide consistent API responses, ensuring uniformity and simplifying error handling across various endpoints.
+The service layer uses Result<T> to indicate predictable operation outcomes, encapsulating success data or error messages. Controllers utilize ApiResponse<T> to provide consistent API responses, ensuring uniformity and simplifying error handling across various endpoints.
 
 #### Service Layer Outcome Encapsulation
 ```kotlin
@@ -177,7 +177,7 @@ sealed class Result<out T> {
     data class Error(val message: String) : Result<Nothing>()
 }
 ```
-*Note: This is a simplified representation of the result class. The actual class initializes status with HttpStatus.OK or HttpStatus.BAD_REQUEST and provides a constructor override for setting the status.*
+*Note: This is a simplified representation of the result class. The actual class initializes status with HttpStatus.OK or HttpStatus.BAD_REQUEST for ease of use, and provides a constructor override for setting the status.*
 
 #### Controller Layer Response Generation
 ```kotlin
@@ -188,16 +188,18 @@ data class ApiResponse<out T : Any>(
 
 object ResponseBuilder {
     fun <T : Any> respond(result: Result<T>): ResponseEntity<ApiResponse<T>> { ... }
-        // Sets the response data or error message based on the result
-        // Returns a ResponseEntity with the appropriate status code
+        // Sets response data or error message based on result type
+        // Returns ResponseEntity with appropriate status code
 }
 ```
 
-This architecture and design approach promotes a robust, scalable, and maintainable codebase, enabling efficient and effective feature development and enhancements. The following is an example of how `Result<T>` and `ApiResponse<T>` are used to generate responses:
+This architecture and design promotes scalability, predictability, and maintainability of the codebase, enabling efficient and effective feature development and enhancements. The following is an example of how `Result<T>` and `ApiResponse<T>` are used to generate responses:
 ```kotlin
+// Results from service layer operations
 val successResult: Result<String> = Result.Success("Hello")
 val errorResult: Result<Nothing> = Result.Error("Something went wrong")
 
+// API responses generated by controllers
 val successResponse: ResponseEntity<ApiResponse<String>> = respond(successResult)
 val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
 ```
@@ -227,6 +229,6 @@ For any questions/comments about the project or if you want to connect further, 
 
 ## Acknowledgements
 Thank you to:
-- **Multiverse/Expedia Group** for the apprenticeship program and providing me with an opportunity to learn and grow as a software development engineer.
+- **Multiverse/Expedia Group** for the apprenticeship program and providing me with the opportunity to learn and grow as a software development engineer.
 - My colleagues and fellow apprentices for their encouragement throughout the program.
 - The developers of the tools and libraries used in this project, including Kotlin, Spring Boot, Docker, and many more.
