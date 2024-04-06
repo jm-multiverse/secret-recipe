@@ -207,19 +207,19 @@ val errorResponse: ResponseEntity<ApiResponse<Nothing>> = respond(errorResult)
 ## Future Enhancements
 
 There are several enhancements that can be planned to enrich user experience, application functionality, and scalability. Some of these include:
-- **OAuth2 Integration**: Introduce OAuth2 for robust and flexible user authentication, allowing sign-in via popular social media platforms.
+- **Advanced Search Filters**: Develop sophisticated search filters based on dietary preferences, nutritional content, and user ratings, enhancing recipe discovery.
+- **Improved Testing**: Expand test coverage to with additional unit, integration, and end-to-end tests to ensure reliability in both happy path and edge cases.
 - **Recipe Model Enrichment**: Expand recipe details to include comprehensive information like ingredients, nutrition facts, and cooking steps, bolstering recipe management, discovery, and advanced search capabilities.
 - **Enhanced Authentication Roles**: Introducing block/allow lists for access to resources and define admin roles for effective monitoring and moderation of online communities.
-- **User Activity Features**: Introduce features like activity feeds and recipe sharing among specific user groups to enrich the social aspect of the platform. 
-- **Advanced Search Filters**: Develop sophisticated search filters based on dietary preferences, nutritional content, and user ratings, enhancing recipe discovery.
 - **Database Enhancements**: Migrate to robust systems like MySQL for reliable, persistent data storage, essential for production deployment and scaling to support extensive user bases.
-- **Database and Performance Improvements**: Transition to robust database systems like MySQL for reliable data storage. This is also critical for deploying the application to production environments and scaling it to support a large user base.
-- **Container Management with Kubernetes**: Employ Kubernetes for efficient container orchestration, ensuring optimal resource utilization and scalability.
-- **CI/CD Automation**: Implement CI/CD pipelines using tools like GitHub Actions for streamlined, automated build and deployment processes.
-- **Proactive Monitoring and Alerts**: Utilize Prometheus and Grafana for advanced monitoring and alerting.
 - **Rich Seed Data**: Populate extensive seed data to enrich the initial application setup, providing a comprehensive environment for development and testing.
+- **User Activity Features**: Introduce features like activity feeds and recipe sharing among specific user groups to enrich the social aspect of the platform. 
+- **OAuth2 Integration**: Introduce OAuth2 for robust and flexible user authentication, allowing sign-in via popular social media platforms.
+- **Proactive Monitoring and Alerts**: Utilize Prometheus and Grafana for advanced monitoring and alerting.
 - **Language Support**: Enhance accessibility by introducing multilingual support, catering to a global audience.
 - **UI/UX Enhancements**: Introduce a modern, responsive UI/UX design to enrich user experience and engagement.
+- **Deployment to Cloud**: Deploy the application to cloud platforms like AWS, Azure, or GCP for scalability, reliability, and global accessibility.
+- **CI/CD Automation**: Implement CI/CD pipelines using tools like GitHub Actions for streamlined, automated build and deployment processes.
 
 ## License
 The Secret Recipe API is licensed under the [GNU General Public License v3.0](LICENSE) - see the [LICENSE](LICENSE) file for details.
